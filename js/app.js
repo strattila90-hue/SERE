@@ -132,8 +132,8 @@
   V.home = () => {
     const p = prof();
     main.innerHTML = `<div class="homefit"><div class="toprow">
-      ${p ? `<a class="whochip" href="#/who/tips">${ic(p.icon, 28)}<span>${esc(p.n)}</span><b>tanácsok ›</b></a>`
-          : `<a class="whochip cta" href="#/who">${ic('star', 28)}<span>KI VAGY? – szabd személyre</span><b style="color:inherit">›</b></a>`}
+      ${p ? `<a class="whochip" href="#/who/tips">${ic(p.icon, 28)}<span>${esc(p.n)}</span><b>›</b></a>`
+          : `<a class="whochip cta" href="#/who">${ic('star', 28)}<span>KI VAGY?</span><b style="color:inherit">›</b></a>`}
       <button class="langchip" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button></div>
       <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
       <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
@@ -142,6 +142,8 @@
       <div class="tools"><a href="#/toc">${ic('book', 28)}Kézikönyv</a><a href="#/guides">${ic('fire', 28)}Kártyák</a><a href="#/compass">${ic('compass', 28)}Iránytű</a><a href="#/map">${ic('map', 28)}Térkép</a></div>
     </div>`;
     drawCover();
+    const hf = $('.homefit'), sc = $('.homefit .scene');
+    requestAnimationFrame(() => { if (sc && sc.getBoundingClientRect().height < 80) hf.classList.add('noscene'); });
     $('#langBtn').onclick = () => langModal(null, true);
   };
   V.status = () => {
