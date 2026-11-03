@@ -276,7 +276,7 @@
     if (!id) {
       main.innerHTML = `<div class="kidfit"><section class="kidhead"><div><div class="kidt" data-fit>SEGÍTEK!</div><div class="kids" data-fit>Koppints arra, ami történt.</div></div>
           <button class="kidtour" id="kTour" aria-label="Mondd el újra">${ic('speak', 40)}<span>MONDD EL!</span></button></section>
-        <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" data-k="${k.id}" style="--c:${k.c}">${ic(k.icon, 84)}<span>${esc(k.t)}</span><b class="kidtap">2×</b></a>`).join('')}</div>
+        <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" data-k="${k.id}" style="--c:${k.c}">${ic(k.icon, 84)}<span data-fit>${esc(k.t)}</span></a>`).join('')}</div>
         <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
         <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button></div>`;
       requestAnimationFrame(() => fitText(main));
@@ -289,7 +289,9 @@
         const L = ['Segítek! Mondom, mit tudsz megnyomni.'].concat(D.kid.map(k => KIDASK[k.id] || k.t + '?'), ['Ha nagy a baj, nyomd meg a piros telefont.', 'Mi történt? Nyomd meg a képet!']);
         SERESpeak.speak(L, { rate: 0.9, pitch: 1.1, onItem: i => my === tourId && mark(i >= 1 && i <= btns.length ? btns[i - 1] : i === btns.length + 1 ? k112 : null), onDone: () => my === tourId && mark(null) });
       };
-      $('#kTour').onclick = tour;
+      $('#kTour').onclick = e => { e.stopPropagation(); tour(); };
+      // ha baj van, nem kell végighallgatni: bármilyen érintés azonnal leállítja a körbevezetést
+      main.querySelector('.kidfit').addEventListener('pointerdown', e => { if (e.target.closest('#kTour')) return; if (tourId && SERESpeak.speaking) { tourId++; SERESpeak.stop(); mark(null); } }, true);
       if (kidSaid) kidSaid = false; else setTimeout(tour, 350);
       let armed = null, armT = null;
       btns.forEach(a => a.addEventListener('click', e => {
@@ -321,11 +323,11 @@
         <div class="kidpic">${ic(k.pics[i % k.pics.length], 150)}</div>
         ${k.breathe ? '<div class="breath"></div>' : ''}
         <div class="kidsay">${esc(k.say[i])}</div>
-        <div class="kiddots">${k.say.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="kidsteps">${k.say.map((_, j) => `<button class="${j === i ? 'on' : j < i ? 'done' : ''}" data-j="${j}" data-notr>${j + 1}</button>`).join('')}</div>
         <div class="kidnav"><button class="kidnb" id="kPrev" ${i ? '' : 'disabled'}>‹</button><button class="kidnb big" id="kRep">${ic('speak', 48)}</button><button class="kidnb" id="kNext">${i < k.say.length - 1 ? '›' : '✓'}</button></div>
         </section>
         <a class="kid112" href="tel:112">${ic('phone', 48)}<span>HÍVD: 112</span></a>
-        <a class="kidback" href="#/kid">‹ Vissza</a>`;
+        <a class="kidback" href="#/kid">${ic('star', 30)}<span>Másik baj van</span></a>`;
       if (kidSaid) kidSaid = false; else SERESpeak.ok && SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
       $('#kPrev').onclick = () => { if (i) { i--; show(); } else SERESpeak.speak('Ez az első lépés.'); };
       $('#kNext').onclick = () => { if (i < k.say.length - 1) { i++; show(); } else { kidSaid = true; SERESpeak.speak(['Ügyes vagy! Visszamegyünk.', 'Segítek! Koppints arra, ami történt.']); location.hash = '#/kid'; } };
@@ -334,6 +336,11 @@
       main.querySelector('.kidsay').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
       kid112();
       $('#kRep').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+      // ugrás bármelyik lépésre (nem kell végighallgatni), és lapozás húzással
+      main.querySelectorAll('.kidsteps button').forEach(b => b.onclick = () => { i = +b.dataset.j; show(); });
+      const card = main.querySelector('.kidcard'); let x0 = null;
+      card.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+      card.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -60 && i < k.say.length - 1) { i++; show(); } else if (dx > 60 && i > 0) { i--; show(); } }, { passive: true });
     };
     show();
   };
@@ -509,13 +516,13 @@
     let playing = false, cur = 0;
     const ra = $('#readAll');
     const bar = document.createElement('div'); bar.className = 'readbar hidden';
-    bar.innerHTML = `<button id="rbPrev">‹‹</button><span id="rbTxt"></span><button id="rbStop">■ ÁLLJ</button><button id="rbNext">››</button>`;
+    bar.innerHTML = `<div class="rbrow"><button id="rbPrev">‹‹</button><span id="rbTxt"></span><button id="rbStop">■ ÁLLJ</button><button id="rbNext">››</button></div><input type="range" id="rbSeek" min="0" max="${ch.sections.length - 1}" value="0" step="1" aria-label="Ugrás">`;
     document.body.appendChild(bar);
     const mark = () => main.querySelectorAll('.sec').forEach((el, k) => el.classList.toggle('reading', playing && k === cur));
     const playSec = () => {
       if (cur >= ch.sections.length) { stopAll(); toast('Fejezet vége'); return; }
       const sc = ch.sections[cur]; playing = true; mark(); bar.classList.remove('hidden');
-      $('#rbTxt').textContent = sc.id + ' ' + sc.title;
+      $('#rbTxt').textContent = sc.id + ' ' + T(sc.title); $('#rbSeek').value = cur;
       const el = document.getElementById('s-' + sc.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       SERESpeak.onEnd = () => { if (playing) { cur++; playSec(); } };
       SERESpeak.speak((cur === 0 ? [chName(ch.id) + '. fejezet: ' + ch.title + '.'] : []).concat(secText(sc)));
@@ -523,6 +530,10 @@
     const stopAll = () => { playing = false; SERESpeak.onEnd = null; SERESpeak.stop(); mark(); bar.classList.add('hidden'); if (ra) ra.querySelector('span').textContent = 'TELJES FEJEZET FELOLVASÁSA'; };
     if (ra) ra.onclick = () => { if (playing) return stopAll(); if (window.SEREMusic && SEREMusic.on) SEREMusic.stop(); cur = 0; ra.querySelector('span').textContent = 'ÁLLJ'; playSec(); if (!SERESpeak.hasHu) toast('Nincs magyar hang – Beállítások › Szövegfelolvasás'); };
     $('#rbStop').onclick = stopAll;
+    // bele lehet tekerni: a csúszkával bármelyik szakaszra ugrik, vagy a szakasz címére koppintva
+    $('#rbSeek').oninput = e => { const v = +e.target.value; $('#rbTxt').textContent = ch.sections[v].id + ' ' + T(ch.sections[v].title); };
+    $('#rbSeek').onchange = e => { SERESpeak.onEnd = null; SERESpeak.stop(); cur = +e.target.value; playSec(); };
+    main.querySelectorAll('.sec h2').forEach((h, k) => h.addEventListener('click', () => { if (!playing) return; SERESpeak.onEnd = null; SERESpeak.stop(); cur = k; playSec(); }));
     $('#rbNext').onclick = () => { SERESpeak.onEnd = null; SERESpeak.stop(); cur = Math.min(cur + 1, ch.sections.length); playSec(); };
     $('#rbPrev').onclick = () => { SERESpeak.onEnd = null; SERESpeak.stop(); cur = Math.max(cur - 1, 0); playSec(); };
     // szakasz-gombról is folytatható: a kiválasztottól indul
@@ -1037,6 +1048,12 @@
     b.innerHTML = ic(b.dataset.icon, 24) + `<span>${b.dataset.label}</span>`;
     b.onclick = () => { location.hash = '#/' + (b.dataset.nav === 'home' ? '' : b.dataset.nav); };
   });
+  // nincs nagyítás: csippentés (iOS gesture), dupla koppintás és Ctrl+görgő tiltva
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  let lastTap = 0; document.addEventListener('touchend', e => { const n = Date.now(); if (n - lastTap < 300 && !e.target.closest('input,textarea')) e.preventDefault(); lastTap = n; }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
   /* ---- natív érzet: irányfüggő oldalváltás, görgetés-emlékezet, élről húzás vissza, finom rezgés ---- */
   const stack = [location.hash || '#/'], scrollMem = {};
   let curHash = location.hash || '#/';

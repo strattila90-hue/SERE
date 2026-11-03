@@ -1529,5 +1529,7 @@
 "Vagy a címsorban a": "Or in the address bar, the",
 "⬇ / + ikon": "⬇ / + icon",
 "Titkos (inkognitó) módban nem lehet telepíteni.": "You can't install in Secret (incognito) mode.",
-"Inkognitó lapon nem lehet telepíteni. Ha többször elutasítottad, a Chrome egy ideig nem kérdez rá – ilyenkor a ⋮ menü mindig működik.": "You can't install from an incognito tab. If you declined several times, Chrome stops asking for a while – the ⋮ menu always works."
+"Inkognitó lapon nem lehet telepíteni. Ha többször elutasítottad, a Chrome egy ideig nem kérdez rá – ilyenkor a ⋮ menü mindig működik.": "You can't install from an incognito tab. If you declined several times, Chrome stops asking for a while – the ⋮ menu always works.",
+"Másik baj van": "Something else is wrong",
+"Ugrás": "Jump"
 }
