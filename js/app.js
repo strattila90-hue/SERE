@@ -160,9 +160,15 @@
           ${tile('#/about', 'star', 'Telepítés', 'QR · offline')}
         </div>
       </section>
+      <section class="card"><div class="homebtns">
+        <button class="btn hb" id="hUpd">${ic('sun', 32)}<span>FRISSÍTÉS<small>v${window.SERE_VERSION}</small></span></button>
+        <button class="btn hb" id="hShr">${ic('signal', 32)}<span>MEGOSZTÁS<small>link + QR</small></span></button>
+        ${isStandalone() ? '' : `<button class="btn green hb wide" id="hIns">${ic('pack', 32)}<span>TELEPÍTÉS<small>offline használathoz</small></span></button>`}
+      </div></section>
       <div class="motto">${ic('warn', 24)}<span>STAY PREPARED. STAY ALIVE. — Készülj fel. Maradj életben.</span></div>
       <p class="foot">Offline működik · minden adat csak ezen az eszközön tárolódik</p>`;
     drawCover();
+    $('#hUpd').onclick = () => doUpdate(true); $('#hShr').onclick = doShare; const hi = $('#hIns'); if (hi) hi.onclick = () => installPopup(true);
     main.querySelectorAll('.bar').forEach(bar => {
       bar.addEventListener('click', e => {
         const r = bar.getBoundingClientRect(); const val = Math.max(0, Math.min(10, Math.ceil(((e.clientX - r.left) / r.width) * 10)));
@@ -501,14 +507,13 @@
 
   /* --- telepítés / névjegy --- */
   let deferred = null;
-  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; const b = $('#instBtn'); if (b) b.classList.remove('hidden'); });
   V.about = () => {
     const url = location.origin + location.pathname;
     const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:16px">OFFLINE · NO SIGNAL NEEDED</div></div></div>
       <div class="center mt"><img src="qr.svg" alt="QR-kód az app címéhez" width="220" height="220" style="image-rendering:pixelated;background:#f4f1e6;padding:8px;border:3px solid var(--khaki-d)"></div>
       <p class="center coord" style="word-break:break-all">${esc(url)}</p>
-      <div class="row" style="justify-content:center"><button class="btn green ${deferred && !standalone ? '' : 'hidden'}" id="instBtn">${ic('pack', 20)}Telepítés most</button><button class="btn ghost" id="shareBtn">Link megosztása</button></div>
+      <div class="row" style="justify-content:center"><button class="btn green ${!standalone ? '' : 'hidden'}" id="instBtn">${ic('pack', 20)}Telepítés most</button><button class="btn ghost" id="shareBtn">Link megosztása</button></div>
       ${standalone ? `<div class="callout ok mt">${ic('check', 26)}<div>Telepítve fut – a teljes tartalom offline is elérhető.</div></div>` : ''}
       <div class="rule"></div>
       <h3>Android (Chrome)</h3><ol class="sec" style="padding:0;list-style:none"><li>Olvasd be a QR-kódot vagy nyisd meg a linket.</li><li>Koppints a „Telepítés most” gombra, vagy ⋮ menü → „Alkalmazás telepítése”.</li></ol>
@@ -519,10 +524,8 @@
       <p>A „TANANYAG” jelölésű részek a SERE „A” szintű e-learning tananyag alapján, összefoglalva készültek. A <span class="badge web">KIEGÉSZÍTVE</span> részek a tananyag tartalomjegyzéke szerint, nyilvános forrásokból (NATO/US PR doktrína, katonai kézikönyvek) készültek.</p>
       <p class="muted">Gyakorló segédlet – nem helyettesíti a hivatalos kiképzést és a hatályos HVKF szakutasítást.</p>
       <p class="muted" style="font-size:21px">Betűk: VT323, Pixelify Sans, Silkscreen (SIL OFL). Verzió: ${window.SERE_VERSION}</p></section>`;
-    const ib = $('#instBtn'); if (ib) ib.onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; ib.classList.add('hidden'); };
-    $('#shareBtn').onclick = async () => {
-      try { if (navigator.share) await navigator.share({ title: 'SERE PIXEL', text: 'Offline túlélési kézikönyv', url }); else { await navigator.clipboard.writeText(url); toast('Link a vágólapon'); } } catch (e) { /* megszakítva */ }
-    };
+    const ib = $('#instBtn'); if (ib) ib.onclick = () => installPopup(true);
+    $('#shareBtn').onclick = doShare;
   };
 
 
@@ -531,37 +534,76 @@
   $('#fsBtn').onclick = () => { LS.set('fs', (LS.get('fs', 1) + 1) % 3); applyFs(); };
   applyFs();
 
-  /* ---------------- telepítés-kapu: QR-ből érkezve, böngészőben ---------------- */
+  /* ---------------- zene ---------------- */
+  function musicBtn() { const b = $('#musBtn'); if (!b) return; const on = window.SEREMusic && SEREMusic.on; b.innerHTML = on ? '♪' : '<s>♪</s>'; b.title = on ? 'Zene ki' : 'Zene be'; b.classList.toggle('on', !!on); }
+  function setMusic(v) { if (!window.SEREMusic) return; v ? SEREMusic.start() : SEREMusic.stop(); LS.set('music', !!v); musicBtn(); }
+  $('#musBtn').onclick = () => setMusic(!SEREMusic.on);
+  // böngésző szabály: hang csak érintés után indulhat → az első koppintásra indul, ha be van kapcsolva
+  document.addEventListener('pointerdown', function first() { if (LS.get('music', true) && !SEREMusic.on) setMusic(true); document.removeEventListener('pointerdown', first); }, { once: true });
+  musicBtn();
+
+  /* ---------------- frissítés + megosztás ---------------- */
+  let swReg = null;
+  async function doUpdate(manual) {
+    if (manual) toast('Frissítés keresése…');
+    try {
+      if (swReg) { await swReg.update(); if (swReg.waiting) { swReg.waiting.postMessage('skip'); return; } }
+      if (manual) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); location.reload(); }
+    } catch (e) { if (manual) toast('Nincs internet – a mentett verzió fut'); }
+  }
+  const APP_URL = 'https://strattila90-hue.github.io/SERE/?qr=1';
+  async function doShare() {
+    try { if (navigator.share) { await navigator.share({ title: 'SERE PIXEL', text: 'SERE PIXEL – offline túlélési kézikönyv. Nyisd meg és telepítsd:', url: APP_URL }); return; } } catch (e) { return; }
+    showModal(`<h2>Megosztás</h2><img src="qr.svg" alt="QR-kód" width="230" height="230" style="background:#f4f1e6;padding:8px;image-rendering:pixelated"><p class="coord" style="word-break:break-all">${APP_URL}</p>
+      <button class="btn" id="cpy">Link másolása</button>`, m => { m.querySelector('#cpy').onclick = async () => { try { await navigator.clipboard.writeText(APP_URL); toast('Link a vágólapon'); } catch (e) { toast('Másold ki kézzel'); } }; });
+  }
+  function showModal(html, bind, opts = {}) {
+    const g = document.createElement('div'); g.className = 'gate'; g.setAttribute('role', 'dialog'); g.setAttribute('aria-modal', 'true');
+    g.innerHTML = `<div class="gbox">${html}${opts.noClose ? '' : '<button class="esc" data-x>Bezárás</button>'}</div>`;
+    document.body.appendChild(g); document.body.style.overflow = 'hidden';
+    const close = () => { g.remove(); document.body.style.overflow = ''; };
+    g.querySelectorAll('[data-x]').forEach(x => x.onclick = close);
+    bind && bind(g, close); return { g, close };
+  }
+
+  /* ---------------- telepítő felugró ablak ---------------- */
   const isStandalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
-  function gate() {
+  function installPopup(force) {
+    if (isStandalone()) { if (force) toast('Már telepítve van ✓'); return; }
     const fromQR = /[?&]qr=1/.test(location.search);
-    if (!fromQR || isStandalone()) return;
+    if (!force && !fromQR) { try { if (sessionStorage.getItem('sp:later')) return; } catch (e) { } }
     const ua = navigator.userAgent;
     const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const iOSSafari = iOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
     const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(ua);
-    const g = document.createElement('div'); g.className = 'gate'; g.setAttribute('role', 'dialog'); g.setAttribute('aria-modal', 'true');
-    const head = `<img class="ico" src="icons/icon-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div><h2>Telepítsd a telefonodra!</h2><p>Telepítés után internet nélkül, terepen is működik.</p>`;
-    function render(mode) {
-      let body = '';
-      if (mode === 'done') body = `<p style="color:var(--ok)">✓ Telepítve!</p><p>Zárd be ezt az ablakot, és indítsd a <b>SERE PIXEL</b> ikonról a kezdőképernyőn.</p>`;
-      else if (mode === 'prompt') body = `<button class="btn green" id="gInst">${ic('pack', 30)} TELEPÍTÉS</button>`;
-      else if (iOSSafari) body = `<ol><li>Koppints lent a <b>Megosztás</b> gombra <b>⬆</b></li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li><li>Indítsd a kezdőképernyőn lévő ikonról</li></ol>`;
-      else if (iOS) body = `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Másold ki a címet, vagy olvasd be a QR-kódot a <b>Kamera</b> appal</li><li>Nyisd meg <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`;
-      else if (inApp) body = `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>Koppints a <b>⋮</b> menüre</li><li><b>„Megnyitás Chrome-ban”</b></li><li>Ott: <b>TELEPÍTÉS</b></li></ol>`;
-      else body = `<ol><li>Koppints a Chrome <b>⋮</b> menüjére (jobb fent)</li><li><b>„Alkalmazás telepítése”</b> vagy <b>„Hozzáadás a kezdőképernyőhöz”</b></li><li>Indítsd a kezdőképernyőn lévő ikonról</li></ol><p class="muted" style="font-size:21px">Ha már telepítve van: nyisd meg az ikonról.</p>`;
-      const canSkip = mode !== 'prompt';
-      g.innerHTML = head + body + (canSkip ? `<button class="esc" id="gSkip">Itt most nem tudom telepíteni – megnézem böngészőben</button>` : '');
-      const ib = g.querySelector('#gInst');
-      if (ib) ib.onclick = async () => { const d = deferred; if (!d) return render('manual'); d.prompt(); const r = await d.userChoice; deferred = null; render(r.outcome === 'accepted' ? 'done' : 'manual'); };
-      const sk = g.querySelector('#gSkip'); if (sk) sk.onclick = () => { g.remove(); document.body.style.overflow = ''; history.replaceState(null, '', location.pathname + location.hash); };
+    const head = `<img class="ico" src="icons/icon-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
+    const steps = () => iOSSafari ? `<ol><li>Koppints lent a <b>Megosztás ⬆</b> gombra</li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li></ol>`
+      : iOS ? `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Nyisd meg a linket <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`
+      : inApp ? `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>⋮ menü → <b>„Megnyitás Chrome-ban”</b></li><li>Ott koppints: <b>IGEN, TELEPÍTEM</b></li></ol>`
+      : `<ol><li>Chrome <b>⋮</b> menü (jobb fent)</li><li><b>„Alkalmazás telepítése”</b> vagy <b>„Hozzáadás a kezdőképernyőhöz”</b></li></ol>`;
+    const m = showModal('', null, { noClose: true });
+    const box = m.g.querySelector('.gbox');
+    function render(state) {
+      const mus = `<button class="btn ghost" id="gMus" style="font-size:20px;padding:8px 12px">${SEREMusic.on ? '♪ Zene: BE' : '♪ Zene: KI'}</button>`;
+      if (state === 'ask') box.innerHTML = head + `<div class="stamp" style="font-size:16px">FIELD MANUAL · OFFLINE</div>
+        <h2>Telepíted a SERE PIXEL-t?</h2><p>Kezdőképernyőre kerül, és <b>internet nélkül, terepen is</b> működik.</p>
+        <div class="gq">${ic('check', 36)}<span>Offline kézikönyv</span>${ic('compass', 36)}<span>Iránytű + térkép</span>${ic('pack', 36)}<span>Kit-builder</span></div>
+        <button class="btn green" id="gYes">${ic('check', 30)} IGEN, TELEPÍTEM</button><button class="btn ghost" id="gNo">Később</button>${mus}`;
+      else if (state === 'manual') box.innerHTML = head + `<h2>Még egy lépés!</h2>${steps()}<p class="muted" style="font-size:22px">Utána indítsd a kezdőképernyőn lévő ikonról.</p><button class="btn ghost" id="gNo">Rendben</button>${mus}`;
+      else if (state === 'done') box.innerHTML = head + `<h2 style="color:var(--ok)">✓ Telepítve!</h2><p>Indítsd a <b>SERE PIXEL</b> ikonról a kezdőképernyőn.</p><button class="btn ghost" id="gNo">Bezárás</button>`;
+      const y = box.querySelector('#gYes'), n = box.querySelector('#gNo'), mu = box.querySelector('#gMus');
+      if (y) y.onclick = async () => {
+        if (!SEREMusic.on && LS.get('music', true)) setMusic(true);
+        if (deferred) { const d = deferred; deferred = null; d.prompt(); const r = await d.userChoice; render(r.outcome === 'accepted' ? 'done' : 'manual'); }
+        else render('manual');
+      };
+      if (n) n.onclick = () => { try { sessionStorage.setItem('sp:later', '1'); } catch (e) { } m.close(); history.replaceState(null, '', location.pathname + location.hash); };
+      if (mu) mu.onclick = () => { setMusic(!SEREMusic.on); render(state); };
     }
-    render(deferred ? 'prompt' : 'manual');
-    window.addEventListener('beforeinstallprompt', () => render('prompt'));
+    render('ask');
     window.addEventListener('appinstalled', () => render('done'));
-    document.body.appendChild(g); document.body.style.overflow = 'hidden';
   }
-
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
   /* ---------------- router ---------------- */
   const NAV = { home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'kit', check: 'home', compass: 'map', map: 'map', about: 'home' };
   const CRUMB = { home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
@@ -581,12 +623,19 @@
   window.addEventListener('hashchange', route);
   applyMode();
   route();
-  gate();
+  setTimeout(() => installPopup(false), 700);
   setInterval(() => { if (LS.get('mode', 'auto') === 'auto') applyMode(); }, 60000);
 
   if ('serviceWorker' in navigator) {
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloading) return; reloading = true; location.reload(); });
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(reg => {
-      reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) toast('Új verzió – újraindításkor frissül'); }); });
+      swReg = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) reg.waiting.postMessage('skip');
+      reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) { toast('Új verzió – frissítés…'); w.postMessage('skip'); } }); });
+      const check = () => { if (navigator.onLine) reg.update().catch(() => { }); };
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+      setInterval(check, 30 * 60 * 1000);
     }).catch(() => { }));
   }
 })();
