@@ -1,7 +1,7 @@
 /* SERE PIXEL — offline túlélési kézikönyv (PWA) */
 (function () {
   'use strict';
-  const C = window.SERE_CONTENT, D = window.SERE_DATA, PX = window.PX;
+  const C = (window.I18N && I18N.lang !== 'hu' && window['SERE_CONTENT_' + I18N.lang.toUpperCase()]) || window.SERE_CONTENT, D = window.SERE_DATA, PX = window.PX;
   const $ = (s, el = document) => el.querySelector(s);
   const main = $('#main');
   const LS = {
@@ -131,9 +131,10 @@
 
   V.home = () => {
     const p = prof();
-    main.innerHTML = `<div class="homefit">
+    main.innerHTML = `<div class="homefit"><div class="toprow">
       ${p ? `<a class="whochip" href="#/who/tips">${ic(p.icon, 28)}<span>${esc(p.n)}</span><b>tanácsok ›</b></a>`
           : `<a class="whochip cta" href="#/who">${ic('star', 28)}<span>KI VAGY? – szabd személyre</span><b style="color:inherit">›</b></a>`}
+      <button class="langchip" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button></div>
       <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
       <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
       <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 38)}<span>${esc(x.t)}</span></a>`).join('')}</div>
@@ -141,6 +142,7 @@
       <div class="tools"><a href="#/toc">${ic('book', 28)}Kézikönyv</a><a href="#/guides">${ic('fire', 28)}Kártyák</a><a href="#/compass">${ic('compass', 28)}Iránytű</a><a href="#/map">${ic('map', 28)}Térkép</a></div>
     </div>`;
     drawCover();
+    $('#langBtn').onclick = () => langModal(null, true);
   };
   V.status = () => {
     const a = statAdvice();
@@ -251,9 +253,13 @@
       }));
       const ex = $('#kidExit'); let t = null;
       kid112(); ex.addEventListener('click', () => SERESpeak.ok && SERESpeak.speak('Tartsd nyomva a kilépéshez.'));
-      const start = () => { t = setTimeout(() => { LS.set('kid', false); document.body.classList.remove('kidmode'); SERESpeak.stop(); location.hash = '#/'; }, 1500); ex.classList.add('hold'); };
-      const end = () => { clearTimeout(t); ex.classList.remove('hold'); };
-      ex.addEventListener('pointerdown', start); ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => ex.addEventListener(e, end));
+      // nyomva tartás: a böngésző saját hosszú-nyomás menüjét (kijelölés, „mentés”, nagyító) letiltjuk
+      const start = e => { if (e.cancelable) e.preventDefault(); if (t) return; ex.classList.add('hold'); t = setTimeout(() => { t = null; LS.set('kid', false); document.body.classList.remove('kidmode'); SERESpeak.stop(); location.hash = '#/'; }, 1500); };
+      const end = () => { clearTimeout(t); t = null; ex.classList.remove('hold'); };
+      ex.addEventListener('touchstart', start, { passive: false });
+      ['touchend', 'touchcancel'].forEach(e => ex.addEventListener(e, end));
+      ex.addEventListener('mousedown', start); ['mouseup', 'mouseleave'].forEach(e => ex.addEventListener(e, end));
+      ex.addEventListener('contextmenu', e => e.preventDefault());
       return;
     }
     const k = D.kid.find(x => x.id === id); if (!k) return V.kid();
@@ -323,7 +329,7 @@
       main.innerHTML = `<section class="card frame"><div class="statusline"><span>${ch.id}. FEJEZET · VIZSGA</span><span>${i + 1}/${qs.length}</span></div>
         <div class="progress">${qs.map((_, j) => `<i class="${j < i ? 'f' : ''}"></i>`).join('')}</div>
         <h2 style="font-size:28px;margin:10px 0 14px">${esc(q.q)}</h2>
-        <div class="opts">${q.opts.map((o, j) => `<button class="opt" data-j="${j}"><span class="ol">${'ABCD'[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+        <div class="opts">${q.opts.map((o, j) => `<button class="opt" data-j="${j}"><span class="ol" data-notr>${'ABCD'[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
         <div id="fb"></div>${readBtn('q')}</section>`;
       bindRead(() => [q.q].concat(q.opts.map((o, j) => 'ABCD'[j] + ': ' + o)));
       main.querySelectorAll('.opt').forEach(b => b.onclick = () => {
@@ -343,7 +349,7 @@
       <h1 style="font-size:34px">OKLEVÉL</h1><p>Igazoljuk, hogy</p>
       <input type="text" id="cn" value="${esc(w)}" placeholder="Írd ide a neved" style="text-align:center;font-size:28px">
       <p>sikeresen teljesítette a SERE „A” szint ${C.length} fejezetének gyakorló vizsgáit.</p>
-      <p class="muted" style="font-size:19px">${new Date().toLocaleDateString('hu-HU')} · nem hivatalos igazolás</p></section>
+      <p class="muted" style="font-size:19px">${new Date().toLocaleDateString(I18N.loc)} · nem hivatalos igazolás</p></section>
       <div class="row"><a class="btn ghost" href="#/course">‹ Tanfolyam</a></div>`;
     $('#cn').oninput = e => LS.set('certName', e.target.value);
   };
@@ -495,7 +501,7 @@
   /* --- SERE prioritások --- */
   V.prio = () => {
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('signal', 48)}<div><h1>SERE prioritások</h1><div class="stencil" style="font-size:16px">SIGNAL › PROTECT › HEALTH › TRAVEL › SUSTAIN</div></div></div></section>
-      <section class="card"><div class="chain">${D.priorities.map((p, i) => `${i ? '<div class="down">▼</div>' : ''}<a class="link" href="#/guide/${p.g}" style="text-decoration:none;color:inherit"><div class="L">${p.k}</div><div><h3 style="display:flex;gap:8px;align-items:center">${ic(p.icon, 24)}${esc(p.t)}</h3><div>${esc(p.x)}</div></div></a>`).join('')}</div>
+      <section class="card"><div class="chain">${D.priorities.map((p, i) => `${i ? '<div class="down">▼</div>' : ''}<a class="link" href="#/guide/${p.g}" style="text-decoration:none;color:inherit"><div class="L" data-notr>${p.k}</div><div><h3 style="display:flex;gap:8px;align-items:center">${ic(p.icon, 24)}${esc(p.t)}</h3><div>${esc(p.x)}</div></div></a>`).join('')}</div>
       <div class="callout quote mt">${ic('star', 26)}<div>A SERE „A” tananyag (8.1) sorrendje: személyes védelem → ellátmány (víz, élelem) → egészség → helyváltoztatás. A jelzés mindegyikkel párhuzamosan fut – ha a mentés elérhető, a jelentés az első.</div></div>
       <div class="callout ok">${ic('check', 26)}<div><b>3-as szabály:</b> 3 perc levegő · 3 óra védelem nélkül szélsőséges időben · 3 nap víz · 3 hét élelem nélkül.</div></div></section>`;
   };
@@ -504,7 +510,7 @@
   V.stop = (focus) => {
     const st = LS.get('stop', {});
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('stop', 52)}<div><h1>S-T-O-P</h1><div class="muted" style="font-size:22px">Az első percek – mielőtt bármit tennél.</div></div></div></section>
-      ${D.stop.map((s, i) => `<section class="stop-card ${st[i] ? 'done' : ''}" data-i="${i}"><div class="L">${s.k}</div><div><h3>${esc(s.t)}</h3>
+      ${D.stop.map((s, i) => `<section class="stop-card ${st[i] ? 'done' : ''}" data-i="${i}"><div class="L" data-notr>${s.k}</div><div><h3>${esc(s.t)}</h3>
         ${s.x.map((x, j) => `<button class="chk ${st[i + '-' + j] ? 'on' : ''}" data-k="${i}-${j}"><span class="box"></span><span>${esc(x)}</span></button>`).join('')}</div></section>`).join('')}
       <div class="row"><button class="btn ghost" id="stopReset">Újrakezdés</button><a class="btn" href="#/prio">Tovább: prioritások ›</a></div>`;
     main.querySelectorAll('.chk').forEach(b => b.onclick = () => {
@@ -757,7 +763,7 @@
       <h3>Forrás és felelősség</h3>
       <p>A „TANANYAG” jelölésű részek a SERE „A” szintű e-learning tananyag alapján, összefoglalva készültek. A <span class="badge web">KIEGÉSZÍTVE</span> részek a tananyag tartalomjegyzéke szerint, nyilvános forrásokból (NATO/US PR doktrína, katonai kézikönyvek) készültek.</p>
       <p class="muted">Gyakorló segédlet – nem helyettesíti a hivatalos kiképzést és a hatályos HVKF szakutasítást.</p>
-      <p class="muted" style="font-size:21px">Betűk: VT323, Pixelify Sans, Silkscreen (SIL OFL). Verzió: ${window.SERE_VERSION}</p></section>`;
+      <p class="muted" style="font-size:21px">Fonts: VT323, Pixelify Sans, Silkscreen (SIL OFL) · v${window.SERE_VERSION}</p></section>`;
     const ib = $('#instBtn'); if (ib) ib.onclick = () => installPopup(true);
     $('#shareBtn').onclick = doShare;
   };
@@ -838,6 +844,33 @@
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
 
+
+  /* ---------------- nyelvválasztás ---------------- */
+  const FLAG = { hu: ['#ce2939', '#ffffff', '#477050'], sk: ['#ffffff', '#0b4ea2', '#ee1c25'], en: ['#012169', '#ffffff', '#c8102e'] };
+  const FLAGSVG = {
+    hu: '<rect width="30" height="7" fill="#ce2939"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#477050"/>',
+    sk: '<rect width="30" height="7" fill="#fff"/><rect y="7" width="30" height="6" fill="#0b4ea2"/><rect y="13" width="30" height="7" fill="#ee1c25"/><path d="M6 4h10v9l-5 4-5-4z" fill="#fff"/><path d="M7 5h8v8l-4 3-4-3z" fill="#ee1c25"/><path d="M10 6h2v8h-2zM8 8h6v1H8zM9 10h4v1H9z" fill="#fff"/><path d="M7 13h8l-4 3z" fill="#0b4ea2"/>',
+    en: '<rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#c8102e" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.4"/>'
+  };
+  const flag = l => `<span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" preserveAspectRatio="none" shape-rendering="crispEdges">${FLAGSVG[l] || ''}</svg></span>`;
+  function langModal(onDone, force) {
+    const cur = I18N.lang;
+    const m = showModal(`<div class="big" style="font-size:40px">SERE <b>PIXEL</b></div>
+      <h2 data-notr>Nyelv · Jazyk · Language</h2>
+      <div class="langs">${Object.entries(I18N.LANGS).map(([k, v]) => `<button class="langbtn ${k === cur && I18N.chosen ? 'on' : ''}" data-l="${k}" data-notr>${flag(k)}<span>${v.n}</span></button>`).join('')}</div>`, null, { noClose: !force });
+    m.g.querySelectorAll('[data-l]').forEach(b => b.onclick = () => {
+      const l = b.dataset.l; I18N.set(l); try { sessionStorage.setItem('sp:langAsked', '1'); } catch (e) { }
+      if (l !== cur || !window.SERE_I18N && l !== 'hu') { location.reload(); return; }
+      m.close(); onDone && onDone();
+    });
+  }
+  function startFlow() {
+    const fromQR = /[?&]qr=1/.test(location.search);
+    let asked = false; try { asked = !!sessionStorage.getItem('sp:langAsked'); } catch (e) { }
+    if (!I18N.chosen || (fromQR && !asked)) langModal(() => installPopup(false));
+    else installPopup(false);
+  }
+
   /* ---------------- oldalsó menü ---------------- */
   function drawerHTML() {
     const h = location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
@@ -861,6 +894,7 @@
       ${it('#/status', 'heart', 'Állapotom')}
       <div class="dsec">BEÁLLÍTÁS</div>
       ${it('#/who', 'star', 'Ki vagy?', (prof() || {}).n || 'nincs beállítva')}
+      <button class="di" id="dLang">${flag(I18N.lang)}<span data-notr>Nyelv · Jazyk · Language<br><small>${I18N.LANGS[I18N.lang].n}</small></span><span>›</span></button>
       <div class="drow"><button data-fs="0" class="${fs === 0 ? 'on' : ''}">A</button><button data-fs="1" class="${fs === 1 ? 'on' : ''}">A+</button><button data-fs="2" class="${fs === 2 ? 'on' : ''}">A++</button></div>
       <div class="drow" style="grid-template-columns:1fr 1fr"><button id="dNight">${night ? '☾ Éjszaka' : '☀ Nappal'}</button><button id="dMus" class="${mus ? 'on' : ''}">♪ Zene ${mus ? 'BE' : 'KI'}</button></div>
       <div class="dsec">APP</div>
@@ -876,6 +910,7 @@
     $('#dNight').onclick = () => { LS.set('mode', isNight() ? 'day' : 'night'); applyMode(); openMenu(); };
     $('#dMus').onclick = () => { setMusic(!SEREMusic.on); openMenu(); };
     $('#dUpd').onclick = () => { closeMenu(); doUpdate(true); };
+    $('#dLang').onclick = () => { closeMenu(); langModal(null, true); };
     $('#dShr').onclick = () => { closeMenu(); doShare(); };
     const di = $('#dIns'); if (di) di.onclick = () => { closeMenu(); installPopup(true); };
   }
@@ -910,7 +945,7 @@
     else if (LS.get('kid', false)) { location.replace('#/kid'); return; }
     document.body.classList.toggle('kidmode', v === 'kid');
     document.body.classList.toggle('is-home', v === 'home');
-    $('#backBtn').style.visibility = v === 'home' || (v === 'kid' && !parts[1]) ? 'hidden' : 'visible';
+    $('#backBtn').style.display = v === 'home' || (v === 'kid' && !parts[1]) ? 'none' : '';
     const zf = parseFloat(document.documentElement.style.zoom) || 1;
     document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px');
     document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px');
@@ -928,7 +963,8 @@
   window.addEventListener('resize', () => { const zf = parseFloat(document.documentElement.style.zoom) || 1; document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px'); });
   applyMode();
   route();
-  setTimeout(() => installPopup(false), 700);
+  setTimeout(startFlow, 500);
+  I18N.watch();
   setInterval(() => { if (LS.get('mode', 'auto') === 'auto') applyMode(); }, 60000);
 
   if ('serviceWorker' in navigator) {

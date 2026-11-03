@@ -43,7 +43,7 @@ for path in sorted(glob.glob(f"{src_dir}/c*.md")):
             b.append({"t": kind, "x": text})
 
 with open(out, "w", encoding="utf-8") as f:
-    f.write("/* generálva: build.py — ne szerkeszd kézzel */\nwindow.SERE_CONTENT=")
+    f.write("/* generálva: build.py — ne szerkeszd kézzel */\nwindow." + (sys.argv[3] if len(sys.argv) > 3 else "SERE_CONTENT") + "=")
     json.dump(chapters, f, ensure_ascii=False, separators=(",", ":"))
     f.write(";\n")
 n = sum(len(c["sections"]) for c in chapters)

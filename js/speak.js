@@ -5,17 +5,19 @@
   function pick() {
     if (!synth) return;
     const vs = synth.getVoices();
-    voice = vs.find(v => /^hu/i.test(v.lang) && v.localService) || vs.find(v => /^hu/i.test(v.lang)) || null;
+    const L = (window.I18N && I18N.lang) || 'hu'; const re = new RegExp('^' + L, 'i');
+    voice = vs.find(v => re.test(v.lang) && v.localService) || vs.find(v => re.test(v.lang)) || null;
   }
   if (synth) { pick(); synth.onvoiceschanged = pick; }
   function clean(t) { return String(t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '').replace(/[•▸›‹→✓★]/g, ' ').replace(/\s+/g, ' ').trim(); }
   function speak(texts, opts = {}) {
     if (!synth) return false;
     stop();
-    const list = (Array.isArray(texts) ? texts : [texts]).map(clean).filter(Boolean);
+    const tr = window.T || (x => x);
+    const list = (Array.isArray(texts) ? texts : [texts]).map(x => clean(tr(x))).filter(Boolean);
     list.forEach((t, i) => {
       const u = new SpeechSynthesisUtterance(t);
-      u.lang = 'hu-HU'; if (voice) u.voice = voice;
+      u.lang = (window.I18N && I18N.tts) || 'hu-HU'; if (voice) u.voice = voice;
       u.rate = opts.rate || 0.95; u.pitch = opts.pitch || 1;
       if (i === list.length - 1) u.onend = () => { onEnd && onEnd(); };
       synth.speak(u);
