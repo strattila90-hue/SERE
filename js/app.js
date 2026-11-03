@@ -274,11 +274,12 @@
   V.kid = (id) => {
     document.body.classList.add('kidmode');
     if (!id) {
-      main.innerHTML = `<section class="kidhead"><div class="kidt">SEGÍTEK!</div><div class="kids">Koppints arra, ami történt.</div>
+      main.innerHTML = `<div class="kidfit"><section class="kidhead"><div><div class="kidt" data-fit>SEGÍTEK!</div><div class="kids" data-fit>Koppints arra, ami történt.</div></div>
           <button class="kidtour" id="kTour" aria-label="Mondd el újra">${ic('speak', 40)}<span>MONDD EL!</span></button></section>
         <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" data-k="${k.id}" style="--c:${k.c}">${ic(k.icon, 84)}<span>${esc(k.t)}</span><b class="kidtap">2×</b></a>`).join('')}</div>
         <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
-        <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button>`;
+        <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button></div>`;
+      requestAnimationFrame(() => fitText(main));
       // olvasni nem tudó gyereknek: hangos körbevezetés (minden gombnál kiemelés), és két koppintás – az első csak felolvassa, mi ez
       const btns = [...main.querySelectorAll('.kidbtn')], k112 = main.querySelector('.kid112');
       const mark = el => { main.querySelectorAll('.talk').forEach(x => x.classList.remove('talk')); if (el) { el.classList.add('talk'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } };
@@ -391,7 +392,7 @@
       main.querySelectorAll('.opt').forEach(b => b.onclick = () => {
         if (picked !== null) return; picked = +b.dataset.j; const right = q.opts[picked] === q.good; if (right) score++;
         main.querySelectorAll('.opt').forEach(x => { const o = q.opts[+x.dataset.j]; if (o === q.good) x.classList.add('good'); else if (x === b) x.classList.add('bad'); x.disabled = true; });
-        $('#fb').innerHTML = `<div class="callout ${right ? 'ok' : 'warn'} mt">${ic(right ? 'check' : 'warn', 26)}<div><b>${right ? 'Helyes!' : 'Nem jó.'}</b> ${right ? '' : 'A helyes válasz: ' + esc(q.good)}</div></div>
+        $('#fb').innerHTML = `<div class="callout ${right ? 'ok' : 'warn'} mt">${ic(right ? 'check' : 'warn', 26)}<div><b>${right ? 'Helyes!' : 'Nem jó.'}</b> ${right ? '' : '<span>A helyes válasz:</span> <span>' + esc(q.good) + '</span>'}</div></div>
           <button class="btn ${right ? 'green' : ''}" id="nx" style="width:100%;justify-content:center;font-size:22px">${i < qs.length - 1 ? 'Következő kérdés ›' : 'Eredmény ›'}</button>`;
         $('#nx').onclick = () => { i++; picked = null; show(); window.scrollTo(0, 0); };
         centerOn($('#nx'));
@@ -415,9 +416,10 @@
   const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
   V.sos = (id, focus) => {
     if (!id) {
-      main.innerHTML = `<section class="card frame" style="border-color:var(--warn)"><div class="ch-head">${ic('warn', 52)}<div><h1>Bajban vagyok</h1><div class="muted">Először: <b>állj meg, lélegezz.</b> Aztán válaszd ki, mi történt.</div></div></div></section>
-        <a class="sosbtn" href="#/stop" style="margin-bottom:14px">${ic('stop', 48)}<span>S-T-O-P<small>Állj meg · Gondolkodj · Figyelj · Tervezz</small></span></a>
-        <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>`;
+      main.innerHTML = `<div class="fitpg"><section class="card frame sosh" style="border-color:var(--warn)"><div class="ch-head">${ic('warn', 44)}<div><h1>Bajban vagyok</h1><div class="muted">Először: <b>állj meg, lélegezz.</b> Aztán válaszd ki, mi történt.</div></div></div></section>
+        <a class="hm-sos" href="#/stop">${ic('stop', 40)}<span class="hm-st"><span data-fit>S-T-O-P</span><small data-fit>Állj meg · Gondolkodj · Figyelj · Tervezz</small></span><b>›</b></a>
+        <div class="hm-scen grow">${scenList().map(x => `<a class="hm-t" href="#/sos/${x.id}" style="--c:${x.c}"><i>${ic(x.icon, 30)}</i><span class="tt"><span data-fit="2">${esc(x.t)}</span><small data-fit>${esc(x.sub)}</small></span></a>`).join('')}</div></div>`;
+      requestAnimationFrame(() => fitText(main));
       return;
     }
     const x = scen(id); if (!x) return V.sos();
@@ -885,12 +887,16 @@
     const ua = navigator.userAgent;
     const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const iOSSafari = iOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
-    const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(ua);
+    const inApp = /FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|Viber|musical_ly|Bytedance|Snapchat|; wv\)|GSA\//.test(ua);
+    const samsung = /SamsungBrowser/.test(ua), android = /Android/.test(ua);
+    const chromeIntent = 'intent://' + location.host + location.pathname + '?qr=1#Intent;scheme=https;package=com.android.chrome;end';
+    const homeTip = `<p class="muted" style="font-size:19px">Nem látod az ikont? Nézd meg az <b>alkalmazások listájában</b> is (Samsungon: kezdőképernyő beállításai → „Új alkalmazások hozzáadása a kezdőképernyőhöz”).</p>`;
     const head = `<img class="ico" src="icons/icon-v3-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
     const steps = () => iOSSafari ? `<ol><li>Koppints lent a <b>Megosztás ⬆</b> gombra</li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li></ol>`
       : iOS ? `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Nyisd meg a linket <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`
-      : inApp ? `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>⋮ menü → <b>„Megnyitás Chrome-ban”</b></li><li>Ott koppints: <b>IGEN, TELEPÍTEM</b></li></ol>`
-      : `<ol><li>Chrome <b>⋮</b> menü (jobb fent)</li><li><b>„Alkalmazás telepítése”</b> vagy <b>„Hozzáadás a kezdőképernyőhöz”</b></li></ol>`;
+      : inApp ? `<p style="color:var(--warn)">Ez a beépített böngésző (pl. Messenger, Facebook, Viber) <b>nem tud telepíteni.</b></p>${android ? `<a class="btn green" href="${chromeIntent}">Megnyitás Chrome-ban ›</a>` : ''}<ol><li>Vagy: ⋮ / ··· menü → <b>„Megnyitás böngészőben”</b></li><li>Ott koppints: <b>IGEN, TELEPÍTEM</b></li></ol>`
+      : samsung ? `<ol><li>Samsung Internet: lent a <b>≡ menü</b></li><li><b>„Oldal hozzáadása”</b> → <b>„Kezdőképernyő”</b></li><li>Vagy a címsorban a <b>⬇ / + ikon</b></li></ol><p class="muted" style="font-size:19px">Titkos (inkognitó) módban nem lehet telepíteni.</p>${android ? `<a class="btn ghost" href="${chromeIntent}">Inkább Chrome-ban ›</a>` : ''}${homeTip}`
+      : `<ol><li>Chrome <b>⋮</b> menü (jobb fent)</li><li><b>„Alkalmazás telepítése”</b> vagy <b>„Hozzáadás a kezdőképernyőhöz”</b> → <b>Telepítés</b></li></ol><p class="muted" style="font-size:19px">Inkognitó lapon nem lehet telepíteni. Ha többször elutasítottad, a Chrome egy ideig nem kérdez rá – ilyenkor a ⋮ menü mindig működik.</p>${homeTip}`;
     const m = showModal('', null, { noClose: true });
     const box = m.g.querySelector('.gbox');
     function render(state) {
@@ -904,13 +910,14 @@
       const y = box.querySelector('#gYes'), n = box.querySelector('#gNo'), mu = box.querySelector('#gMus');
       if (y) y.onclick = async () => {
         if (!SEREMusic.on && LS.get('music', true)) setMusic(true);
-        if (deferred) { const d = deferred; deferred = null; d.prompt(); const r = await d.userChoice; render(r.outcome === 'accepted' ? 'done' : 'manual'); }
+        if (!deferred && !inApp && !iOS) { y.disabled = true; y.innerHTML = T('Előkészítés…'); for (let i = 0; i < 30 && !deferred; i++) await new Promise(z => setTimeout(z, 100)); }
+        if (deferred) { const d = deferred; deferred = null; try { d.prompt(); const r = await d.userChoice; render(r.outcome === 'accepted' ? 'done' : 'manual'); } catch (e) { render('manual'); } }
         else render('manual');
       };
       if (n) n.onclick = () => { try { sessionStorage.setItem('sp:later', '1'); } catch (e) { } m.close(); history.replaceState(null, '', location.pathname + location.hash); };
       if (mu) mu.onclick = () => { setMusic(!SEREMusic.on); render(state); };
     }
-    render('ask');
+    render(inApp ? 'manual' : 'ask');
     window.addEventListener('appinstalled', () => render('done'));
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
@@ -1030,7 +1037,27 @@
     b.innerHTML = ic(b.dataset.icon, 24) + `<span>${b.dataset.label}</span>`;
     b.onclick = () => { location.hash = '#/' + (b.dataset.nav === 'home' ? '' : b.dataset.nav); };
   });
-  window.addEventListener('hashchange', route);
+  /* ---- natív érzet: irányfüggő oldalváltás, görgetés-emlékezet, élről húzás vissza, finom rezgés ---- */
+  const stack = [location.hash || '#/'], scrollMem = {};
+  let curHash = location.hash || '#/';
+  function navigate() {
+    const h = location.hash || '#/'; scrollMem[curHash] = window.scrollY;
+    const back = stack.length > 1 && stack[stack.length - 2] === h;
+    if (back) stack.pop(); else if (stack[stack.length - 1] !== h) stack.push(h);
+    if (stack.length > 60) stack.splice(0, stack.length - 60);
+    curHash = h; document.documentElement.dataset.nav = back ? 'back' : 'fwd';
+    const run = () => { route(); if (back && scrollMem[h] != null) window.scrollTo(0, scrollMem[h]); };
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (document.startViewTransition && !reduce && !document.hidden) { try { const vt = document.startViewTransition(run); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(pr => pr && pr.catch(() => { })); return; } catch (e) { } }
+    run();
+  }
+  window.addEventListener('hashchange', navigate);
+  // élről húzás jobbra = vissza (mint natív appban)
+  let sx = null, sy = 0, st = 0;
+  document.addEventListener('touchstart', e => { const t = e.touches[0]; sx = (t.clientX < 28 && $('#backBtn').style.display !== 'none' && !document.querySelector('.gate')) ? t.clientX : null; sy = t.clientY; st = Date.now(); }, { passive: true });
+  document.addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0]; if (t.clientX - sx > 70 && Math.abs(t.clientY - sy) < 60 && Date.now() - st < 600) $('#backBtn').click(); sx = null; }, { passive: true });
+  // finom haptikus visszajelzés gombnyomáskor (ha a telefon támogatja)
+  document.addEventListener('pointerdown', e => { if (e.pointerType === 'touch' && navigator.vibrate && LS.get('haptic', true) && e.target.closest('a,button,.chk,.opt')) try { navigator.vibrate(6); } catch (x) { } }, { passive: true });
   window.addEventListener('resize', () => { const zf = parseFloat(document.documentElement.style.zoom) || 1; document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px'); });
   applyMode();
   route();

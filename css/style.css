@@ -764,3 +764,48 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .top .brandlink { min-width: 0; flex: 1 1 auto; }
 .upbar { width: 100%; min-width: 240px; align-self: stretch; box-sizing: border-box; }
 .uppct { font-family: 'VT323', monospace; font-size: 52px; }
+/* v3.5 – képernyőre illesztett oldalak (nincs felesleges görgetés) */
+.fitpg, .kidfit { display: flex; flex-direction: column; gap: 10px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 20px); min-height: 460px; }
+.fitpg .sosh { flex: none; margin: 0; padding: 10px 12px; }
+.fitpg .sosh h1 { font-size: 30px; margin: 0; }
+.fitpg .sosh .muted { font-size: 18px; }
+.fitpg .hm-sos { flex: none; animation: none; }
+.hm-scen.grow { flex: 1; min-height: 0; grid-auto-rows: minmax(52px, 1fr); }
+.hm-t .tt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; overflow: hidden; }
+.hm-t .tt small { font: 400 15px/1 'VT323', monospace; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.kidfit .kidhead { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0; text-align: left; }
+.kidfit .kidhead > div { min-width: 0; }
+.kidfit .kidt { font-size: clamp(30px, 9vw, 46px); white-space: nowrap; overflow: hidden; }
+.kidfit .kids { font-size: clamp(16px, 4.6vw, 24px); white-space: nowrap; overflow: hidden; }
+.kidfit .kidtour { margin: 0; flex: none; padding: 8px 12px; font-size: 18px; flex-direction: column; gap: 2px; }
+.kidfit .kidtour .px { width: 34px; height: 34px; }
+.kidfit .kidgrid { flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); gap: 10px; }
+.kidfit .kidbtn { min-height: 0; gap: 4px; padding: 6px; font-size: clamp(17px, 5vw, 26px); }
+.kidfit .kidbtn .px { width: min(84px, 9vh); height: min(84px, 9vh); }
+.kidfit .kid112 { flex: none; margin: 0; padding: 8px 12px; }
+.kidfit .kid112 .px { width: 44px; height: 44px; }
+.kidfit .kidexit { flex: none; margin: 0 auto; padding: 6px 12px; font-size: 17px; }
+.kidcard { padding: 10px; } .kidpic { margin: 4px 0; } .kidsay { min-height: 110px; }
+@media (max-height: 700px) { .kidsay { font-size: 26px; min-height: 90px; } .kidnb { min-height: 66px; } .kidpic .px { width: 96px; height: 96px; } }
+body:has(.fitpg) main, body:has(.kidfit) main, body:has(.hm) main { padding-bottom: 0 !important; }
+.fitpg, .kidfit { height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 14px); }
+body:has(.fitpg), body:has(.kidfit), body:has(.hm) { overflow-y: hidden; }
+@media (max-height: 520px) { body:has(.fitpg), body:has(.kidfit), body:has(.hm) { overflow-y: auto; } }
+/* natív érzet */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, .sec p, .sec li, .coord, .callout div { -webkit-user-select: text; user-select: text; }
+img, canvas, svg { -webkit-user-drag: none; user-drag: none; }
+* { touch-action: manipulation; }
+#radar, .kidexit { touch-action: none; }
+.top { view-transition-name: topbar; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .2s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+html[data-nav="fwd"]::view-transition-old(root) { animation-name: vtOutL; }
+html[data-nav="fwd"]::view-transition-new(root) { animation-name: vtInR; }
+html[data-nav="back"]::view-transition-old(root) { animation-name: vtOutR; }
+html[data-nav="back"]::view-transition-new(root) { animation-name: vtInL; }
+@keyframes vtOutL { to { transform: translateX(-22%); opacity: 0; } }
+@keyframes vtInR { from { transform: translateX(30%); opacity: 0; } }
+@keyframes vtOutR { to { transform: translateX(22%); opacity: 0; } }
+@keyframes vtInL { from { transform: translateX(-30%); opacity: 0; } }
+::view-transition-group(topbar) { animation: none; }
+@supports (view-transition-name: a) { main.enter { animation: none; } }
