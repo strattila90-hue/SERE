@@ -137,10 +137,11 @@
       <section class="card cover frame hero"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL: egyedül álló katona az erdőszélen"></canvas>
         <div class="title"><div class="big sm">SERE <b>PIXEL</b></div><div class="sub">EGYEDÜL A TEREPEN · SURVIVAL GUIDE</div></div></section>
 
+      ${whoCard()}
       <a class="sosbtn" href="#/sos">${ic('warn', 48)}<span>BAJBAN VAGYOK<small>Most kell a SERE tudás – lépésről lépésre</small></span></a>
 
       <h2 class="hh">Mi történt?</h2>
-      <div class="scen">${D.scenarios.map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>
+      <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>
 
       <h2 class="hh">Tudástár és eszközök</h2>
       <div class="biglist">
@@ -178,26 +179,81 @@
   };
   const row = (href, icon, t, s) => `<a class="brow" href="${href}">${ic(icon, 40)}<span>${t}<small>${s}</small></span><b>›</b></a>`;
 
+
+  /* ---------------- személyre szabás ---------------- */
+  const who = () => LS.get('who', null);
+  const prof = () => { const w = who(); return D.profiles.find(p => p.id === (w && w.p)) || null; };
+  const isMil = () => { const w = who(), p = prof(); return !p || p.mil || (w && w.lvl === 'katonai'); };
+  function scen(id) {
+    const base = D.scenarios.find(z => z.id === id); if (!base) return null;
+    const civ = !isMil() && D.civil[id];
+    const x = Object.assign({}, base, civ ? { t: civ.t, sub: civ.sub, steps: civ.steps, ch: null } : {});
+    const p = prof(), w = who() || {};
+    x.extra = [].concat((p && p.add[id]) || [], (w.fem && D.female.add[id]) || []);
+    return x;
+  }
+  const scenList = () => D.scenarios.map(z => scen(z.id));
+  function kitItems() {
+    const p = prof(), w = who() || {};
+    const ex = [].concat((p && p.kit) || [], (w.fem && D.female.kit) || []).map(([id, n, icon, c, g]) => ({ id, n, icon, r: 'own', c, g }));
+    return D.kit.concat(ex);
+  }
+  function whoCard() {
+    const p = prof(), w = who();
+    if (!p) return `<a class="whocta" href="#/who">${ic('star', 44)}<span>KI VAGY?<small>Válaszd ki a helyzeted – a tanácsok hozzád igazodnak (katona, szülő gyerekkel, városi, vidéki…)</small></span><b>›</b></a>`;
+    const lv = D.levels.find(l => l.id === w.lvl);
+    return `<section class="card whoc"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap">${ic(p.icon, 40)}<div><div class="stencil" style="font-size:14px">NEKED SZÓL</div><h3 style="margin:0">${esc(p.n)}</h3><div class="muted" style="font-size:19px">${lv ? esc(lv.n) : ''}${w.fem ? ' · női tippek' : ''}</div></div></div><a class="btn ghost" href="#/who" style="padding:6px 10px">Csere</a></div>
+      <div class="rule"></div><ul class="wtips">${p.tips.slice(0, 3).map(t => `<li>${esc(t)}</li>`).join('')}</ul><a href="#/who/tips" style="font-size:20px">Összes tanács ›</a></section>`;
+  }
+  V.who = (sub) => {
+    const w = who() || { p: null, lvl: 'kezdo', fem: false }, p = prof();
+    if (sub === 'tips' && p) {
+      main.innerHTML = `<section class="card frame"><div class="ch-head">${ic(p.icon, 52)}<div><h1>${esc(p.n)}</h1><div class="muted">${esc(p.sub)}</div></div></div><div class="rule"></div>
+        <div class="callout quote">${ic('star', 26)}<div>${esc(p.intro)}</div></div>
+        <ul class="wtips big">${p.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+        ${w.fem ? `<h3 class="mt">Nőknek</h3><ul class="wtips big">${D.female.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+        ${!isMil() ? `<div class="callout warn">${ic('warn', 26)}<div><b>Segélyhívó: 112</b> – ingyenes, térerő nélkül más hálózaton is próbálkozik.</div></div>` : ''}
+        </section><div class="row"><a class="btn" href="#/sos">Bajban vagyok ›</a><a class="btn ghost" href="#/kit">Mi legyen nálam ›</a><a class="btn ghost" href="#/who">Csere</a></div>`;
+      return;
+    }
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 52)}<div><h1>Ki vagy?</h1><div class="muted">A forgatókönyvek, a csomaglista és a tanácsok ehhez igazodnak.</div></div></div></section>
+      <h2 class="hh">1. A helyzeted</h2>
+      <div class="scen">${D.profiles.map(x => `<button class="sbtn ${w.p === x.id ? 'sel' : ''}" data-p="${x.id}" style="--c:${w.p === x.id ? 'var(--acc)' : 'var(--khaki-d)'}">${ic(x.icon, 40)}<span>${esc(x.n)}<small>${esc(x.sub)}</small></span></button>`).join('')}</div>
+      <h2 class="hh">2. Tapasztalat</h2>
+      <div class="biglist">${D.levels.map(l => `<button class="brow ${w.lvl === l.id ? 'sel' : ''}" data-l="${l.id}">${ic(l.id === 'katonai' ? 'pack' : l.id === 'halado' ? 'compass' : 'book', 36)}<span>${esc(l.n)}<small>${esc(l.x)}</small></span><b>${w.lvl === l.id ? '✓' : ''}</b></button>`).join('')}</div>
+      <h2 class="hh">3. Kiegészítés</h2>
+      <button class="chk ${w.fem ? 'on' : ''}" id="fem" style="font-size:24px"><span class="box"></span><span>Női tippek is (menstruáció, higiénia, egyedül utazás)</span></button>
+      <div class="row mt"><button class="btn green" id="whoOk" ${w.p ? '' : 'disabled'}>${ic('check', 24)} Kész</button></div>`;
+    const save = (k, v) => { const n = Object.assign({ p: null, lvl: 'kezdo', fem: false }, who()); n[k] = v; LS.set('who', n); V.who(); };
+    main.querySelectorAll('[data-p]').forEach(b => b.onclick = () => save('p', b.dataset.p));
+    main.querySelectorAll('[data-l]').forEach(b => b.onclick = () => save('lvl', b.dataset.l));
+    $('#fem').onclick = () => save('fem', !w.fem);
+    $('#whoOk').onclick = () => { location.hash = '#/who/tips'; };
+  };
+
   /* --- BAJBAN VAGYOK: forgatókönyvek --- */
   const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
   V.sos = (id) => {
     if (!id) {
       main.innerHTML = `<section class="card frame" style="border-color:var(--warn)"><div class="ch-head">${ic('warn', 52)}<div><h1>Bajban vagyok</h1><div class="muted">Először: <b>állj meg, lélegezz.</b> Aztán válaszd ki, mi történt.</div></div></div></section>
         <a class="sosbtn" href="#/stop" style="margin-bottom:14px">${ic('stop', 48)}<span>S-T-O-P<small>Állj meg · Gondolkodj · Figyelj · Tervezz</small></span></a>
-        <div class="scen">${D.scenarios.map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>`;
+        <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>`;
       return;
     }
-    const x = D.scenarios.find(z => z.id === id); if (!x) return V.sos();
+    const x = scen(id); if (!x) return V.sos();
     const st = LS.get('sos', {}); const done = x.steps.filter((_, i) => st[id + i]).length;
     main.innerHTML = `<section class="card frame" style="border-color:${x.c}"><div class="ch-head">${ic(x.icon, 52)}<div><h1>${esc(x.t)}</h1><div class="muted">${done}/${x.steps.length} lépés kész</div></div></div>
       <div class="progress">${x.steps.map((_, i) => `<i class="${st[id + i] ? 'f' : ''}"></i>`).join('')}</div>
       <ol class="sosl">${x.steps.map(([t, g], i) => `<li class="${st[id + i] ? 'on' : ''}"><button class="sosck" data-i="${i}"><span class="no">${i + 1}</span><span class="tx">${esc(t)}</span><span class="box"></span></button>
         ${g ? `<a class="golink" href="${GLINK[g] || '#/guide/' + g}">${ic(g === 'map' ? 'map' : g === 'compass' ? 'compass' : g === 'stop' ? 'stop' : (D.guides.find(q => q.id === g) || {}).icon || 'book', 22)} ${GLINK[g] ? 'Megnyitás' : 'Kártya'} ›</a>` : ''}</li>`).join('')}</ol>
+      ${x.extra.length ? `<h3 class="mt" style="display:flex;gap:8px;align-items:center">${ic((prof() || {}).icon || 'star', 26)} Neked külön${prof() ? ': ' + esc(prof().n) : ''}</h3>
+        <ol class="sosl">${x.extra.map((t, i) => `<li class="${st[id + 'p' + i] ? 'on' : ''}"><button class="sosck" data-i="p${i}"><span class="no" style="background:var(--acc)">+</span><span class="tx">${esc(t)}</span><span class="box"></span></button></li>`).join('')}</ol>` : (prof() ? '' : `<a class="golink" href="#/who" style="margin-left:0">${ic('star', 20)} Állítsd be, ki vagy – személyre szabott lépések ›</a>`)}
+      ${!isMil() ? `<div class="callout warn mt">${ic('warn', 26)}<div><b>Ha bizonytalan vagy vagy romlik a helyzet: 112.</b></div></div>` : ''}
       ${x.ch ? `<a class="btn ghost mt" href="#/ch/${x.ch}">Részletesen: ${x.ch}. fejezet ›</a>` : ''}
       </section>
       <div class="row"><a class="btn ghost" href="#/sos">‹ Másik helyzet</a><button class="btn ghost" id="sosReset">Újrakezdés</button></div>`;
     main.querySelectorAll('.sosck').forEach(b => b.onclick = () => { const s = LS.get('sos', {}); s[id + b.dataset.i] = !s[id + b.dataset.i]; LS.set('sos', s); V.sos(id); window.scrollTo(0, window.scrollY); });
-    $('#sosReset').onclick = () => { const s = LS.get('sos', {}); x.steps.forEach((_, i) => delete s[id + i]); LS.set('sos', s); V.sos(id); };
+    $('#sosReset').onclick = () => { const s = LS.get('sos', {}); x.steps.forEach((_, i) => delete s[id + i]); x.extra.forEach((_, i) => delete s[id + 'p' + i]); LS.set('sos', s); V.sos(id); };
   };
   const tile = (href, icon, t, s) => `<a class="tile" href="${href}">${ic(icon, 44)}<span>${t}</span><small>${s}</small></a>`;
 
@@ -308,24 +364,24 @@
   };
 
   /* --- kit builder --- */
-  const RAR = { rare: ['RITKA', 'var(--acc)'], imp: ['FONTOS', 'var(--ok)'], com: ['ALAP', 'var(--yel)'] };
+  const RAR = { rare: ['RITKA', 'var(--acc)'], imp: ['FONTOS', 'var(--ok)'], com: ['ALAP', 'var(--yel)'], own: ['NEKED', 'var(--blue)'] };
   const CAT = { sus: ['ELLÁTÁS', 'var(--blue)'], nav: ['NAVIGÁCIÓ', 'var(--purple)'], util: ['ESZKÖZ', 'var(--yel)'], sig: ['JELZÉS', 'var(--acc)'], med: ['EGÉSZSÉG', 'var(--warn)'] };
   V.kit = () => {
-    const have = LS.get('kit', {});
-    const packed = D.kit.filter(k => have[k.id]);
+    const have = LS.get('kit', {}); const KIT = kitItems();
+    const packed = KIT.filter(k => have[k.id]);
     const grams = packed.reduce((a, k) => a + k.g, 0);
     const miss = D.kitEssential.filter(id => !have[id]);
     const ready = miss.length === 0;
     main.innerHTML = `<section class="card frame">
       <div class="ch-head">${ic('pack', 52)}<div><h1>Túlélőkészlet</h1><div class="stencil" style="font-size:16px">ESSENTIALS FOR THE UNKNOWN</div></div></div>
       <div class="rule"></div>
-      <div class="statusline"><span>STATUS: <span class="st ${ready ? 'ok' : ''}">${ready ? 'PREPARED ✓' : 'NOT READY'}</span></span><span>${packed.length}/${D.kit.length} · ${(grams / 1000).toFixed(2)} KG</span></div>
+      <div class="statusline"><span>STATUS: <span class="st ${ready ? 'ok' : ''}">${ready ? 'PREPARED ✓' : 'NOT READY'}</span></span><span>${packed.length}/${KIT.length} · ${(grams / 1000).toFixed(2)} KG</span></div>
       <div class="rule"></div>
-      <div class="inv">${D.kit.map(k => `<button class="slot ${have[k.id] ? 'on' : ''} ${D.kitEssential.includes(k.id) ? 'ess' : ''}" data-id="${k.id}" title="${esc(k.n)} – ${k.g} g">
+      ${prof() ? `<div class="muted" style="font-size:19px;margin-bottom:8px">${ic(prof().icon, 18)} Kiegészítve: <b>${esc(prof().n)}</b> (kék jelölés)</div>` : ''}<div class="inv">${KIT.map(k => `<button class="slot ${have[k.id] ? 'on' : ''} ${D.kitEssential.includes(k.id) ? 'ess' : ''}" data-id="${k.id}" title="${esc(k.n)} – ${k.g} g">
         ${ic(k.icon, 40)}<span class="nm">${esc(k.n)}</span>
         <span class="rr" style="color:${RAR[k.r][1]}"><i class="dot" style="--c:${RAR[k.r][1]}"></i>${RAR[k.r][0]}</span>
         <span class="rr" style="color:${CAT[k.c][1]}"><i class="dot" style="--c:${CAT[k.c][1]}"></i>${CAT[k.c][0]}</span></button>`).join('')}</div>
-      ${miss.length ? `<div class="callout warn mt">${ic('warn', 26)}<div><b>Hiányzó alapelemek:</b> ${miss.map(id => esc(D.kit.find(k => k.id === id).n)).join(', ')}</div></div>` : `<div class="callout ok mt">${ic('check', 26)}<div>Minden alapelem a csomagban. A túlélőkészlet a <b>testen</b> legyen, ne a hátizsákban!</div></div>`}
+      ${miss.length ? `<div class="callout warn mt">${ic('warn', 26)}<div><b>Hiányzó alapelemek:</b> ${miss.map(id => esc(KIT.find(k => k.id === id).n)).join(', ')}</div></div>` : `<div class="callout ok mt">${ic('check', 26)}<div>Minden alapelem a csomagban. A túlélőkészlet a <b>testen</b> legyen, ne a hátizsákban!</div></div>`}
       <div class="legend mt"><div><i class="dot" style="--c:var(--acc)"></i>RITKA – nehéz pótolni</div><div><i class="dot" style="--c:var(--blue)"></i>ELLÁTÁS – víz, étel</div>
         <div><i class="dot" style="--c:var(--ok)"></i>FONTOS – megbízható</div><div><i class="dot" style="--c:var(--purple)"></i>NAVIGÁCIÓ</div>
         <div><i class="dot" style="--c:var(--yel)"></i>ALAP – egyszerű, kell</div><div><span style="color:var(--warn);font-family:Silkscreen">!</span>&nbsp;kötelező alapelem</div></div>
@@ -628,8 +684,8 @@
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
   /* ---------------- router ---------------- */
-  const NAV = { sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
-  const CRUMB = { sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
+  const NAV = { who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
+  const CRUMB = { who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
   let prevRoute = '';
   function route() {
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }

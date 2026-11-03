@@ -1,5 +1,5 @@
 /* SERE PIXEL service worker — offline + automatikus frissítés (hálózat először, gyorsítótár tartalék) */
-const VERSION = 'sere-pixel-v1.4.0';
+const VERSION = 'sere-pixel-v1.5.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/app.js',

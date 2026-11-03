@@ -164,6 +164,104 @@ window.SERE_DATA = {
       ], ch: '7' }
   ],
 
+
+  /* Személyre szabás: ki használja az appot */
+  levels: [
+    { id: 'kezdo', n: 'Kezdő', x: 'Most csinálok ilyet először' },
+    { id: 'halado', n: 'Van tapasztalatom', x: 'Túráztam, táboroztam már' },
+    { id: 'katonai', n: 'Katonai / SERE', x: 'Kiképzést kaptam' }
+  ],
+  /* Polgári változat a katonai forgatókönyvekhez */
+  civil: {
+    ellenseg: { t: 'Veszélyes helyzet', sub: 'fenyegető ember, zavargás', steps: [
+      ['Ne konfrontálódj: távolodj el nyugodtan, ne fuss pánikszerűen, ha nem muszáj.', null],
+      ['Menj emberek közé, kivilágított helyre, üzletbe, benzinkútra.', null],
+      ['Hívd a 112-t: mondd el, hol vagy és mi történik. Ha nem tudsz beszélni, hagyd nyitva a vonalat.', null],
+      ['Gyerekkel: fogd a kezét vagy vedd fel, ne engedd el.', null],
+      ['Ha bezártak / elzártak: rejtőzz el, némítsd a telefont, zárd/torlaszold az ajtót.', null],
+      ['Utána: írd fel, mit láttál (idő, hely, személyleírás).', null]
+    ] },
+    mentes: { t: 'Segítséget hívok', sub: '112 + jelzés', steps: [
+      ['Hívd a 112-t (térerő nélkül is próbáld – bármely hálózaton megy).', null],
+      ['Mondd el: KI vagy, HOL vagy (koordináta a Térkép-jelölőben), MI történt, hány ember, sérülés.', 'map'],
+      ['Takarékoskodj az akkuval: kijelző halványra, felesleges appok ki, repülő mód a hívások között.', null],
+      ['Maradj egy helyben, ha tudják, hol keresnek. Az ember nagyobb jel, mint gondolod: élénk szín, mozgás.', 'jelzes'],
+      ['Jelezz: síp 3 rövid, lámpa, tükör, élénk ruhadarab kiterítve.', 'jelzes'],
+      ['Ha hallod/látod a keresőket: integess két kézzel, fújd a sípot, kiabálj.', null]
+    ] }
+  },
+  profiles: [
+    { id: 'katona', n: 'Katona', sub: 'szárazföldi erők, SERE „A”', icon: 'pack', mil: true,
+      intro: 'Egyedül vagy, elszakadtál az egységtől. A cél: túlélni, nem lebukni, visszajutni vagy kiemelésre várni.',
+      tips: ['ISOPREP, EPA, kommunikációs terv fejben', 'Túlélőkészlet a testen, ne a zsákban', 'Fény-, hang- és tűzfegyelem', 'A fogság rosszabb, mint az elkerülés'],
+      add: {}, kit: [] },
+    { id: 'szulo', n: 'Szülő kisgyerekkel', sub: 'anya / apa gyerekkel', icon: 'star',
+      intro: 'A gyerek gyorsabban hűl ki, gyorsabban szárad ki és hamarabb fárad el. Az ő tempója és állapota dönt.',
+      tips: ['A gyerek melegen és szárazon tartása az első', 'Óránként itasd, kis adagban – ne várd meg, hogy kérje', 'Tanítsd meg: ha eltévedt, ÖLELJEN MEG EGY FÁT és maradjon ott', 'Adj neki sípot – 3 fújás = segítség', 'Játékká tett feladat: „gyűjtsünk tűzre ágakat”', 'Nyugodt hang: ő a te arcodról olvassa le a helyzetet'],
+      add: {
+        eltevedtem: ['A gyereket vedd magad mellé, ne menjen előre. Kisebbet vedd ölbe/hordozóba.', 'Ha a GYEREK tévedt el: azonnal 112. Ne keresd egyedül órákig.'],
+        ejszaka: ['A gyerek közted és a fal/tűz között aludjon, sapkában.', 'Pisiltesd meg lefekvés előtt – a teli hólyag hűt.', 'Közös takaró, testhő: bújjatok össze.'],
+        viz: ['A gyerek előbb kapjon vizet. Csak tisztított vizet adj neki.', 'Kiszáradás jele gyereknél: nem pisil 6+ órája, száraz száj, bágyadt, nem könnyezik.'],
+        serult: ['Gyereknél a kis vérveszteség is sok – azonnal nyomd el.', 'Láz, aluszékonyság, nehéz ébreszthetőség: azonnal segítséget hívni.'],
+        ellenseg: ['A gyereket tartsd magad előtt/kézen, mondd el egyszerűen: „most csendben bújunk”.'],
+        mentes: ['Mondd el a 112-nek a gyerek korát és állapotát.']
+      },
+      kit: [['pelenka', 'Pelenka, törlőkendő', 'blanket', 'sus', 400], ['tapszer', 'Tápszer / bébiétel, kanál', 'berries', 'sus', 500], ['gyerruha', 'Váltóruha, sapka a gyereknek', 'poncho', 'util', 600], ['gyersip', 'Síp a gyerek nyakába', 'whistle', 'sig', 15], ['jatek', 'Kedvenc játék (megnyugtat)', 'star', 'util', 100], ['gyergyogy', 'Gyerek lázcsillapító, sebtapasz', 'medic', 'med', 100]] },
+    { id: 'varandos', n: 'Várandós / kisbabás', sub: 'terhesség, szoptatás', icon: 'medic',
+      intro: 'Te és a baba is többet iszol, könnyebben fáradsz, a hőség és a hideg is jobban megvisel. Kerüld a nehéz munkát.',
+      tips: ['Több víz: óránként igyál', 'Ne emelj nehezet – kérj segítséget', 'Jódos víztisztító helyett forralás vagy klór-dioxid', 'Szoptatás: a baba így kap vizet és meleget is', 'Hasi fájdalom, vérzés, magzatmozgás-csökkenés: azonnal 112'],
+      add: {
+        viz: ['Várandósan jódtablettát NE használj – forralj vagy klór-dioxidot (pl. Micropur).'],
+        ejszaka: ['Bal oldalon fekve pihenj, a talaj felé dupla szigetelés.'],
+        serult: ['Bármilyen hasi ütés, vérzés: 112, ne várj.'],
+        eltevedtem: ['Ne erőltess hosszú menetet: inkább maradj és jelezz.']
+      },
+      kit: [['anyakonyv', 'Kiskönyv, leletek fotón', 'book', 'med', 50], ['babahord', 'Hordozókendő', 'blanket', 'util', 400], ['pelenka2', 'Pelenka, törlőkendő', 'blanket', 'sus', 400], ['nasi', 'Nasi, energia (gyakori evés)', 'berries', 'sus', 300]] },
+    { id: 'varosi', n: 'Városi lakos', sub: 'lakás, tömegközlekedés', icon: 'map',
+      intro: 'Városban a víz, az áram és a tömeg a kulcs. Ha a szolgáltatások leállnak, napok alatt elfogy a bolt.',
+      tips: ['Otthon 3 napi víz: 3 liter/fő/nap', 'Powerbank feltöltve, zseblámpa, elemes rádió', 'Készpénz apróban – kártya nem mindig megy', 'Gyülekezési pont a családdal: hol találkoztok, ha nincs térerő', 'Ismerd a lépcsőházat, a vészkijáratokat', 'Ne menj tömegbe, kerüld a pánikvásárlást'],
+      add: {
+        eltevedtem: ['Városban: menj fő útvonalra, kérdezz boltban, benzinkúton. Offline térkép előre letöltve.'],
+        ejszaka: ['Ha nem tudsz hazajutni: nyilvános épület, pályaudvar, ismerős. Hidegben a hűlés a fő veszély.'],
+        viz: ['Otthon: kád, edények feltöltése, ha jön a víz. Bojler, WC-tartály (nem az öblítő!) tartalék – forrald.'],
+        ellenseg: ['Zavargásnál: kerüld a fő tereket, menj a mellékutcákon haza vagy zárt helyre.']
+      },
+      kit: [['keszpenz', 'Készpénz apróban', 'tablet', 'util', 30], ['powerbank', 'Powerbank (feltöltve)', 'lighter', 'sig', 250], ['maszk', 'FFP2 maszk', 'tablet', 'med', 20], ['radio', 'Elemes / tekerős rádió', 'signal', 'sig', 300], ['iratok', 'Iratok másolata, fontos számok papíron', 'book', 'util', 30]] },
+    { id: 'videki', n: 'Vidéki / falusi lakos', sub: 'kert, erdő, távoli segítség', icon: 'tree',
+      intro: 'Vidéken a segítség messzebb van és lassabban ér oda, de több a természetes erőforrás: kút, fa, kert.',
+      tips: ['A mentőnek időbe telik: az első órákat magadnak kell megoldanod', 'Kút vize: forrald, ha árvíz vagy szennyezés volt', 'Tüzelő, gyertya, petróleumlámpa tartalék', 'Fejsze, fűrész, kötél kéznél', 'Ismerd a szomszédokat – egymásra vagytok utalva', 'Állatoknak is kell víz és takarmány'],
+      add: {
+        eltevedtem: ['Vidéken: patak lefelé → út → falu. Erdészeti utak, villanyvezeték nyomvonala vezet ki.'],
+        viz: ['Ásott kút: árvíz után fertőtleníteni kell. Csapadékvíz tetőről – forrald.'],
+        ejszaka: ['Ha az erdőben ért az este: rakj tüzet, ne menetelj sötétben.'],
+        serult: ['Mondd meg a 112-nek a pontos koordinátát – vidéken nehéz megtalálni a címet.']
+      },
+      kit: [['fejsze2', 'Fejsze / fűrész', 'axe', 'util', 900], ['petroleum', 'Gyertya / petróleumlámpa', 'fire', 'util', 400], ['kotel2', 'Kötél, munkakesztyű', 'rope', 'util', 300], ['radio2', 'Elemes rádió', 'signal', 'sig', 300]] },
+    { id: 'turazo', n: 'Túrázó / kiránduló', sub: 'erdő, hegy, hétvége', icon: 'compass',
+      intro: 'A legtöbb túrás baleset rossz időzítésből, rossz ruhából és a túl kevés vízből ered.',
+      tips: ['Mindig szólj valakinek: hova mész, mikor jössz', 'Offline térkép, töltött telefon, powerbank', 'Fejlámpa – akkor is, ha délutánra tervezel', 'Réteges ruha, esőkabát', 'Fordulj vissza időben: a sötétedés nem vár'],
+      add: {
+        eltevedtem: ['Menj vissza az utolsó jelzésig, amit biztosan láttál.', 'Turistajelzés hiányában: ne vágj neki a bozótnak.'],
+        ejszaka: ['Ha sötétedik: inkább maradj, mint hogy lejtőn, sötétben menj.']
+      },
+      kit: [['fejlampa', 'Fejlámpa + elem', 'sun', 'sig', 100], ['powerbank2', 'Powerbank', 'lighter', 'sig', 250], ['eso', 'Esőkabát, réteges ruha', 'poncho', 'util', 400]] },
+    { id: 'idos', n: 'Idős / mozgásában korlátozott', sub: 'gyógyszer, lassabb tempó', icon: 'heart',
+      intro: 'A gyógyszer, a meleg és a víz a legfontosabb. Ne vállald túl magad – a segítséghívás nem gyengeség.',
+      tips: ['Gyógyszer legalább 7 napra, lista papíron', 'Szemüveg, hallókészülék elem tartalék', 'Hidegben gyorsabban hűlsz ki – rétegesen öltözz', 'Ne várj sokáig a 112-vel', 'Egy szomszéd/rokon tudjon rólad'],
+      add: {
+        viz: ['Idősebb korban későn jelentkezik a szomjúság – igyál akkor is, ha nem kívánod.'],
+        ejszaka: ['Maradj meleg, száraz helyen; ne mozogj sokat jeges, csúszós talajon.'],
+        eltevedtem: ['Ne menj tovább: ülj le biztonságos helyen, hívj segítséget.']
+      },
+      kit: [['gyogyszer', 'Gyógyszer 7 napra + lista', 'medic', 'med', 100], ['szemuveg', 'Tartalék szemüveg', 'eye', 'util', 50], ['bot', 'Bot / túrabot', 'axe', 'util', 300]] }
+  ],
+  /* nőknek külön bekapcsolható gyakorlati tippek */
+  female: {
+    tips: ['Menstruációs termékek tartalékban (betét, tampon vagy menstruációs kehely)', 'Kehely/tampon csak tiszta kézzel – fertőtlenítő gél, tisztított víz', 'Szárazon tartás és higiénia: a fertőzés terepen gyorsan elhatalmasodik', 'Egyedül: mondd meg valakinek az útvonalad, ismerkedőknek ne add meg a pontos helyed'],
+    kit: [['mens', 'Menstruációs termékek', 'blanket', 'med', 100], ['gel', 'Kézfertőtlenítő gél', 'tablet', 'med', 60]],
+    add: { viz: ['Menstruáció alatt több folyadék és vas (pl. aszalt gyümölcs) kell.'] }
+  },
+
   checklists: [
     { id: 'bevetes', t: 'Bevetés előtt', icon: 'pack', items: ['ISOPREP kitöltve, frissítve', 'Elkerülési terv (EPA) ismert', 'Kommunikációs terv: frekvencia, hívójel, időablak', 'Túlélőkészlet a testen', 'Jelzőeszközök ellenőrizve', 'Térkép: kiemelési helyek, gyülekezési pontok', 'Víz, elektrolit, víztisztító', 'Iránytű ellenőrizve'] },
     { id: 'menedek', t: 'Menedék – megfontolások', icon: 'shelter', items: ['Szükséges egyáltalán?', 'Van elég energiám?', 'Mivel rendelkezem?', 'Mennyi időre építem?', 'Védett a környezeti hatásoktól?', 'Kell álcázni?', 'Fenyegeti objektív veszély?', 'Kell fűtés?', 'Biztosított a szellőzés?'] },
