@@ -262,17 +262,36 @@
       setTimeout(() => { location.href = 'tel:112'; }, 1800);
     });
   }
+  const KIDASK = { eltevedtem: 'Eltévedtél, és nem tudod, hol vagy? Ez a fa és a kérdőjel.', felek: 'Félsz? Ez a szomorú arc.', serult: 'Megsérültél, fáj valamid, vérzel? Ez a ragtapaszos láb.', fazom: 'Fázol? Ez a hópehely.', szomjas: 'Szomjas vagy? Ez a pohár.', nincstelefon: 'Nincs telefonod, vagy nem működik? Ez az áthúzott telefon.', szulo: 'Nem találod anyát vagy apát? Ez a gyerek a kérdőjellel.' };
   V.kid = (id) => {
     document.body.classList.add('kidmode');
     if (!id) {
-      main.innerHTML = `<section class="kidhead"><div class="kidt">SEGÍTEK!</div><div class="kids">Koppints arra, ami történt.</div></section>
-        <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" style="--c:${k.c}">${ic(k.icon, 72)}<span>${esc(k.t)}</span></a>`).join('')}</div>
+      main.innerHTML = `<section class="kidhead"><div class="kidt">SEGÍTEK!</div><div class="kids">Koppints arra, ami történt.</div>
+          <button class="kidtour" id="kTour" aria-label="Mondd el újra">${ic('speak', 40)}<span>MONDD EL!</span></button></section>
+        <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" data-k="${k.id}" style="--c:${k.c}">${ic(k.icon, 84)}<span>${esc(k.t)}</span><b class="kidtap">2×</b></a>`).join('')}</div>
         <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
         <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button>`;
-      if (kidSaid) kidSaid = false; else setTimeout(() => SERESpeak.ok && SERESpeak.speak(['Segítek! Koppints arra, ami történt.']), 300);
-      main.querySelectorAll('.kidbtn').forEach(a => a.addEventListener('click', e => {
-        const k = D.kid.find(x => x.id === a.getAttribute('href').split('/').pop());
-        if (k && SERESpeak.ok) { kidSaid = true; SERESpeak.speak([k.t + '.', k.say[0]], { rate: 0.88, pitch: 1.1 }); }
+      // olvasni nem tudó gyereknek: hangos körbevezetés (minden gombnál kiemelés), és két koppintás – az első csak felolvassa, mi ez
+      const btns = [...main.querySelectorAll('.kidbtn')], k112 = main.querySelector('.kid112');
+      const mark = el => { main.querySelectorAll('.talk').forEach(x => x.classList.remove('talk')); if (el) { el.classList.add('talk'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } };
+      let tourId = 0;
+      const tour = () => {
+        if (!SERESpeak.ok) return; const my = ++tourId;
+        const L = ['Segítek! Mondom, mit tudsz megnyomni.'].concat(D.kid.map(k => KIDASK[k.id] || k.t + '?'), ['Ha nagy a baj, nyomd meg a piros telefont.', 'Mi történt? Nyomd meg a képet!']);
+        SERESpeak.speak(L, { rate: 0.9, pitch: 1.1, onItem: i => my === tourId && mark(i >= 1 && i <= btns.length ? btns[i - 1] : i === btns.length + 1 ? k112 : null), onDone: () => my === tourId && mark(null) });
+      };
+      $('#kTour').onclick = tour;
+      if (kidSaid) kidSaid = false; else setTimeout(tour, 350);
+      let armed = null, armT = null;
+      btns.forEach(a => a.addEventListener('click', e => {
+        const k = D.kid.find(x => x.id === a.dataset.k);
+        if (!k || !SERESpeak.ok) return;
+        if (armed !== a) {
+          e.preventDefault(); tourId++; armed = a; clearTimeout(armT); armT = setTimeout(() => { armed = null; mark(null); }, 9000);
+          mark(a); SERESpeak.speak([k.t + '.', 'Ha ez a baj, nyomd meg még egyszer!'], { rate: 0.9, pitch: 1.1 });
+          return;
+        }
+        armed = null; clearTimeout(armT); kidSaid = true; SERESpeak.speak([k.t + '.', k.say[0]], { rate: 0.88, pitch: 1.1 });
       }));
       const ex = $('#kidExit'); let t = null;
       kid112(); ex.addEventListener('click', () => SERESpeak.ok && SERESpeak.speak('Tartsd nyomva a kilépéshez.'));

@@ -19,7 +19,8 @@
       const u = new SpeechSynthesisUtterance(t);
       u.lang = (window.I18N && I18N.tts) || 'hu-HU'; if (voice) u.voice = voice;
       u.rate = opts.rate || 0.95; u.pitch = opts.pitch || 1;
-      if (i === list.length - 1) u.onend = () => { onEnd && onEnd(); };
+      if (opts.onItem) u.onstart = () => opts.onItem(i);
+      if (i === list.length - 1) u.onend = () => { onEnd && onEnd(); opts.onDone && opts.onDone(); };
       synth.speak(u);
     });
     return true;
