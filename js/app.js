@@ -131,19 +131,36 @@
 
   V.home = () => {
     const p = prof();
-    main.innerHTML = `<div class="homefit"><div class="toprow">
-      ${p ? `<a class="whochip" href="#/who/tips">${ic(p.icon, 28)}<span>${esc(p.n)}</span><b>›</b></a>`
-          : `<a class="whochip cta" href="#/who">${ic('star', 28)}<span>KI VAGY?</span><b style="color:inherit">›</b></a>`}
-      <button class="langchip" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button></div>
-      <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
-      <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
-      <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 38)}<span>${esc(x.t)}</span></a>`).join('')}</div>
-      <div class="scene"><canvas id="cover" width="160" height="90" aria-label="Egyedül álló katona az erdőszélen"></canvas></div>
-      <div class="tools"><a href="#/toc">${ic('book', 28)}Kézikönyv</a><a href="#/guides">${ic('fire', 28)}Kártyák</a><a href="#/compass">${ic('compass', 28)}Iránytű</a><a href="#/map">${ic('map', 28)}Térkép</a></div>
+    const done = C.filter(c => (cres()[c.id] || {}).best >= 70).length;
+    main.innerHTML = `<div class="hm">
+      <div class="hm-hero"><canvas id="cover" width="160" height="90" aria-label="Egyedül álló katona az erdőszélen"></canvas>
+        <div class="hm-chips">
+          ${p ? `<a class="hm-chip" href="#/who/tips">${ic(p.icon, 24)}<span>${esc(p.n)}</span><b>›</b></a>`
+              : `<a class="hm-chip cta" href="#/who">${ic('star', 24)}<span>KI VAGY?</span><b>›</b></a>`}
+          <button class="hm-chip lang" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button>
+        </div>
+        <div class="hm-tag"><b>OFFLINE</b> TÚLÉLÉSI KÉZIKÖNYV</div>
+      </div>
+      <div class="hm-act">
+        <a class="hm-sos" href="#/sos">${ic('warn', 40)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span><b>›</b></a>
+        <a class="hm-kid" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a>
+      </div>
+      <div class="hm-side">
+        <div class="hm-lbl">Mi történt?</div>
+        <div class="hm-scen">${scenList().map(x => `<a class="hm-t" href="#/sos/${x.id}" style="--c:${x.c}"><i>${ic(x.icon, 30)}</i><span>${esc(x.t)}</span></a>`).join('')}</div>
+        <nav class="hm-dock">
+          <a href="#/course">${ic('star', 26)}<span>Tanfolyam</span>${done ? `<em>${done}/${C.length}</em>` : ''}</a>
+          <a href="#/toc">${ic('book', 26)}<span>Kézikönyv</span></a>
+          <a href="#/guides">${ic('fire', 26)}<span>Kártyák</span></a>
+          <a href="#/compass">${ic('compass', 26)}<span>Iránytű</span></a>
+          <a href="#/map">${ic('map', 26)}<span>Térkép</span></a>
+        </nav>
+      </div>
     </div>`;
     drawCover();
-    const hf = $('.homefit'), sc = $('.homefit .scene');
-    requestAnimationFrame(() => { if (sc && sc.getBoundingClientRect().height < 80) hf.classList.add('noscene'); });
+    const hero = $('.hm-hero');
+    const fitHero = () => { if (!hero || !hero.isConnected) return window.removeEventListener('resize', fitHero); hero.classList.remove('flat', 'short'); const hh = hero.getBoundingClientRect().height; hero.classList.toggle('flat', hh < 100); hero.classList.toggle('short', hh < 170); };
+    requestAnimationFrame(fitHero); window.addEventListener('resize', fitHero);
     $('#langBtn').onclick = () => langModal(null, true);
   };
   V.status = () => {

@@ -619,3 +619,100 @@ body.kidmode * { -webkit-user-select: none; user-select: none; }
 .homefit .sbtn span { min-width: 0; overflow-wrap: anywhere; }
 .homefit .tools a { font-size: clamp(13px, 4vw, 18px); min-width: 0; }
 @media (max-height: 760px) { .homefit .scen { grid-auto-rows: minmax(54px, 1fr); } .homefit .tools a { padding: 6px 2px; } }
+
+/* ===================== v3.1 – letisztult főoldal (.hm) ===================== */
+.hm { display: flex; flex-direction: column; gap: 10px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 10px); min-height: 500px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.hm a { text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.hm-hero { position: relative; flex: 1 1 150px; min-height: 0; max-height: 38vh; overflow: hidden; border: 3px solid var(--khaki-d); box-shadow: 0 0 0 3px var(--line); background: #0c150b; }
+.hm-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 72%; image-rendering: pixelated; }
+.hm-hero::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(8,12,8,.55), transparent 32%, transparent 70%, rgba(8,12,8,.6)); }
+.hm-chips { position: absolute; z-index: 2; top: 8px; left: 8px; right: 8px; display: flex; gap: 8px; }
+.hm-chip { display: flex; align-items: center; gap: 8px; min-width: 0; height: 40px; padding: 0 10px; background: rgba(10,16,10,.82); border: 2px solid rgba(196,165,116,.5); color: var(--khaki-l); font: 600 clamp(15px, 4.4vw, 19px)/1 'Pixelify', monospace; cursor: pointer; }
+.hm-chip:first-child { flex: 1; }
+.hm-chip span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hm-chip b { margin-left: auto; color: var(--acc); }
+.hm-chip.cta { background: rgba(196,165,116,.92); color: var(--bg2); border-color: var(--khaki); }
+.hm-chip.cta b { color: var(--bg2); }
+.hm-chip.lang { flex: none; font-family: 'Silkscreen', 'Pixelify', monospace; font-size: 15px; }
+.hm-chip .flag { width: 26px; height: 18px; border-width: 1px; box-shadow: none; }
+.hm-tag { position: absolute; z-index: 2; left: 10px; bottom: 8px; font: 13px/1 'Silkscreen', 'Pixelify', monospace; letter-spacing: 2px; color: var(--khaki); }
+.hm-tag b { color: var(--acc); }
+.hm-hero.flat { flex: none; border: 0; box-shadow: none; background: none; overflow: visible; }
+.hm-hero.flat canvas, .hm-hero.flat::after, .hm-hero.flat .hm-tag { display: none; }
+.hm-hero.flat .hm-chips { position: static; }
+
+.hm-act { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.hm-sos { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 14px; color: #fff; background: var(--warn); border: 3px solid #7a120d; box-shadow: 0 0 0 3px var(--line), inset -4px -4px 0 rgba(0,0,0,.22), inset 3px 3px 0 rgba(255,255,255,.18); font: 700 clamp(21px, 6.4vw, 27px)/1 'Pixelify', monospace; animation: hmglow 3s ease-in-out infinite; }
+.hm-sos small { display: block; margin-top: 5px; font: 400 clamp(16px, 4.6vw, 20px)/1 'VT323', monospace; opacity: .92; }
+.hm-sos b { margin-left: auto; font-size: 30px; }
+@keyframes hmglow { 50% { box-shadow: 0 0 0 3px var(--line), 0 0 0 7px rgba(255,59,48,.28), inset -4px -4px 0 rgba(0,0,0,.22), inset 3px 3px 0 rgba(255,255,255,.18); } }
+.hm-kid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 88px; padding: 6px 10px; color: #3b0764; background: #ffd60a; border: 3px solid #3b0764; box-shadow: 0 0 0 3px var(--line); font: 700 15px/1 'Pixelify', monospace; text-align: center; }
+.hm-sos:active, .hm-kid:active, .hm-t:active, .hm-dock a:active, .hm-chip:active { transform: translateY(2px); }
+
+.hm-side { flex: none; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.hm-lbl { font: 13px/1 'Silkscreen', 'Pixelify', monospace; letter-spacing: 2px; color: var(--muted); padding: 2px 2px 0; }
+.hm-scen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 56px; gap: 8px; }
+.hm-scen > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+.hm-t { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 4px 10px; background: var(--panel); border: 2px solid rgba(196,165,116,.16); border-left: 5px solid var(--c); color: var(--khaki-l); font: 600 clamp(15px, 4.3vw, 19px)/1.1 'Pixelify', monospace; }
+.hm-t i { flex: none; display: grid; place-items: center; }
+.hm-t i .px { width: 28px; height: 28px; }
+.hm-t span { min-width: 0; overflow-wrap: anywhere; hyphens: manual; }
+.hm-dock { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.hm-dock a { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px 7px; border: 2px solid rgba(196,165,116,.2); color: var(--khaki-l); font: 500 clamp(12px, 3.5vw, 15px)/1 'Pixelify', monospace; min-width: 0; }
+.hm-dock a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-dock em { position: absolute; top: 2px; right: 3px; font: normal 13px/1 'VT323', monospace; color: var(--ok, #34c759); }
+@media (min-height: 860px) and (max-aspect-ratio: 1/1) {
+  .hm { gap: 12px; }
+  .hm-scen { grid-auto-rows: 64px; gap: 10px; }
+  .hm-sos { padding: 16px 14px; }
+  .hm-dock a { padding: 11px 2px 9px; }
+}
+@media (max-height: 640px) and (max-width: 759px) { .hm-scen { grid-auto-rows: 50px; } .hm-sos { padding: 9px 12px; } }
+
+/* tablet / laptop / asztali: két oszlop, középre, levegősen */
+@media (min-width: 760px) and (min-aspect-ratio: 1/1) {
+  body.is-home main { max-width: 1240px; padding: 14px 20px 0; }
+  .hm { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 18px 22px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 30px); min-height: 520px; }
+  .hm-hero { grid-column: 1; grid-row: 1; max-height: none; flex: none; }
+  .hm-hero.flat { border: 3px solid var(--khaki-d); }
+  .hm-act { grid-column: 1; grid-row: 2; }
+  .hm-side { grid-column: 2; grid-row: 1 / span 2; gap: 12px; }
+  .hm-scen { flex: 1; grid-auto-rows: minmax(60px, 1fr); gap: 12px; }
+  .hm-t { font-size: 21px; padding: 6px 14px; } .hm-t i .px { width: 34px; height: 34px; }
+  .hm-sos { font-size: 30px; padding: 18px; } .hm-sos small { font-size: 21px; }
+  .hm-kid { min-width: 120px; font-size: 19px; }
+  .hm-chip { font-size: 19px; height: 44px; }
+  .hm-tag { font-size: 16px; left: 14px; bottom: 12px; }
+  .hm-dock a { font-size: 16px; padding: 12px 4px 10px; }
+  .hm-lbl { font-size: 15px; }
+}
+@media (min-width: 760px) and (min-aspect-ratio: 1/1) and (max-height: 600px) { .hm { height: auto; } .hm-hero { min-height: 260px; } }
+
+.hm-hero.short .hm-tag { display: none; }
+.hm-t { font-size: clamp(13px, 3.9vw, 19px); }
+.hm-t span { overflow-wrap: normal; word-break: keep-all; }
+.hm-sos { font-size: clamp(19px, 5.6vw, 27px); }
+.hm-sos span { min-width: 0; }
+@media (max-width: 389px) { .hm-t { gap: 7px; padding: 4px 7px; } .hm-t i .px { width: 24px; height: 24px; } .hm-kid { min-width: 76px; font-size: 13px; } .hm-sos { gap: 9px; padding-left: 10px; padding-right: 10px; } .hm-sos .px { width: 34px; height: 34px; } }
+/* álló tablet: egy oszlop, középre, nagyobb elemek */
+@media (min-width: 600px) and (max-aspect-ratio: 1/1) {
+  body.is-home main { max-width: 720px; padding-top: 16px; }
+  .hm { gap: 16px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 24px); }
+  .hm-hero { max-height: 40vh; }
+  .hm-scen { grid-auto-rows: minmax(76px, 1fr); gap: 12px; }
+  .hm-t { font-size: 23px; padding: 6px 16px; } .hm-t i .px { width: 38px; height: 38px; }
+  .hm-sos { font-size: 32px; padding: 20px; } .hm-sos small { font-size: 22px; }
+  .hm-kid { min-width: 130px; font-size: 20px; }
+  .hm-chip { height: 48px; font-size: 21px; }
+  .hm-dock a { font-size: 17px; padding: 14px 4px 12px; }
+  .hm-lbl { font-size: 15px; }
+}
+/* nagy kijelző: arányos betűk */
+@media (min-width: 1400px) and (min-aspect-ratio: 1/1) {
+  .hm-t { font-size: clamp(21px, 1.35vw, 27px); } .hm-t i .px { width: 40px; height: 40px; }
+  .hm-sos { font-size: clamp(30px, 1.9vw, 38px); } .hm-sos small { font-size: 24px; }
+  .hm-dock a { font-size: 18px; } .hm-chip { font-size: 21px; height: 48px; } .hm-lbl { font-size: 17px; }
+  .hm-kid { font-size: 22px; min-width: 150px; }
+  body.is-home main { max-width: 1500px; }
+}
+@media (max-width: 599px) { .hm-dock a { font-size: clamp(11px, 3.1vw, 15px); letter-spacing: -.2px; } }
