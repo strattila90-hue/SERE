@@ -396,3 +396,44 @@ body.fs2 main { zoom: 1.25; }
 button.sbtn, button.brow { width: 100%; text-align: left; cursor: pointer; }
 a.btn, a.golink, .brow, .sbtn { text-decoration: none; }
 #fem.on span:last-child { text-decoration: none; color: var(--ink); }
+
+/* ===== felolvasás ===== */
+.readbtn { margin: 4px 0 12px; font-size: 18px; padding: 8px 14px; background: var(--blue); color: #08142a; }
+.readbtn.on { background: var(--warn); color: #fff; animation: pulse 1.2s steps(2) infinite; }
+.sec .readbtn { font-size: 15px; padding: 5px 10px; margin: 0 0 8px; }
+
+/* ===== GYEREK MÓD ===== */
+.kidentry { display: grid; grid-template-columns: 48px 1fr 20px; gap: 12px; align-items: center; text-decoration: none; color: #3b0764; background: #ffd60a; border: 4px solid #3b0764; box-shadow: 0 0 0 3px var(--line); padding: 12px; margin: 14px 0 0; font-family: 'Pixelify', monospace; font-weight: 700; font-size: 27px; line-height: 1; }
+.kidentry small { display: block; font-family: 'VT323', monospace; font-weight: 400; font-size: 20px; margin-top: 4px; }
+.kidentry b { font-size: 32px; }
+body.kidmode { background: #1e3a5f; background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,.06) 0 3px, transparent 3px); background-size: 22px 22px; }
+body.kidmode .nav, body.kidmode #fsBtn, body.kidmode #modeBtn { display: none; }
+body.kidmode main { padding-bottom: 30px; }
+.kidhead { text-align: center; margin: 6px 0 16px; }
+.kidt { font-family: 'Silkscreen', monospace; font-size: 54px; color: #ffd60a; text-shadow: 4px 4px 0 #000; }
+.kids { font-family: 'Pixelify', monospace; font-size: 28px; color: #fff; }
+.kidgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kidbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 180px; text-decoration: none; text-align: center;
+  background: var(--c); color: #fff; border: 5px solid #000; box-shadow: inset -7px -7px 0 rgba(0,0,0,.25), inset 7px 7px 0 rgba(255,255,255,.25);
+  font-family: 'Pixelify', monospace; font-weight: 700; font-size: 22px; line-height: 1.05; padding: 10px; hyphens: auto; text-shadow: 2px 2px 0 rgba(0,0,0,.4); }
+.kidbtn:active, .kid112:active { transform: translateY(4px); }
+.kid112 { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 16px 0 10px; text-decoration: none; color: #fff; background: #dc2626; border: 5px solid #000;
+  padding: 16px; font-family: 'Silkscreen', monospace; font-size: 36px; box-shadow: inset -7px -7px 0 rgba(0,0,0,.25); }
+.kid112 small { display: block; font-family: 'Pixelify', monospace; font-size: 20px; }
+.kidexit { display: block; margin: 18px auto 0; background: none; border: 2px dashed rgba(255,255,255,.35); color: rgba(255,255,255,.6); font-size: 18px; padding: 10px 14px; position: relative; overflow: hidden; }
+.kidexit.hold::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,214,10,.4); animation: fillx 1.5s linear forwards; }
+@keyframes fillx { from { width: 0; } to { width: 100%; } }
+.kidcard { background: #fff8e6; border: 6px solid #000; box-shadow: 0 0 0 6px var(--c); padding: 14px; text-align: center; color: #1c1917; }
+.kidtop { display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Pixelify', monospace; font-weight: 700; font-size: 32px; color: var(--c); }
+.kidpic { display: grid; place-items: center; margin: 10px 0; }
+.kidsay { font-family: 'Pixelify', monospace; font-weight: 600; font-size: 31px; line-height: 1.2; min-height: 150px; display: grid; place-items: center; }
+.kiddots { display: flex; gap: 6px; justify-content: center; margin: 10px 0; }
+.kiddots i { width: 16px; height: 16px; background: #d6d3d1; border: 2px solid #000; }
+.kiddots i.on { background: var(--c); }
+.kidnav { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 10px; }
+.kidnb { font-family: 'Silkscreen', monospace; font-size: 48px; background: var(--c); color: #fff; border: 4px solid #000; min-height: 86px; display: grid; place-items: center; }
+.kidnb:disabled { opacity: .3; }
+.kidnb.big { background: #2563eb; }
+.kidback { display: inline-block; color: #fff; font-family: 'Pixelify', monospace; font-size: 24px; margin-top: 6px; }
+.breath { width: 90px; height: 90px; margin: 0 auto 6px; background: var(--c); border: 4px solid #000; animation: breathe 8s steps(16) infinite; }
+@keyframes breathe { 0%,100% { transform: scale(.55); } 50% { transform: scale(1.1); } }

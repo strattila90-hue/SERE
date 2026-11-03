@@ -140,6 +140,7 @@
       ${whoCard()}
       <a class="sosbtn" href="#/sos">${ic('warn', 48)}<span>BAJBAN VAGYOK<small>Most kell a SERE tudás – lépésről lépésre</small></span></a>
 
+      <a class="kidentry" href="#/kid">${ic('heart', 44)}<span>GYEREK MÓD<small>Nagy gombok, egyszerű szavak, felolvassa – add oda a gyereknek</small></span><b>›</b></a>
       <h2 class="hh">Mi történt?</h2>
       <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>
 
@@ -231,6 +232,56 @@
     $('#whoOk').onclick = () => { location.hash = '#/who/tips'; };
   };
 
+
+  /* ---------------- felolvasás ---------------- */
+  function readBtn(id) { return window.SERESpeak && SERESpeak.ok ? `<button class="btn readbtn" data-read="${id}">${ic('speak', 24)}<span>FELOLVASÁS</span></button>` : ''; }
+  function bindRead(getTexts) {
+    main.querySelectorAll('[data-read]').forEach(b => b.onclick = () => {
+      if (SERESpeak.speaking) { SERESpeak.stop(); b.classList.remove('on'); b.querySelector('span').textContent = 'FELOLVASÁS'; return; }
+      const t = getTexts(b.dataset.read); if (!t || !t.length) return;
+      if (window.SEREMusic && SEREMusic.on) SEREMusic.stop();
+      SERESpeak.onEnd = () => { b.classList.remove('on'); b.querySelector('span').textContent = 'FELOLVASÁS'; };
+      SERESpeak.speak(t); b.classList.add('on'); b.querySelector('span').textContent = 'ÁLLJ';
+      if (!SERESpeak.hasHu) toast('Nincs magyar hang a telefonon – Beállítások › Szövegfelolvasás');
+    });
+  }
+
+  /* ---------------- GYEREK MÓD ---------------- */
+  V.kid = (id) => {
+    document.body.classList.add('kidmode');
+    if (!id) {
+      main.innerHTML = `<section class="kidhead"><div class="kidt">SEGÍTEK!</div><div class="kids">Koppints arra, ami történt.</div></section>
+        <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" style="--c:${k.c}">${ic(k.icon, 72)}<span>${esc(k.t)}</span></a>`).join('')}</div>
+        <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
+        <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button>`;
+      setTimeout(() => SERESpeak.ok && SERESpeak.speak(['Segítek! Koppints arra, ami történt.']), 300);
+      const ex = $('#kidExit'); let t = null;
+      const start = () => { t = setTimeout(() => { LS.set('kid', false); document.body.classList.remove('kidmode'); SERESpeak.stop(); location.hash = '#/'; }, 1500); ex.classList.add('hold'); };
+      const end = () => { clearTimeout(t); ex.classList.remove('hold'); };
+      ex.addEventListener('pointerdown', start); ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => ex.addEventListener(e, end));
+      return;
+    }
+    const k = D.kid.find(x => x.id === id); if (!k) return V.kid();
+    let i = 0;
+    const show = () => {
+      main.innerHTML = `<section class="kidcard" style="--c:${k.c}">
+        <div class="kidtop">${ic(k.icon, 56)}<span>${esc(k.t)}</span></div>
+        <div class="kidpic">${ic(k.pics[i % k.pics.length], 150)}</div>
+        ${k.breathe ? '<div class="breath"></div>' : ''}
+        <div class="kidsay">${esc(k.say[i])}</div>
+        <div class="kiddots">${k.say.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="kidnav"><button class="kidnb" id="kPrev" ${i ? '' : 'disabled'}>‹</button><button class="kidnb big" id="kRep">${ic('speak', 48)}</button><button class="kidnb" id="kNext">${i < k.say.length - 1 ? '›' : '✓'}</button></div>
+        </section>
+        <a class="kid112" href="tel:112">${ic('phone', 48)}<span>HÍVD: 112</span></a>
+        <a class="kidback" href="#/kid">‹ Vissza</a>`;
+      SERESpeak.ok && SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+      $('#kPrev').onclick = () => { if (i) { i--; show(); } };
+      $('#kNext').onclick = () => { if (i < k.say.length - 1) { i++; show(); } else { SERESpeak.stop(); location.hash = '#/kid'; } };
+      $('#kRep').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+    };
+    show();
+  };
+
   /* --- BAJBAN VAGYOK: forgatókönyvek --- */
   const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
   V.sos = (id) => {
@@ -244,6 +295,7 @@
     const st = LS.get('sos', {}); const done = x.steps.filter((_, i) => st[id + i]).length;
     main.innerHTML = `<section class="card frame" style="border-color:${x.c}"><div class="ch-head">${ic(x.icon, 52)}<div><h1>${esc(x.t)}</h1><div class="muted">${done}/${x.steps.length} lépés kész</div></div></div>
       <div class="progress">${x.steps.map((_, i) => `<i class="${st[id + i] ? 'f' : ''}"></i>`).join('')}</div>
+      ${readBtn('sos')}
       <ol class="sosl">${x.steps.map(([t, g], i) => `<li class="${st[id + i] ? 'on' : ''}"><button class="sosck" data-i="${i}"><span class="no">${i + 1}</span><span class="tx">${esc(t)}</span><span class="box"></span></button>
         ${g ? `<a class="golink" href="${GLINK[g] || '#/guide/' + g}">${ic(g === 'map' ? 'map' : g === 'compass' ? 'compass' : g === 'stop' ? 'stop' : (D.guides.find(q => q.id === g) || {}).icon || 'book', 22)} ${GLINK[g] ? 'Megnyitás' : 'Kártya'} ›</a>` : ''}</li>`).join('')}</ol>
       ${x.extra.length ? `<h3 class="mt" style="display:flex;gap:8px;align-items:center">${ic((prof() || {}).icon || 'star', 26)} Neked külön${prof() ? ': ' + esc(prof().n) : ''}</h3>
@@ -252,6 +304,7 @@
       ${x.ch ? `<a class="btn ghost mt" href="#/ch/${x.ch}">Részletesen: ${x.ch}. fejezet ›</a>` : ''}
       </section>
       <div class="row"><a class="btn ghost" href="#/sos">‹ Másik helyzet</a><button class="btn ghost" id="sosReset">Újrakezdés</button></div>`;
+    bindRead(() => [x.t + '.'].concat(x.steps.map(([t], i) => (i + 1) + '. ' + t), x.extra.length ? ['Neked külön:'].concat(x.extra) : []));
     main.querySelectorAll('.sosck').forEach(b => b.onclick = () => { const s = LS.get('sos', {}); s[id + b.dataset.i] = !s[id + b.dataset.i]; LS.set('sos', s); V.sos(id); window.scrollTo(0, window.scrollY); });
     $('#sosReset').onclick = () => { const s = LS.get('sos', {}); x.steps.forEach((_, i) => delete s[id + i]); x.extra.forEach((_, i) => delete s[id + 'p' + i]); LS.set('sos', s); V.sos(id); };
   };
@@ -305,7 +358,7 @@
     main.innerHTML = `
       <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div></section>
       ${ch.sections.map(s => `<section class="card sec" id="s-${s.id}" data-sid="${s.id}">
-        <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>
+        <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>${readBtn(s.id)}
         ${s.web ? '<div class="webnote"><span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból — ellenőrizd a hatályos szakutasítással</div><div class="rule"></div>' : '<div class="rule"></div>'}
         ${s.blocks.map(block).join('')}</section>`).join('')}
       <div class="pager">
@@ -313,6 +366,7 @@
         <a class="btn ghost" href="#/toc">Tartalom</a>
         ${i < C.length - 1 ? `<a class="btn" href="#/ch/${C[i + 1].id}">${C[i + 1].id}. fejezet ›</a>` : '<span></span>'}
       </div>`;
+    bindRead(sid => { const sc = ch.sections.find(q => q.id === sid); return [sc.title + '.'].concat(sc.blocks.flatMap(b => b.items || [b.x])); });
     const seen = seenAll();
     const io = new IntersectionObserver(es => {
       es.forEach(e => { if (e.isIntersecting) { seen[e.target.dataset.sid] = 1; LS.set('seen', seen); } });
@@ -331,13 +385,15 @@
     const g = D.guides.find(x => x.id === id); if (!g) return V.guides();
     main.innerHTML = `<section class="card frame">
       <div class="sc-head">${ic(g.icon, 52)}<div class="ttl">${esc(g.title)}<small>${g.en} · SERE PIXEL</small></div><span class="sp" style="flex:1"></span><span class="stamp">SERE · FM</span></div>
+      ${readBtn('guide')}
       <div class="steps">${g.steps.map((s, i) => `<div class="step"><div class="sh"><span class="no">${i + 1}</span>${esc(s.t)}</div>
         <div class="art">${ic(s.icon, 64)}</div><ul>${s.x.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
         <div class="tag ${s.tag[0]}">${ic(s.tag[0] === 'warn' ? 'warn' : s.tag[0] === 'ok' ? 'check' : 'star', 18)}${esc(s.tag[1])}</div>${i < 3 ? '<span class="arrow">▶</span>' : ''}</div>`).join('')}</div>
       <div class="safety"><span class="sf-h">! BIZTONSÁG ELŐSZÖR</span><ul>${g.safety.map(x => `<li>${ic('warn', 20)}<span>${esc(x)}</span></li>`).join('')}</ul></div>
       <div class="motto">${ic('pack', 24)}<span>SERE MINDSET: FELKÉSZÜLÉS · ALKALMAZKODÁS · <span style="color:var(--warn)">TÚLÉLÉS</span></span></div>
       </section>
-      <div class="pager"><a class="btn ghost" href="#/guides">‹ Útmutatók</a><a class="btn" href="#/ch/${g.ch}">Részletesen: ${g.ch}. fejezet ›</a></div>`;
+      <div class="pager"><a class="btn ghost" href="#/guides">‹ Kártyák</a><a class="btn" href="#/ch/${g.ch}">Részletesen: ${g.ch}. fejezet ›</a></div>`;
+    bindRead(() => [g.title + '.'].concat(g.steps.map((s, i) => (i + 1) + '. ' + s.t + ': ' + s.x.join('. ') + '. ' + s.tag[1]), ['Biztonság: ' + g.safety.join('. ')]));
     window.scrollTo(0, 0);
   };
 
@@ -655,7 +711,7 @@
     const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const iOSSafari = iOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
     const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(ua);
-    const head = `<img class="ico" src="icons/icon-v2-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
+    const head = `<img class="ico" src="icons/icon-v3-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
     const steps = () => iOSSafari ? `<ol><li>Koppints lent a <b>Megosztás ⬆</b> gombra</li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li></ol>`
       : iOS ? `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Nyisd meg a linket <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`
       : inApp ? `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>⋮ menü → <b>„Megnyitás Chrome-ban”</b></li><li>Ott koppints: <b>IGEN, TELEPÍTEM</b></li></ol>`
@@ -684,13 +740,17 @@
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
   /* ---------------- router ---------------- */
-  const NAV = { who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
-  const CRUMB = { who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
+  const NAV = { kid: 'home', who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
+  const CRUMB = { kid: 'Gyerek mód', who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
   let prevRoute = '';
   function route() {
+    if (window.SERESpeak) SERESpeak.stop();
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-    const v = V[parts[0]] ? parts[0] : 'home';
+    let v = V[parts[0]] ? parts[0] : 'home';
+    if (v === 'kid') LS.set('kid', true);
+    else if (LS.get('kid', false)) { location.replace('#/kid'); return; }
+    document.body.classList.toggle('kidmode', v === 'kid');
     $('#crumb').textContent = CRUMB[v];
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     V[v](...parts.slice(1));

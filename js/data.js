@@ -262,6 +262,29 @@ window.SERE_DATA = {
     add: { viz: ['Menstruáció alatt több folyadék és vas (pl. aszalt gyümölcs) kell.'] }
   },
 
+
+  /* GYEREK MÓD — egyszerű szavak, nagy képek, felolvasva */
+  kid: [
+    { id: 'eltevedtem', t: 'Eltévedtem', icon: 'tree', c: '#2f8f3a',
+      say: ['Nem baj, ha eltévedtél. Most figyelj rám.', 'Állj meg. Ne menj tovább.', 'Keress egy nagy fát, és öleld meg. Maradj ott a fánál.', 'Fújd meg a sípot háromszor. Ha nincs síp, kiabáld: Segítség!', 'A felnőttek keresni fognak. Te csak maradj a fánál.', 'Ha van telefonod, hívd a száztizenkettőt.'],
+      pics: ['heart', 'stop', 'tree', 'whistle', 'star', 'phone'] },
+    { id: 'felek', t: 'Félek', icon: 'heart', c: '#c2410c',
+      say: ['Bátor vagy. Most együtt lélegzünk.', 'Szívd be a levegőt lassan: egy, kettő, három, négy.', 'Fújd ki lassan: egy, kettő, három, négy.', 'Még egyszer. Nagyon ügyes vagy.', 'Ha bajban vagy, hívd a száztizenkettőt, vagy szólj egy felnőttnek, aki segíthet: rendőrnek, boltosnak, egy anyukának gyerekkel.'],
+      pics: ['heart', 'heart', 'heart', 'star', 'phone'], breathe: true },
+    { id: 'serult', t: 'Megsérültem', icon: 'medic', c: '#dc2626',
+      say: ['Ha vérzik, nyomd rá erősen a kezed vagy egy ruhát, és ne engedd el.', 'Ülj vagy feküdj le.', 'Hívd a száztizenkettőt, vagy szólj egy felnőttnek.', 'Ha egy felnőtt megsérült és nem beszél: hívd a száztizenkettőt, és mondd el, mit látsz.'],
+      pics: ['medic', 'blanket', 'phone', 'phone'] },
+    { id: 'fazom', t: 'Fázom', icon: 'blanket', c: '#2563eb',
+      say: ['Vegyél fel mindent, ami nálad van. A sapka nagyon fontos.', 'Ne ülj a puszta földre. Ülj a táskádra vagy levelekre.', 'Bújj szélvédett helyre: fa mögé, bokor mellé.', 'Húzd össze magad, és dugd a kezed a hónod alá.', 'Ha vizes a ruhád, és van száraz, cseréld át.'],
+      pics: ['poncho', 'pack', 'tree', 'heart', 'blanket'] },
+    { id: 'szomjas', t: 'Szomjas vagyok', icon: 'water', c: '#0891b2',
+      say: ['Igyál abból a vízből, amit otthonról hoztál.', 'Patakból, pocsolyából ne igyál, mert beteg lehetsz tőle.', 'Maradj árnyékban, és ne szaladgálj.', 'Szólj egy felnőttnek, hogy szomjas vagy.'],
+      pics: ['canteen', 'warn', 'tree', 'star'] },
+    { id: 'szulo', t: 'Nem találom anyát vagy apát', icon: 'star', c: '#7c3aed',
+      say: ['Maradj ott, ahol vagy. Anya és apa visszajön érted.', 'Ha boltban vagy, szólj a pénztárosnak vagy egy biztonsági őrnek.', 'Az utcán szólj egy rendőrnek, vagy egy anyukának, akinél gyerek van.', 'Ne menj el idegennel sehova.', 'Mondd meg a neved, és ha tudod, anya vagy apa telefonszámát.'],
+      pics: ['stop', 'star', 'star', 'warn', 'phone'] }
+  ],
+
   checklists: [
     { id: 'bevetes', t: 'Bevetés előtt', icon: 'pack', items: ['ISOPREP kitöltve, frissítve', 'Elkerülési terv (EPA) ismert', 'Kommunikációs terv: frekvencia, hívójel, időablak', 'Túlélőkészlet a testen', 'Jelzőeszközök ellenőrizve', 'Térkép: kiemelési helyek, gyülekezési pontok', 'Víz, elektrolit, víztisztító', 'Iránytű ellenőrizve'] },
     { id: 'menedek', t: 'Menedék – megfontolások', icon: 'shelter', items: ['Szükséges egyáltalán?', 'Van elég energiám?', 'Mivel rendelkezem?', 'Mennyi időre építem?', 'Védett a környezeti hatásoktól?', 'Kell álcázni?', 'Fenyegeti objektív veszély?', 'Kell fűtés?', 'Biztosított a szellőzés?'] },
