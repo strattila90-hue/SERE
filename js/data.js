@@ -160,8 +160,22 @@ window.SERE_DATA = {
         ['Jelezz csak utasításra vagy a mentő közeledésekor.', 'jelzes'],
         ['Fegyver biztosítva, kezek láthatók, ne fuss a mentő felé.', null],
         ['Azonosítás: ISOPREP kérdések, napi kód.', null],
-        ['Tűrd az átkutatást, kövesd pontosan az utasításokat.', null]
-      ], ch: '7' }
+        ['Tűrd az átkutatást, kövesd pontosan az utasításokat.', null],
+        ['Nincs rádió / telefon? Jelzőeszközök a kijelölt időablakban, a kiemelési helyen – vagy szivárogj vissza a saját erőkhöz.', 'navigacio']
+      ], ch: '7' },
+    { id: 'nincsterero', t: 'Nincs térerő / telefon', sub: 'jelzés segítség nélkül', icon: 'signal', c: 'var(--yel)',
+      steps: [
+        ['Ha van telefon, de gyenge a jel: küldj SMS-t a 112-re. Írd bele: KI vagy, HOL vagy (koordináta), MI történt. Az SMS gyengébb jellel is átmehet, mint a hívás.', 'map'],
+        ['Menj magasabbra, nyílt helyre (gerinc, tisztás, domb) – ott gyakran van jel. Hívd újra a 112-t: a segélyhívás más szolgáltató hálózatán is átmehet.', null],
+        ['Takarékoskodj: repülő mód, csak óránként kapcsold be 1–2 percre próbálkozni. Hideg ellen a telefont tartsd a testedhez közel.', null],
+        ['Ha valaki tudja, merre jártál: MARADJ EGY HELYBEN. Egy helyben ülő embert sokkal könnyebb megtalálni.', null],
+        ['Jelezz HÁRMASÁVAL – ez a nemzetközi vészjel: 3 sípszó, 3 kiáltás, 3 tűz háromszögben, 3 villanás.', 'jelzes'],
+        ['Földi jel nyílt helyen, nagy méretben: SOS vagy X (segítség kell). Kontrasztos anyagból: ág, kő, ruha, hóba taposva.', 'jelzes'],
+        ['Nappal: füst (zöld lomb a tűzre), élénk ruha kiterítve, jelzőtükör a nap felé. Éjjel: tűz, lámpa villogtatva.', 'jelzes'],
+        ['Ha mozognod kell: lefelé → patak → út → település. Hagyj nyomot: ágakból nyíl a haladási irányba, szalag, kőhalom.', 'navigacio'],
+        ['Első lakott hely, ház, autós, vasúti sín, villanyvezeték nyomvonala – ezek emberekhez vezetnek.', null]
+      ] }
+
   ],
 
 
@@ -183,6 +197,7 @@ window.SERE_DATA = {
     ] },
     mentes: { t: 'Segítséget hívok', sub: '112 + jelzés', steps: [
       ['Hívd a 112-t. Ha a saját szolgáltatódnak nincs térereje, akkor is próbáld: a segélyhívás bármelyik hálózaton átmehet.', null],
+      ['Nem tudsz beszélni, vagy szakad a vonal? Küldj SMS-t a 112-re: ki vagy, hol vagy, mi történt.', null],
       ['Mondd el: KI vagy, HOL vagy (koordináta a Térkép-jelölőben), MI történt, hány ember, sérülés.', 'map'],
       ['Takarékoskodj az akkuval: kijelző halványra, felesleges appok ki, repülő mód a hívások között.', null],
       ['Maradj egy helyben, ha tudják, hol keresnek. Az ember nagyobb jel, mint gondolod: élénk szín, mozgás.', 'jelzes'],
@@ -280,6 +295,9 @@ window.SERE_DATA = {
     { id: 'szomjas', t: 'Szomjas vagyok', icon: 'water', c: '#0891b2',
       say: ['Igyál abból a vízből, amit otthonról hoztál.', 'Patakból, pocsolyából ne igyál, mert beteg lehetsz tőle.', 'Maradj árnyékban, és ne szaladgálj.', 'Szólj egy felnőttnek, hogy szomjas vagy.'],
       pics: ['canteen', 'warn', 'tree', 'star'] },
+    { id: 'nincstelefon', t: 'Nincs telefonom', icon: 'whistle', c: '#ca8a04',
+      say: ['Nem baj, telefon nélkül is megtalálnak.', 'Maradj ott, ahol vagy. Ölelj meg egy fát, vagy ülj le egy jól látható helyre.', 'Fújd meg a sípot háromszor. Ha nincs síp, kiabáld háromszor: Segítség!', 'Ha meghallod, hogy hívnak, kiabálj vissza, és integess két kézzel.', 'Ha van élénk színű ruhád, tedd ki jól látható helyre.', 'Ha látsz egy felnőttet, aki dolgozik vagy segít, menj oda és szólj neki.'],
+      pics: ['heart', 'tree', 'whistle', 'star', 'poncho', 'check'] },
     { id: 'szulo', t: 'Nem találom anyát vagy apát', icon: 'star', c: '#7c3aed',
       say: ['Maradj ott, ahol vagy. Anya és apa visszajön érted.', 'Ha boltban vagy, szólj a pénztárosnak vagy egy biztonsági őrnek.', 'Az utcán szólj egy rendőrnek, vagy egy anyukának, akinél gyerek van.', 'Ne menj el idegennel sehova.', 'Mondd meg a neved, és ha tudod, anya vagy apa telefonszámát.'],
       pics: ['stop', 'star', 'star', 'warn', 'phone'] }
