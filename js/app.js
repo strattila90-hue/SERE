@@ -845,7 +845,7 @@
   applyFs();
 
   /* ---------------- zene ---------------- */
-  function musicBtn() { const b = $('#musBtn'); if (!b) return; const on = window.SEREMusic && SEREMusic.on; b.innerHTML = on ? '♪' : '<s>♪</s>'; b.title = on ? 'Zene ki' : 'Zene be'; b.classList.toggle('on', !!on); }
+  function musicBtn() { const b = $('#musBtn'); if (!b) return; const on = window.SEREMusic && SEREMusic.on; b.innerHTML = on ? '♪' : '<s>♪</s>'; b.title = T(on ? 'Zene ki' : 'Zene be'); b.classList.toggle('on', !!on); }
   function setMusic(v) { if (!window.SEREMusic) return; v ? SEREMusic.start() : SEREMusic.stop(); LS.set('music', !!v); musicBtn(); }
   $('#musBtn').onclick = () => setMusic(!SEREMusic.on);
   // böngésző szabály: hang csak érintés után indulhat → az első koppintásra indul, ha be van kapcsolva
