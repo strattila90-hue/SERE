@@ -655,7 +655,7 @@
     const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const iOSSafari = iOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
     const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(ua);
-    const head = `<img class="ico" src="icons/icon-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
+    const head = `<img class="ico" src="icons/icon-v2-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div>`;
     const steps = () => iOSSafari ? `<ol><li>Koppints lent a <b>Megosztás ⬆</b> gombra</li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li></ol>`
       : iOS ? `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Nyisd meg a linket <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`
       : inApp ? `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>⋮ menü → <b>„Megnyitás Chrome-ban”</b></li><li>Ott koppints: <b>IGEN, TELEPÍTEM</b></li></ol>`

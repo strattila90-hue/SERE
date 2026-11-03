@@ -1,10 +1,10 @@
 /* SERE PIXEL service worker — offline + automatikus frissítés (hálózat először, gyorsítótár tartalék) */
-const VERSION = 'sere-pixel-v1.5.0';
+const VERSION = 'sere-pixel-v1.6.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/app.js',
   'fonts/VT323-Regular.woff', 'fonts/PixelifySanswght.woff', 'fonts/Silkscreen-Bold.woff',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'
+  'icons/icon-v2-192.png', 'icons/icon-v2-512.png', 'icons/maskable-v2-512.png', 'icons/apple-touch-icon-v2.png'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
