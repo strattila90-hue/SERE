@@ -3,7 +3,7 @@
 Retro pixel art, **offline működő** PWA túlélési kézikönyv és eszköztár a SERE „A” szintű tananyag alapján.
 A dizájn a repülőgépes safety cardok, a katonai field manualok és a 90-es évek survival játékainak keveréke.
 
-**Megnyitás / telepítés:** https://strattila90-hue.github.io/SERE/
+**Megnyitás / telepítés:** https://strattila90-hue.github.io/SERE/ (a QR-kód a `?qr=1` címre visz, ami telepítő képernyőt mutat)
 
 ![QR](qr.svg)
 

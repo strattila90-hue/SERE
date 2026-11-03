@@ -136,11 +136,11 @@
     main.innerHTML = `
       <section class="card cover frame"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL borító: egyedül álló katona az erdőszélen, ponyvamenedékkel és tűzzel"></canvas>
         <div class="title"><div class="big">SERE<br><b>PIXEL</b></div>
-        <div class="sub">SURVIVAL GUIDE</div><div class="sub" style="font-size:12px;color:var(--muted)">ALONE · LAND FORCES</div><div class="dash">▪▪▪▪▪▪ ★ ▪▪▪▪▪▪</div>
+        <div class="sub">SURVIVAL GUIDE</div><div class="sub" style="font-size:15px;color:var(--muted)">ALONE · LAND FORCES</div><div class="dash">▪▪▪▪▪▪ ★ ▪▪▪▪▪▪</div>
         <div class="mt"><span class="stamp">FIELD MANUAL · EGYEDÜL A TEREPEN</span></div></div></section>
 
       <section class="card">
-        <div class="statusline"><span>STATUS</span><span class="muted" style="font-family:Pixelify;font-size:13px">koppints a sávokra</span></div>
+        <div class="statusline"><span>STATUS</span><span class="muted" style="font-family:Pixelify;font-size:16px">koppints a sávokra</span></div>
         <div class="rule"></div>
         <div class="stats">${statsHTML()}</div>
         <div class="callout ok mt" style="margin-bottom:0">${ic(a.low.icon, 26)}<div>${esc(a.txt)} <a href="#/guide/${a.low.g}">Útmutató ›</a></div></div>
@@ -180,16 +180,16 @@
     const match = s => !query || (s.title + ' ' + JSON.stringify(s.blocks)).toLowerCase().includes(query);
     main.innerHTML = `
       <section class="card frame">
-        <div class="ch-head">${ic('book', 48)}<div><h1>Kézikönyv</h1><div class="stencil" style="font-size:13px">SERE LEVEL "A" · FIELD MANUAL</div></div></div>
+        <div class="ch-head">${ic('book', 48)}<div><h1>Kézikönyv</h1><div class="stencil" style="font-size:16px">SERE LEVEL "A" · FIELD MANUAL</div></div></div>
         <div class="rule"></div>
         <input type="text" id="q" placeholder="Keresés a kézikönyvben…" value="${esc(q || '')}" aria-label="Keresés">
-        <p class="muted" style="font-size:18px;margin:8px 0 0"><span class="badge src">TANANYAG</span> a feltöltött diák alapján · <span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból, a tananyag tartalomjegyzéke szerint</p>
+        <p class="muted" style="font-size:22px;margin:8px 0 0"><span class="badge src">TANANYAG</span> a feltöltött diák alapján · <span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból, a tananyag tartalomjegyzéke szerint</p>
       </section>
       ${C.map(ch => {
         const secs = ch.sections.filter(match); if (!secs.length) return '';
         const done = ch.sections.filter(s => seen[s.id]).length;
         const isOpen = query || open.includes(ch.id);
-        return `<div class="toc-ch"><button data-ch="${ch.id}" aria-expanded="${isOpen}">${ic(CH_ICON[ch.id] || 'book', 32)}<span class="num">${ch.id}</span><span class="tt">${esc(ch.title)}<br><small class="muted" style="font-family:VT323;font-size:16px">${esc(ch.sub)}</small></span><span class="pr">${done}/${ch.sections.length}</span></button>
+        return `<div class="toc-ch"><button data-ch="${ch.id}" aria-expanded="${isOpen}">${ic(CH_ICON[ch.id] || 'book', 32)}<span class="num">${ch.id}</span><span class="tt">${esc(ch.title)}<br><small class="muted" style="font-family:VT323;font-size:20px">${esc(ch.sub)}</small></span><span class="pr">${done}/${ch.sections.length}</span></button>
           <ul class="toc-list ${isOpen ? '' : 'hidden'}">${secs.map(s => `<li><button data-go="${ch.id}/${s.id}"><span class="sid">${s.id}</span><span class="sn">${esc(s.title)} ${s.web ? '<span class="badge web" title="Nyilvános forrásból kiegészítve">+</span>' : ''}</span><span class="seen">${seen[s.id] ? '✓' : ''}</span></button></li>`).join('')}</ul></div>`;
       }).join('')}`;
     const qi = $('#q');
@@ -218,7 +218,7 @@
       return '';
     };
     main.innerHTML = `
-      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:18px">${esc(ch.sub)}</div></div></div></section>
+      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div></section>
       ${ch.sections.map(s => `<section class="card sec" id="s-${s.id}" data-sid="${s.id}">
         <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>
         ${s.web ? '<div class="webnote"><span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból — ellenőrizd a hatályos szakutasítással</div><div class="rule"></div>' : '<div class="rule"></div>'}
@@ -239,7 +239,7 @@
 
   /* --- gyors útmutatók --- */
   V.guides = () => {
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('fire', 48)}<div><h1>Gyors útmutatók</h1><div class="stencil" style="font-size:13px">SAFETY CARDS</div></div></div></section>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('fire', 48)}<div><h1>Gyors útmutatók</h1><div class="stencil" style="font-size:16px">SAFETY CARDS</div></div></div></section>
       <div class="menu">${D.guides.map(g => tile('#/guide/' + g.id, g.icon, g.title, g.en)).join('')}</div>`;
   };
   V.guide = (id) => {
@@ -258,7 +258,7 @@
 
   /* --- SERE prioritások --- */
   V.prio = () => {
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('signal', 48)}<div><h1>SERE prioritások</h1><div class="stencil" style="font-size:13px">SIGNAL › PROTECT › HEALTH › TRAVEL › SUSTAIN</div></div></div></section>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('signal', 48)}<div><h1>SERE prioritások</h1><div class="stencil" style="font-size:16px">SIGNAL › PROTECT › HEALTH › TRAVEL › SUSTAIN</div></div></div></section>
       <section class="card"><div class="chain">${D.priorities.map((p, i) => `${i ? '<div class="down">▼</div>' : ''}<a class="link" href="#/guide/${p.g}" style="text-decoration:none;color:inherit"><div class="L">${p.k}</div><div><h3 style="display:flex;gap:8px;align-items:center">${ic(p.icon, 24)}${esc(p.t)}</h3><div>${esc(p.x)}</div></div></a>`).join('')}</div>
       <div class="callout quote mt">${ic('star', 26)}<div>A SERE „A” tananyag (8.1) sorrendje: személyes védelem → ellátmány (víz, élelem) → egészség → helyváltoztatás. A jelzés mindegyikkel párhuzamosan fut – ha a mentés elérhető, a jelentés az első.</div></div>
       <div class="callout ok">${ic('check', 26)}<div><b>3-as szabály:</b> 3 perc levegő · 3 óra védelem nélkül szélsőséges időben · 3 nap víz · 3 hét élelem nélkül.</div></div></section>`;
@@ -267,7 +267,7 @@
   /* --- S-T-O-P --- */
   V.stop = () => {
     const st = LS.get('stop', {});
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('stop', 52)}<div><h1>S-T-O-P</h1><div class="muted" style="font-size:18px">Az első percek – mielőtt bármit tennél.</div></div></div></section>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('stop', 52)}<div><h1>S-T-O-P</h1><div class="muted" style="font-size:22px">Az első percek – mielőtt bármit tennél.</div></div></div></section>
       ${D.stop.map((s, i) => `<section class="stop-card ${st[i] ? 'done' : ''}" data-i="${i}"><div class="L">${s.k}</div><div><h3>${esc(s.t)}</h3>
         ${s.x.map((x, j) => `<button class="chk ${st[i + '-' + j] ? 'on' : ''}" data-k="${i}-${j}"><span class="box"></span><span>${esc(x)}</span></button>`).join('')}</div></section>`).join('')}
       <div class="row"><button class="btn ghost" id="stopReset">Újrakezdés</button><a class="btn" href="#/prio">Tovább: prioritások ›</a></div>`;
@@ -288,7 +288,7 @@
     const miss = D.kitEssential.filter(id => !have[id]);
     const ready = miss.length === 0;
     main.innerHTML = `<section class="card frame">
-      <div class="ch-head">${ic('pack', 52)}<div><h1>Túlélőkészlet</h1><div class="stencil" style="font-size:13px">ESSENTIALS FOR THE UNKNOWN</div></div></div>
+      <div class="ch-head">${ic('pack', 52)}<div><h1>Túlélőkészlet</h1><div class="stencil" style="font-size:16px">ESSENTIALS FOR THE UNKNOWN</div></div></div>
       <div class="rule"></div>
       <div class="statusline"><span>STATUS: <span class="st ${ready ? 'ok' : ''}">${ready ? 'PREPARED ✓' : 'NOT READY'}</span></span><span>${packed.length}/${D.kit.length} · ${(grams / 1000).toFixed(2)} KG</span></div>
       <div class="rule"></div>
@@ -326,7 +326,7 @@
   /* --- iránytű --- */
   V.compass = () => {
     let heading = null, target = LS.get('target', null), manual = false, raf = 0;
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('compass', 48)}<div><h1>Iránytű</h1><div class="muted" style="font-size:18px">Telefon szenzor · tartsd vízszintesen</div></div></div>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('compass', 48)}<div><h1>Iránytű</h1><div class="muted" style="font-size:22px">Telefon szenzor · tartsd vízszintesen</div></div></div>
       <div class="compass-wrap"><canvas id="compass" width="96" height="96"></canvas></div>
       <div class="hdg" id="hdg">---°<small id="hdgSub">szenzor indítása szükséges</small></div>
       <div class="row center mt" style="justify-content:center"><button class="btn" id="startC">${ic('compass', 20)}Szenzor indítása</button><button class="btn ghost" id="manBtn">Kézi mód</button></div>
@@ -440,7 +440,7 @@
   V.map = () => {
     let pos = null, type = 'menedek', watch = null;
     const marks = () => LS.get('marks', []);
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('map', 48)}<div><h1>Térkép-jelölő</h1><div class="muted" style="font-size:18px">GPS-alapú, internet nélkül · pontok a készüléken</div></div></div>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('map', 48)}<div><h1>Térkép-jelölő</h1><div class="muted" style="font-size:22px">GPS-alapú, internet nélkül · pontok a készüléken</div></div></div>
       <canvas id="radar" width="200" height="200" aria-label="Pontok elhelyezkedése hozzád képest"></canvas>
       <div class="mt coord" id="here">Pozíció: —</div>
       <div class="row mt"><button class="btn" id="gps">${ic('pin', 20)}GPS indítása</button></div>
@@ -477,7 +477,7 @@
       $('#marks').innerHTML = m.length ? m.map((p, i) => {
         const t = D.markTypes.find(x => x.id === p.type) || D.markTypes[5];
         const db = pos ? distBear(pos, p) : null;
-        return `<li>${ic(t.icon, 28)}<div><b>${esc(p.name || t.n)}</b><br><span class="muted" style="font-size:17px">${toMGRS(p.lat, p.lon)}</span></div>
+        return `<li>${ic(t.icon, 28)}<div><b>${esc(p.name || t.n)}</b><br><span class="muted" style="font-size:21px">${toMGRS(p.lat, p.lon)}</span></div>
           <div class="d">${db ? fmtD(db.d) + '<br>' + Math.round(db.b) + '° ' + '' : ''}<button class="iconbtn" data-del="${i}" title="Törlés" style="margin-top:4px">${ic('skull', 16)}</button></div></li>`;
       }).join('') : '<li class="muted" style="display:block">Még nincs jelölt pont.</li>';
       main.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { if (!confirmDel(b)) return; const mm = marks(); mm.splice(+b.dataset.del, 1); LS.set('marks', mm); draw(); });
@@ -505,7 +505,7 @@
   V.about = () => {
     const url = location.origin + location.pathname;
     const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:13px">OFFLINE · NO SIGNAL NEEDED</div></div></div>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:16px">OFFLINE · NO SIGNAL NEEDED</div></div></div>
       <div class="center mt"><img src="qr.svg" alt="QR-kód az app címéhez" width="220" height="220" style="image-rendering:pixelated;background:#f4f1e6;padding:8px;border:3px solid var(--khaki-d)"></div>
       <p class="center coord" style="word-break:break-all">${esc(url)}</p>
       <div class="row" style="justify-content:center"><button class="btn green ${deferred && !standalone ? '' : 'hidden'}" id="instBtn">${ic('pack', 20)}Telepítés most</button><button class="btn ghost" id="shareBtn">Link megosztása</button></div>
@@ -518,12 +518,49 @@
       <h3>Forrás és felelősség</h3>
       <p>A „TANANYAG” jelölésű részek a SERE „A” szintű e-learning tananyag alapján, összefoglalva készültek. A <span class="badge web">KIEGÉSZÍTVE</span> részek a tananyag tartalomjegyzéke szerint, nyilvános forrásokból (NATO/US PR doktrína, katonai kézikönyvek) készültek.</p>
       <p class="muted">Gyakorló segédlet – nem helyettesíti a hivatalos kiképzést és a hatályos HVKF szakutasítást.</p>
-      <p class="muted" style="font-size:17px">Betűk: VT323, Pixelify Sans, Silkscreen (SIL OFL). Verzió: ${window.SERE_VERSION}</p></section>`;
+      <p class="muted" style="font-size:21px">Betűk: VT323, Pixelify Sans, Silkscreen (SIL OFL). Verzió: ${window.SERE_VERSION}</p></section>`;
     const ib = $('#instBtn'); if (ib) ib.onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; ib.classList.add('hidden'); };
     $('#shareBtn').onclick = async () => {
       try { if (navigator.share) await navigator.share({ title: 'SERE PIXEL', text: 'Offline túlélési kézikönyv', url }); else { await navigator.clipboard.writeText(url); toast('Link a vágólapon'); } } catch (e) { /* megszakítva */ }
     };
   };
+
+
+  /* ---------------- betűméret ---------------- */
+  function applyFs() { const f = LS.get('fs', 1); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); $('#fsBtn').textContent = ['A', 'A+', 'A++'][f]; }
+  $('#fsBtn').onclick = () => { LS.set('fs', (LS.get('fs', 1) + 1) % 3); applyFs(); };
+  applyFs();
+
+  /* ---------------- telepítés-kapu: QR-ből érkezve, böngészőben ---------------- */
+  const isStandalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
+  function gate() {
+    const fromQR = /[?&]qr=1/.test(location.search);
+    if (!fromQR || isStandalone()) return;
+    const ua = navigator.userAgent;
+    const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const iOSSafari = iOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
+    const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(ua);
+    const g = document.createElement('div'); g.className = 'gate'; g.setAttribute('role', 'dialog'); g.setAttribute('aria-modal', 'true');
+    const head = `<img class="ico" src="icons/icon-192.png" alt=""><div class="big">SERE<br><b>PIXEL</b></div><h2>Telepítsd a telefonodra!</h2><p>Telepítés után internet nélkül, terepen is működik.</p>`;
+    function render(mode) {
+      let body = '';
+      if (mode === 'done') body = `<p style="color:var(--ok)">✓ Telepítve!</p><p>Zárd be ezt az ablakot, és indítsd a <b>SERE PIXEL</b> ikonról a kezdőképernyőn.</p>`;
+      else if (mode === 'prompt') body = `<button class="btn green" id="gInst">${ic('pack', 30)} TELEPÍTÉS</button>`;
+      else if (iOSSafari) body = `<ol><li>Koppints lent a <b>Megosztás</b> gombra <b>⬆</b></li><li>Görgess le: <b>„Főképernyőhöz adás”</b></li><li>Jobb fent: <b>Hozzáadás</b></li><li>Indítsd a kezdőképernyőn lévő ikonról</li></ol>`;
+      else if (iOS) body = `<p style="color:var(--warn)">iPhone-on csak a <b>Safari</b> tud telepíteni.</p><ol><li>Másold ki a címet, vagy olvasd be a QR-kódot a <b>Kamera</b> appal</li><li>Nyisd meg <b>Safariban</b></li><li>Megosztás ⬆ → „Főképernyőhöz adás”</li></ol>`;
+      else if (inApp) body = `<p style="color:var(--warn)">Ez a beépített böngésző nem tud telepíteni.</p><ol><li>Koppints a <b>⋮</b> menüre</li><li><b>„Megnyitás Chrome-ban”</b></li><li>Ott: <b>TELEPÍTÉS</b></li></ol>`;
+      else body = `<ol><li>Koppints a Chrome <b>⋮</b> menüjére (jobb fent)</li><li><b>„Alkalmazás telepítése”</b> vagy <b>„Hozzáadás a kezdőképernyőhöz”</b></li><li>Indítsd a kezdőképernyőn lévő ikonról</li></ol><p class="muted" style="font-size:21px">Ha már telepítve van: nyisd meg az ikonról.</p>`;
+      const canSkip = mode !== 'prompt';
+      g.innerHTML = head + body + (canSkip ? `<button class="esc" id="gSkip">Itt most nem tudom telepíteni – megnézem böngészőben</button>` : '');
+      const ib = g.querySelector('#gInst');
+      if (ib) ib.onclick = async () => { const d = deferred; if (!d) return render('manual'); d.prompt(); const r = await d.userChoice; deferred = null; render(r.outcome === 'accepted' ? 'done' : 'manual'); };
+      const sk = g.querySelector('#gSkip'); if (sk) sk.onclick = () => { g.remove(); document.body.style.overflow = ''; history.replaceState(null, '', location.pathname + location.hash); };
+    }
+    render(deferred ? 'prompt' : 'manual');
+    window.addEventListener('beforeinstallprompt', () => render('prompt'));
+    window.addEventListener('appinstalled', () => render('done'));
+    document.body.appendChild(g); document.body.style.overflow = 'hidden';
+  }
 
   /* ---------------- router ---------------- */
   const NAV = { home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'kit', check: 'home', compass: 'map', map: 'map', about: 'home' };
@@ -544,6 +581,7 @@
   window.addEventListener('hashchange', route);
   applyMode();
   route();
+  gate();
   setInterval(() => { if (LS.get('mode', 'auto') === 'auto') applyMode(); }, 60000);
 
   if ('serviceWorker' in navigator) {
