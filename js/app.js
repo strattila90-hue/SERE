@@ -134,39 +134,39 @@
   V.home = () => {
     const a = statAdvice();
     main.innerHTML = `
-      <section class="card cover frame"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL borító: egyedül álló katona az erdőszélen, ponyvamenedékkel és tűzzel"></canvas>
-        <div class="title"><div class="big">SERE<br><b>PIXEL</b></div>
-        <div class="sub">SURVIVAL GUIDE</div><div class="sub" style="font-size:15px;color:var(--muted)">ALONE · LAND FORCES</div><div class="dash">▪▪▪▪▪▪ ★ ▪▪▪▪▪▪</div>
-        <div class="mt"><span class="stamp">FIELD MANUAL · EGYEDÜL A TEREPEN</span></div></div></section>
+      <section class="card cover frame hero"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL: egyedül álló katona az erdőszélen"></canvas>
+        <div class="title"><div class="big sm">SERE <b>PIXEL</b></div><div class="sub">EGYEDÜL A TEREPEN · SURVIVAL GUIDE</div></div></section>
 
-      <section class="card">
-        <div class="statusline"><span>STATUS</span><span class="muted" style="font-family:Pixelify;font-size:16px">koppints a sávokra</span></div>
+      <a class="sosbtn" href="#/sos">${ic('warn', 48)}<span>BAJBAN VAGYOK<small>Most kell a SERE tudás – lépésről lépésre</small></span></a>
+
+      <h2 class="hh">Mi történt?</h2>
+      <div class="scen">${D.scenarios.map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>
+
+      <h2 class="hh">Tudástár és eszközök</h2>
+      <div class="biglist">
+        ${row('#/toc', 'book', 'Kézikönyv', '8 fejezet · tartalomjegyzék · keresés')}
+        ${row('#/guides', 'fire', 'Gyors kártyák', 'tűz · menedék · víz · jelzés · navigáció · elsősegély')}
+        ${row('#/compass', 'compass', 'Iránytű', 'fok · vonás · Cammenga kattanás')}
+        ${row('#/map', 'map', 'Térkép-jelölő', 'GPS pontok offline · MGRS')}
+        ${row('#/stop', 'stop', 'S-T-O-P', 'az első percek')}
+        ${row('#/prio', 'signal', 'SERE prioritások', 'jelzés › védelem › egészség › mozgás › ellátás')}
+        ${row('#/kit', 'pack', 'Kit-builder', 'mi legyen nálad')}
+        ${row('#/check', 'check', 'Checklisták', 'bevetés előtt · menedék · tűz · link-up')}
+      </div>
+
+      <section class="card mt">
+        <div class="statusline"><span>ÁLLAPOTOM</span><span class="muted" style="font-family:Pixelify;font-size:16px">koppints a sávokra</span></div>
         <div class="rule"></div>
         <div class="stats">${statsHTML()}</div>
-        <div class="callout ok mt" style="margin-bottom:0">${ic(a.low.icon, 26)}<div>${esc(a.txt)} <a href="#/guide/${a.low.g}">Útmutató ›</a></div></div>
+        <div class="callout ok mt" style="margin-bottom:0">${ic(a.low.icon, 26)}<div>${esc(a.txt)} <a href="#/guide/${a.low.g}">Kártya ›</a></div></div>
       </section>
 
-      <section class="card">
-        <h2>Főmenü</h2><div class="rule star"></div>
-        <div class="menu">
-          ${tile('#/toc', 'book', 'Kézikönyv', 'tartalomjegyzék')}
-          ${tile('#/guides', 'fire', 'Gyors útmutatók', 'safety card')}
-          ${tile('#/prio', 'signal', 'SERE prioritások', 'S·P·H·T·S')}
-          ${tile('#/stop', 'stop', 'S-T-O-P', 'első lépések')}
-          ${tile('#/kit', 'pack', 'Kit-builder', 'inventory')}
-          ${tile('#/check', 'check', 'Checklisták', 'pipálható')}
-          ${tile('#/compass', 'compass', 'Iránytű', 'pixel compass')}
-          ${tile('#/map', 'map', 'Térkép-jelölő', 'offline pontok')}
-          ${tile('#/about', 'star', 'Telepítés', 'QR · offline')}
-        </div>
-      </section>
-      <section class="card"><div class="homebtns">
+      <div class="homebtns">
         <button class="btn hb" id="hUpd">${ic('sun', 32)}<span>FRISSÍTÉS<small>v${window.SERE_VERSION}</small></span></button>
         <button class="btn hb" id="hShr">${ic('signal', 32)}<span>MEGOSZTÁS<small>link + QR</small></span></button>
         ${isStandalone() ? '' : `<button class="btn green hb wide" id="hIns">${ic('pack', 32)}<span>TELEPÍTÉS<small>offline használathoz</small></span></button>`}
-      </div></section>
-      <div class="motto">${ic('warn', 24)}<span>STAY PREPARED. STAY ALIVE. — Készülj fel. Maradj életben.</span></div>
-      <p class="foot">Offline működik · minden adat csak ezen az eszközön tárolódik</p>`;
+      </div>
+      <p class="foot">STAY PREPARED. STAY ALIVE. · Offline működik · adatok csak ezen az eszközön</p>`;
     drawCover();
     $('#hUpd').onclick = () => doUpdate(true); $('#hShr').onclick = doShare; const hi = $('#hIns'); if (hi) hi.onclick = () => installPopup(true);
     main.querySelectorAll('.bar').forEach(bar => {
@@ -175,6 +175,29 @@
         const v = LS.get('stats', { viz: 8, eh: 7, en: 6, mor: 9 }); v[bar.dataset.bar] = val; LS.set('stats', v); V.home();
       });
     });
+  };
+  const row = (href, icon, t, s) => `<a class="brow" href="${href}">${ic(icon, 40)}<span>${t}<small>${s}</small></span><b>›</b></a>`;
+
+  /* --- BAJBAN VAGYOK: forgatókönyvek --- */
+  const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
+  V.sos = (id) => {
+    if (!id) {
+      main.innerHTML = `<section class="card frame" style="border-color:var(--warn)"><div class="ch-head">${ic('warn', 52)}<div><h1>Bajban vagyok</h1><div class="muted">Először: <b>állj meg, lélegezz.</b> Aztán válaszd ki, mi történt.</div></div></div></section>
+        <a class="sosbtn" href="#/stop" style="margin-bottom:14px">${ic('stop', 48)}<span>S-T-O-P<small>Állj meg · Gondolkodj · Figyelj · Tervezz</small></span></a>
+        <div class="scen">${D.scenarios.map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>`;
+      return;
+    }
+    const x = D.scenarios.find(z => z.id === id); if (!x) return V.sos();
+    const st = LS.get('sos', {}); const done = x.steps.filter((_, i) => st[id + i]).length;
+    main.innerHTML = `<section class="card frame" style="border-color:${x.c}"><div class="ch-head">${ic(x.icon, 52)}<div><h1>${esc(x.t)}</h1><div class="muted">${done}/${x.steps.length} lépés kész</div></div></div>
+      <div class="progress">${x.steps.map((_, i) => `<i class="${st[id + i] ? 'f' : ''}"></i>`).join('')}</div>
+      <ol class="sosl">${x.steps.map(([t, g], i) => `<li class="${st[id + i] ? 'on' : ''}"><button class="sosck" data-i="${i}"><span class="no">${i + 1}</span><span class="tx">${esc(t)}</span><span class="box"></span></button>
+        ${g ? `<a class="golink" href="${GLINK[g] || '#/guide/' + g}">${ic(g === 'map' ? 'map' : g === 'compass' ? 'compass' : g === 'stop' ? 'stop' : (D.guides.find(q => q.id === g) || {}).icon || 'book', 22)} ${GLINK[g] ? 'Megnyitás' : 'Kártya'} ›</a>` : ''}</li>`).join('')}</ol>
+      ${x.ch ? `<a class="btn ghost mt" href="#/ch/${x.ch}">Részletesen: ${x.ch}. fejezet ›</a>` : ''}
+      </section>
+      <div class="row"><a class="btn ghost" href="#/sos">‹ Másik helyzet</a><button class="btn ghost" id="sosReset">Újrakezdés</button></div>`;
+    main.querySelectorAll('.sosck').forEach(b => b.onclick = () => { const s = LS.get('sos', {}); s[id + b.dataset.i] = !s[id + b.dataset.i]; LS.set('sos', s); V.sos(id); window.scrollTo(0, window.scrollY); });
+    $('#sosReset').onclick = () => { const s = LS.get('sos', {}); x.steps.forEach((_, i) => delete s[id + i]); LS.set('sos', s); V.sos(id); };
   };
   const tile = (href, icon, t, s) => `<a class="tile" href="${href}">${ic(icon, 44)}<span>${t}</span><small>${s}</small></a>`;
 
@@ -605,8 +628,9 @@
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
   /* ---------------- router ---------------- */
-  const NAV = { home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'kit', check: 'home', compass: 'map', map: 'map', about: 'home' };
-  const CRUMB = { home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
+  const NAV = { sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
+  const CRUMB = { sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
+  let prevRoute = '';
   function route() {
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -614,7 +638,7 @@
     $('#crumb').textContent = CRUMB[v];
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     V[v](...parts.slice(1));
-    if (v !== 'ch') window.scrollTo(0, 0);
+    if (v !== 'ch' && !(v === 'sos' && parts[1] && prevRoute === location.hash)) window.scrollTo(0, 0); prevRoute = location.hash;
   }
   document.querySelectorAll('.nav button').forEach(b => {
     b.innerHTML = ic(b.dataset.icon, 24) + `<span>${b.dataset.label}</span>`;

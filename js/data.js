@@ -100,6 +100,70 @@ window.SERE_DATA = {
   ],
   kitEssential: ['kes', 'gyujto', 'kulacs', 'tabletta', 'elsosegely', 'tajolo', 'tukor', 'sip'],
 
+
+  /* Vészhelyzeti forgatókönyvek: „most kell a SERE tudás” */
+  scenarios: [
+    { id: 'eltevedtem', t: 'Eltévedtem', sub: 'nem tudom, hol vagyok', icon: 'compass', c: 'var(--acc)',
+      steps: [
+        ['ÁLLJ MEG. Ne menj tovább vaktában – minden lépés rontja a helyzetet.', 'stop'],
+        ['Nyugodj meg: üld le, igyál egy kortyot, lélegezz mélyeket (S-T-O-P).', null],
+        ['Gondold végig: honnan jöttél, mikor láttál utoljára ismert pontot?', null],
+        ['Nézd meg a pozíciódat: GPS-koordináta / MGRS a térkép-jelölőben.', 'map'],
+        ['Tájékozódj: iránytű, nap, tereptárgyak (gerinc, patak, út).', 'compass'],
+        ['Ha van térerő: jelents (ki, hol, állapot). Ha nincs: maradj egy helyben, ha várnak rád.', null],
+        ['Ha mozogni kell: egy irányt tarts, jelölj köztes pontokat, lefelé patak → út → település.', 'navigacio'],
+        ['Sötétedés előtt 1–2 órával: menedék és tűz, ne a menetelés.', 'menedek']
+      ] },
+    { id: 'ejszaka', t: 'Itt kell éjszakáznom', sub: 'menedék + tűz', icon: 'shelter', c: 'var(--khaki)',
+      steps: [
+        ['Most kezdd – sötétedés előtt legalább 1–2 órával.', null],
+        ['Hely: nem mederben, nem völgy alján, nincs feletted elhalt ág.', 'menedek'],
+        ['Szigetelés a talaj ellen: avar, fenyőág, polifoam – ez fontosabb a tetőnél.', 'menedek'],
+        ['Tető: ponyva/poncsó 45–60°-ban, bejárat 90°-ban a szélre.', 'menedek'],
+        ['Tűz: éleszték, gyújtós, tűzifa 3× annyi, mint gondolod.', 'tuz'],
+        ['Tűz és fekhely távolsága kb. 1 m; tűzőr, oltóanyag kéznél.', 'tuz'],
+        ['Száraz ruha éjszakára, vizes ruhát szárítsd. Egyél, igyál lefekvés előtt.', null]
+      ] },
+    { id: 'viz', t: 'Nincs vizem', sub: 'keresés + tisztítás', icon: 'water', c: 'var(--blue)',
+      steps: [
+        ['Ne pazarolj: árnyék, pihenés a melegben, keveset beszélj, orron át lélegezz.', null],
+        ['Keress: völgy alja, zöld növényzet, állatcsapás lefelé, madarak hajnalban.', 'viz'],
+        ['Gyűjts: eső ponyván, harmat ruhával, párologtató zacskó élő ágon.', 'viz'],
+        ['Szűrd: textil → homok → faszén → kavics. A szűrés NEM fertőtlenít!', 'viz'],
+        ['Tisztítsd: forralás 1 perc, vagy tabletta + 30 perc (hidegben 4 óra).', 'viz'],
+        ['Igyál mértékkel, sóval/elektrolittal: 0,5–0,8 l/óra terhelésnél.', 'viz'],
+        ['Tengervizet, vizeletet, alkoholt SOHA.', null]
+      ] },
+    { id: 'serult', t: 'Megsérültem', sub: 'elsősegély', icon: 'medic', c: 'var(--warn)',
+      steps: [
+        ['Biztonság: fedezék, a veszély megszüntetése.', null],
+        ['Masszív vérzés: érszorító magasan és szorosan, idő felírva; törzsön tamponálás + nyomás.', 'elsosegely'],
+        ['Légút és légzés: áll emelés, oldalfekvés, mellkasi seb zárása.', 'elsosegely'],
+        ['Sokk: fektesd, lábak fel, takard be.', 'elsosegely'],
+        ['Kihűlés ellen: szigetelés alul és felül, izolációs fólia, szélvédelem.', 'elsosegely'],
+        ['Jelents/jelezz, amint lehet. Sérülten a mozgás csak végső eset.', 'jelzes']
+      ] },
+    { id: 'ellenseg', t: 'Ellenség közelében', sub: 'elkerülés', icon: 'eye', c: 'var(--purple)',
+      steps: [
+        ['Azonnal hagyd el a földet érés / elszakadás helyét – ott keresnek először.', null],
+        ['Rejtőzz: alacsony, szabálytalan, a terepbe olvadó hely – ne a nyilvánvaló bokor.', null],
+        ['Fény-, hang- és tűzfegyelem. Telefon kijelző, GPS: csak ha muszáj.', null],
+        ['Figyelj: mozgás, alak, árnyék, csillogás, sziluett árul el.', null],
+        ['Mozogj: hajnalban, alkonyatkor, éjjel; ne úton, ne gerincen, ne nyílt terepen.', null],
+        ['Nyomok: ne hagyj hulladékot, letört ágat; kemény talajon lépj.', null],
+        ['Cél: kijelölt kiemelési pont / gyülekezési pont / saját erők.', 'navigacio']
+      ], ch: '5' },
+    { id: 'mentes', t: 'Mentésre várok', sub: 'jelzés + link-up', icon: 'heli', c: 'var(--ok)',
+      steps: [
+        ['Jelzőeszközök elő: tükör, síp, stroboszkóp, fáklya, panel.', 'jelzes'],
+        ['Hely: nyílt, akadálymentes terület a közelben, rejtett várakozással.', 'jelzes'],
+        ['Jelezz csak utasításra vagy a mentő közeledésekor.', 'jelzes'],
+        ['Fegyver biztosítva, kezek láthatók, ne fuss a mentő felé.', null],
+        ['Azonosítás: ISOPREP kérdések, napi kód.', null],
+        ['Tűrd az átkutatást, kövesd pontosan az utasításokat.', null]
+      ], ch: '7' }
+  ],
+
   checklists: [
     { id: 'bevetes', t: 'Bevetés előtt', icon: 'pack', items: ['ISOPREP kitöltve, frissítve', 'Elkerülési terv (EPA) ismert', 'Kommunikációs terv: frekvencia, hívójel, időablak', 'Túlélőkészlet a testen', 'Jelzőeszközök ellenőrizve', 'Térkép: kiemelési helyek, gyülekezési pontok', 'Víz, elektrolit, víztisztító', 'Iránytű ellenőrizve'] },
     { id: 'menedek', t: 'Menedék – megfontolások', icon: 'shelter', items: ['Szükséges egyáltalán?', 'Van elég energiám?', 'Mivel rendelkezem?', 'Mennyi időre építem?', 'Védett a környezeti hatásoktól?', 'Kell álcázni?', 'Fenyegeti objektív veszély?', 'Kell fűtés?', 'Biztosított a szellőzés?'] },
