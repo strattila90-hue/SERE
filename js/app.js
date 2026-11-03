@@ -10,7 +10,7 @@
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-  const ic = (n, s = 32) => PX.svg(n, s);
+  const ic = (n, s = 32) => PX.img(n, s);
   const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal' };
   let cleanup = null;
 
@@ -473,19 +473,19 @@
 
   /* --- gyors útmutatók --- */
   V.guides = () => {
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('fire', 48)}<div><h1>Gyors útmutatók</h1><div class="stencil" style="font-size:16px">SAFETY CARDS</div></div></div></section>
-      <div class="menu">${D.guides.map(g => tile('#/guide/' + g.id, g.icon, g.title, g.en)).join('')}</div>`;
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('fire', 48)}<div><h1>Gyors útmutatók</h1><div class="stencil" style="font-size:16px">RAJZOS GYORS ÚTMUTATÓK</div></div></div></section>
+      <div class="menu">${D.guides.map(g => tile('#/guide/' + g.id, g.icon, g.title, g.steps.length + ' lépés')).join('')}</div>`;
   };
   V.guide = (id) => {
     const g = D.guides.find(x => x.id === id); if (!g) return V.guides();
     main.innerHTML = `<section class="card frame">
-      <div class="sc-head">${ic(g.icon, 52)}<div class="ttl">${esc(g.title)}<small>${g.en} · SERE PIXEL</small></div><span class="sp" style="flex:1"></span><span class="stamp">SERE · FM</span></div>
+      <div class="sc-head">${ic(g.icon, 52)}<div class="ttl">${esc(g.title)}<small>${g.steps.length} LÉPÉS</small></div><span class="sp" style="flex:1"></span><span class="stamp">SERE</span></div>
       ${readBtn('guide')}
       <div class="steps">${g.steps.map((s, i) => `<div class="step"><div class="sh"><span class="no">${i + 1}</span>${esc(s.t)}</div>
         <div class="art">${ic(s.icon, 64)}</div><ul>${s.x.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
         <div class="tag ${s.tag[0]}">${ic(s.tag[0] === 'warn' ? 'warn' : s.tag[0] === 'ok' ? 'check' : 'star', 18)}${esc(s.tag[1])}</div>${i < 3 ? '<span class="arrow">▶</span>' : ''}</div>`).join('')}</div>
       <div class="safety"><span class="sf-h">! BIZTONSÁG ELŐSZÖR</span><ul>${g.safety.map(x => `<li>${ic('warn', 20)}<span>${esc(x)}</span></li>`).join('')}</ul></div>
-      <div class="motto">${ic('pack', 24)}<span>SERE MINDSET: FELKÉSZÜLÉS · ALKALMAZKODÁS · <span style="color:var(--warn)">TÚLÉLÉS</span></span></div>
+      <div class="motto">${ic('pack', 24)}<span>FELKÉSZÜLÉS · ALKALMAZKODÁS · <span style="color:var(--warn)">TÚLÉLÉS</span></span></div>
       </section>
       <div class="pager"><a class="btn ghost" href="#/guides">‹ Kártyák</a><a class="btn" href="#/ch/${g.ch}">Részletesen: ${g.ch}. fejezet ›</a></div>`;
     bindRead(() => [g.title + '.'].concat(g.steps.map((s, i) => (i + 1) + '. ' + s.t + ': ' + s.x.join('. ') + '. ' + s.tag[1]), ['Biztonság: ' + g.safety.join('. ')]));
@@ -526,9 +526,9 @@
     const miss = D.kitEssential.filter(id => !have[id]);
     const ready = miss.length === 0;
     main.innerHTML = `<section class="card frame">
-      <div class="ch-head">${ic('pack', 52)}<div><h1>Túlélőkészlet</h1><div class="stencil" style="font-size:16px">ESSENTIALS FOR THE UNKNOWN</div></div></div>
+      <div class="ch-head">${ic('pack', 52)}<div><h1>Túlélőkészlet</h1><div class="stencil" style="font-size:16px">MI LEGYEN NÁLAD</div></div></div>
       <div class="rule"></div>
-      <div class="statusline"><span>STATUS: <span class="st ${ready ? 'ok' : ''}">${ready ? 'PREPARED ✓' : 'NOT READY'}</span></span><span>${packed.length}/${KIT.length} · ${(grams / 1000).toFixed(2)} KG</span></div>
+      <div class="statusline"><span>ÁLLAPOT: <span class="st ${ready ? 'ok' : ''}">${ready ? 'FELKÉSZÜLVE ✓' : 'HIÁNYOS'}</span></span><span>${packed.length}/${KIT.length} · ${(grams / 1000).toFixed(2)} KG</span></div>
       <div class="rule"></div>
       ${prof() ? `<div class="muted" style="font-size:19px;margin-bottom:8px">${ic(prof().icon, 18)} Kiegészítve: <b>${esc(prof().n)}</b> (kék jelölés)</div>` : ''}<div class="inv">${KIT.map(k => `<button class="slot ${have[k.id] ? 'on' : ''} ${D.kitEssential.includes(k.id) ? 'ess' : ''}" data-id="${k.id}" title="${esc(k.n)} – ${k.g} g">
         ${ic(k.icon, 40)}<span class="nm">${esc(k.n)}</span>
@@ -568,8 +568,8 @@
     let heading = null, target = LS.get('target', null), manual = false, raf = 0;
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('compass', 48)}<div><h1>Iránytű</h1><div class="muted" style="font-size:22px">Telefon szenzor · tartsd vízszintesen</div></div></div>
       <div class="compass-wrap"><canvas id="compass" width="96" height="96"></canvas></div>
-      <div class="hdg" id="hdg">---°<small id="hdgSub">szenzor indítása szükséges</small></div>
-      <div class="row center mt" style="justify-content:center"><button class="btn" id="startC">${ic('compass', 20)}Szenzor indítása</button><button class="btn ghost" id="manBtn">Kézi mód</button></div>
+      <div class="hdg" id="hdg">---°<small id="hdgSub">koppints a „Szenzor indítása” gombra</small></div>
+      <div class="row center mt" style="justify-content:center"><button class="btn" id="startC">${ic('compass', 20)}Szenzor indítása</button><button class="btn ghost" id="manBtn">Kézi beállítás</button></div>
       <div id="manRow" class="hidden mt"><input type="range" id="manRange" min="0" max="359" value="0" style="width:100%"></div>
       <div class="rule"></div>
       <h3>Menetirány (azimut)</h3>
@@ -709,7 +709,7 @@
       g.fillStyle = night ? '#d4a07c' : '#c4a574'; g.font = '8px Silkscreen, monospace'; g.textAlign = 'left';
       g.fillText(fmtD(maxD).toUpperCase(), c + 3, c - 90 + 9); g.fillText(fmtD(maxD * .33).toUpperCase(), c + 3, c - 30 + 9);
       g.fillStyle = '#ff3b30'; g.textAlign = 'center'; g.fillText('N', c, 8);
-      const drawSprite = (name, x, y) => { const img = new Image(); img.onload = () => g.drawImage(img, Math.round(x - 8), Math.round(y - 8), 16, 16); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PX.svg(name).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ')); };
+      const drawSprite = (name, x, y) => { const img = new Image(); img.onload = () => g.drawImage(img, Math.round(x - 8), Math.round(y - 8), 16, 16); img.src = PX.url(name); };
       if (ctr) m.forEach(p => { const db = distBear(ctr, p), r = rad(db.b); drawSprite((D.markTypes.find(t => t.id === p.type) || D.markTypes[5]).icon, c + Math.sin(r) * db.d * scale, c - Math.cos(r) * db.d * scale); });
       if (pos) { g.fillStyle = '#ffd60a'; g.fillRect(c - 3, c - 3, 6, 6); g.fillStyle = '#141810'; g.fillRect(c - 1, c - 1, 2, 2); }
       else { g.fillStyle = night ? '#8e7262' : '#a99a74'; g.textAlign = 'center'; g.font = '8px Silkscreen, monospace'; g.fillText(ctr ? 'NO GPS - KOZEPPONT' : 'NO GPS', c, W - 8); }
@@ -744,7 +744,7 @@
   V.about = () => {
     const url = location.origin + location.pathname;
     const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:16px">OFFLINE · NO SIGNAL NEEDED</div></div></div>
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:16px">OFFLINE · TÉRERŐ NÉLKÜL IS</div></div></div>
       <div class="center mt"><img src="qr.svg" alt="QR-kód az app címéhez" width="220" height="220" style="image-rendering:pixelated;background:#f4f1e6;padding:8px;border:3px solid var(--khaki-d)"></div>
       <p class="center coord" style="word-break:break-all">${esc(url)}</p>
       <div class="row" style="justify-content:center"><button class="btn green ${!standalone ? '' : 'hidden'}" id="instBtn">${ic('pack', 20)}Telepítés most</button><button class="btn ghost" id="shareBtn">Link megosztása</button></div>
@@ -864,8 +864,8 @@
       <div class="drow"><button data-fs="0" class="${fs === 0 ? 'on' : ''}">A</button><button data-fs="1" class="${fs === 1 ? 'on' : ''}">A+</button><button data-fs="2" class="${fs === 2 ? 'on' : ''}">A++</button></div>
       <div class="drow" style="grid-template-columns:1fr 1fr"><button id="dNight">${night ? '☾ Éjszaka' : '☀ Nappal'}</button><button id="dMus" class="${mus ? 'on' : ''}">♪ Zene ${mus ? 'BE' : 'KI'}</button></div>
       <div class="dsec">APP</div>
-      <button class="di" id="dUpd">${ic('sun', 30)}<span>Frissítés</span><span>›</span></button>
-      <button class="di" id="dShr">${ic('signal', 30)}<span>Megosztás</span><span>›</span></button>
+      <button class="di" id="dUpd">${ic('refresh', 30)}<span>Frissítés</span><span>›</span></button>
+      <button class="di" id="dShr">${ic('share', 30)}<span>Megosztás</span><span>›</span></button>
       ${isStandalone() ? '' : `<button class="di" id="dIns">${ic('pack', 30)}<span>Telepítés</span><span>›</span></button>`}
       ${it('#/about', 'book', 'Névjegy, QR')}`;
   }
@@ -916,6 +916,7 @@
     document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px');
     $('#crumb').textContent = CRUMB[v];
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
+    main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     V[v](...parts.slice(1));
     if (v !== 'ch' && !(v === 'sos' && parts[1] && prevRoute === location.hash)) window.scrollTo(0, 0); prevRoute = location.hash;
   }

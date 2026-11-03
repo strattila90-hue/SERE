@@ -547,3 +547,17 @@ main { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 .sec { content-visibility: visible; contain-intrinsic-size: none; }
 body.menu-open, body:has(.gate) { overflow: hidden; }
 body:has(.readbar:not(.hidden)) main { padding-bottom: 84px; }
+
+/* ===== simább működés (v2.3) ===== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, .chk, .opt, .slot, .sbtn, .brow, .tile { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+img.px { image-rendering: pixelated; image-rendering: crisp-edges; display: block; flex: none; pointer-events: none; }
+main.enter { animation: enter .14s ease-out; }
+@keyframes enter { from { opacity: .35; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.btn, .sbtn, .brow, .tile, .slot, .opt, .kidbtn, .sosbtn, .kidentry, .di { transition: transform .06s, filter .06s; }
+.btn:active, .sbtn:active, .brow:active, .tile:active, .slot:active, .opt:active, .kidbtn:active, .sosbtn:active, .kidentry:active, .di:active { transform: translateY(2px); filter: brightness(1.15); }
+@media (prefers-reduced-motion: reduce) { main.enter { animation: none; } }
+h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
+.ch-head { min-width: 0; } .ch-head > div { min-width: 0; }
+.slot { min-width: 0; } .slot .nm { hyphens: auto; overflow-wrap: anywhere; text-align: center; }
+.sc-head .ttl { min-width: 0; }

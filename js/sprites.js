@@ -602,6 +602,40 @@
       '....kssskssk....',
       '....kkkkkkkk....',
       '................'],
+    share: [
+      '................',
+      '...........kk...',
+      '..........kGGk..',
+      '..........kGGk..',
+      '.......kkk.kk...',
+      '.....kk........',
+      '..kk.k..........',
+      '.kGGk...........',
+      '.kGGk...........',
+      '..kk.k..........',
+      '.....kk.........',
+      '.......kkk.kk...',
+      '..........kGGk..',
+      '..........kGGk..',
+      '...........kk...',
+      '................'],
+    refresh: [
+      '................',
+      '.....kkkkkk.....',
+      '...kkGGGGGGkk...',
+      '..kGGkkkkkkGGk..',
+      '.kGGk......kGk..',
+      '.kGk........kkkk',
+      'kGGk.......kGGGk',
+      'kGk.........kGk.',
+      'kGk..........k..',
+      'kGGk............',
+      '.kGk........kk..',
+      '.kGGk......kGk..',
+      '..kGGkkkkkkGGk..',
+      '...kkGGGGGGkk...',
+      '.....kkkkkk.....',
+      '................'],
     knot: [
       '................',
       '................',
@@ -644,5 +678,41 @@
     cache[key] = out;
     return out;
   }
-  window.PX = { svg, names: Object.keys(S), PAL };
+  /* „menőbb” pixel ikon: vastag sötét körvonal, vetett árnyék, felső fény, alsó árnyalás — egyszer rajzolva, PNG-ként tárolva */
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const urlCache = {};
+  function url(name) {
+    if (urlCache[name]) return urlCache[name];
+    const rows = S[name] || S.star, N = 16, P = 2, W = N + P * 2;
+    const grid = []; for (let y = 0; y < N; y++) { grid[y] = []; for (let x = 0; x < N; x++) { const c = (rows[y] || '')[x]; grid[y][x] = c && c !== '.' && PAL[c] ? c : null; } }
+    const at = (x, y) => (x >= 0 && y >= 0 && x < N && y < N) ? grid[y][x] : null;
+    let cv; try { cv = document.createElement('canvas'); cv.width = W; cv.height = W; } catch (e) { return null; }
+    const g = cv.getContext('2d'), img = g.createImageData(W, W), d = img.data;
+    const put = (x, y, r, gg, b, a) => { const i = ((y + P) * W + (x + P)) * 4; const A = a / 255, B = d[i + 3] / 255; d[i] = r * A + d[i] * (1 - A); d[i + 1] = gg * A + d[i + 1] * (1 - A); d[i + 2] = b * A + d[i + 2] * (1 - A); d[i + 3] = Math.min(255, a + d[i + 3] * (1 - A)); };
+    // vetett árnyék (+1,+1)
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (grid[y][x]) put(x + 1, y + 1, 0, 0, 0, 110);
+    // körvonal
+    for (let y = -1; y <= N; y++) for (let x = -1; x <= N; x++) {
+      if (at(x, y)) continue;
+      if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) put(x, y, 10, 12, 8, 255);
+    }
+    // kitöltés fény-árnyékkal
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const c = grid[y][x]; if (!c) continue;
+      let [r, gg, b] = hex(PAL[c]);
+      if (c !== 'k') {
+        if (!at(x, y - 1) || !at(x - 1, y)) { r += (255 - r) * .28; gg += (255 - gg) * .28; b += (255 - b) * .28; }
+        else if (!at(x, y + 1) || !at(x + 1, y)) { r *= .78; gg *= .78; b *= .78; }
+      }
+      put(x, y, r | 0, gg | 0, b | 0, 255);
+    }
+    g.putImageData(img, 0, 0);
+    return (urlCache[name] = cv.toDataURL());
+  }
+  function img(name, size) {
+    const u = url(name); if (!u) return svg(name, size);
+    const s = size ? Math.round(size * 1.25) : 20;
+    return `<img class="px" src="${u}" width="${s}" height="${s}" alt="" draggable="false" decoding="async">`;
+  }
+  window.PX = { svg, img, url, names: Object.keys(S), PAL };
 })();

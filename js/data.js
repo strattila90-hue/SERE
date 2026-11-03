@@ -5,7 +5,7 @@ window.SERE_DATA = {
       id: 'tuz', title: 'Tűzgyújtás', en: 'FIRE CRAFT', icon: 'fire', ch: '2',
       steps: [
         { t: 'Gyűjts', icon: 'tree', x: ['Éleszték: nyírkéreg, száraz fű, tapló', 'Gyújtós: ceruzavastag száraz gallyak', 'Tűzifa: csuklóvastagtól felfelé', 'A becsültnél 3× többet!'], tag: ['warn', 'Kerüld a zöld és a nedves fát'] },
-        { t: 'Rakd', icon: 'shelter', x: ['Tisztítsd meg a helyet (kb. 1 m)', 'Gúla: éleszték középen', 'Gyújtós köré, ferdén', 'Nyílás a szél felőli oldalon'], tag: ['tip', 'A levegő a tűz fele'] },
+        { t: 'Rakd', icon: 'shelter', x: ['Tisztítsd meg a helyet (kb. 1 m)', 'Gúla: éleszték középen', 'Gyújtós köré, ferdén', 'Nyílás a szél felőli oldalon'], tag: ['tip', 'A levegő a tűz fele – hagyj rést'] },
         { t: 'Gyújts', icon: 'lighter', x: ['Háttal a szélnek, görnyedve', 'Az élesztéket gyújtsd alulról', 'Fokozatosan add hozzá a gyújtóst', 'Majd a tűzifát'], tag: ['tip', 'Egy gyufa, egy tűz'] },
         { t: 'Felügyeld', icon: 'warn', x: ['Kis tűz: kevesebb fa, jobb kontroll', 'Soha ne hagyd felügyelet nélkül', 'Tűzőr csoportban kötelező', 'Oltás: vízzel, földdel, kavarva'], tag: ['warn', 'Víz vagy föld legyen kéznél'] }
       ],
@@ -105,9 +105,9 @@ window.SERE_DATA = {
   scenarios: [
     { id: 'eltevedtem', t: 'Eltévedtem', sub: 'nem tudom, hol vagyok', icon: 'compass', c: 'var(--acc)',
       steps: [
-        ['ÁLLJ MEG. Ne menj tovább vaktában – minden lépés rontja a helyzetet.', 'stop'],
-        ['Nyugodj meg: üld le, igyál egy kortyot, lélegezz mélyeket (S-T-O-P).', null],
-        ['Gondold végig: honnan jöttél, mikor láttál utoljára ismert pontot?', null],
+        ['ÁLLJ MEG. Ne menj tovább vaktában – minden felesleges lépés ront a helyzeten.', 'stop'],
+        ['Nyugodj meg: ülj le, igyál egy kortyot, vegyél néhány mély lélegzetet (S-T-O-P).', null],
+        ['Gondold végig: honnan jöttél, és hol láttál utoljára ismert pontot?', null],
         ['Nézd meg a pozíciódat: GPS-koordináta / MGRS a térkép-jelölőben.', 'map'],
         ['Tájékozódj: iránytű, nap, tereptárgyak (gerinc, patak, út).', 'compass'],
         ['Ha van térerő: jelents (ki, hol, állapot). Ha nincs: maradj egy helyben, ha várnak rád.', null],
@@ -182,7 +182,7 @@ window.SERE_DATA = {
       ['Utána: írd fel, mit láttál (idő, hely, személyleírás).', null]
     ] },
     mentes: { t: 'Segítséget hívok', sub: '112 + jelzés', steps: [
-      ['Hívd a 112-t (térerő nélkül is próbáld – bármely hálózaton megy).', null],
+      ['Hívd a 112-t. Ha a saját szolgáltatódnak nincs térereje, akkor is próbáld: a segélyhívás bármelyik hálózaton átmehet.', null],
       ['Mondd el: KI vagy, HOL vagy (koordináta a Térkép-jelölőben), MI történt, hány ember, sérülés.', 'map'],
       ['Takarékoskodj az akkuval: kijelző halványra, felesleges appok ki, repülő mód a hívások között.', null],
       ['Maradj egy helyben, ha tudják, hol keresnek. Az ember nagyobb jel, mint gondolod: élénk szín, mozgás.', 'jelzes'],
