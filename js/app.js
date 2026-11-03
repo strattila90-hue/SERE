@@ -182,7 +182,7 @@
     return `<section class="card whoc"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap">${ic(p.icon, 40)}<div><div class="stencil" style="font-size:14px">NEKED SZÓL</div><h3 style="margin:0">${esc(p.n)}</h3><div class="muted" style="font-size:19px">${lv ? esc(lv.n) : ''}${w.fem ? ' · női tippek' : ''}</div></div></div><a class="btn ghost" href="#/who" style="padding:6px 10px">Csere</a></div>
       <div class="rule"></div><ul class="wtips">${p.tips.slice(0, 3).map(t => `<li>${esc(t)}</li>`).join('')}</ul><a href="#/who/tips" style="font-size:20px">Összes tanács ›</a></section>`;
   }
-  V.who = (sub) => {
+  V.who = (sub, focusK) => {
     const w = who() || { p: null, lvl: 'kezdo', fem: false }, p = prof();
     if (sub === 'tips' && p) {
       main.innerHTML = `<section class="card frame"><div class="ch-head">${ic(p.icon, 52)}<div><h1>${esc(p.n)}</h1><div class="muted">${esc(p.sub)}</div></div></div><div class="rule"></div>
@@ -201,13 +201,20 @@
       <h2 class="hh">3. Kiegészítés</h2>
       <button class="chk ${w.fem ? 'on' : ''}" id="fem" style="font-size:24px"><span class="box"></span><span>Női tippek is (menstruáció, higiénia, egyedül utazás)</span></button>
       <div class="row mt"><button class="btn green" id="whoOk" ${w.p ? '' : 'disabled'}>${ic('check', 24)} Kész</button></div>`;
-    const save = (k, v) => { const n = Object.assign({ p: null, lvl: 'kezdo', fem: false }, who()); n[k] = v; LS.set('who', n); V.who(); };
+    const save = (k, v) => { const n = Object.assign({ p: null, lvl: 'kezdo', fem: false }, who()); n[k] = v; LS.set('who', n); V.who(null, k); };
+    if (focusK === 'p') centerOn(main.querySelectorAll('.hh')[1]);
+    else if (focusK === 'lvl' || focusK === 'fem') centerOn($('#whoOk'));
     main.querySelectorAll('[data-p]').forEach(b => b.onclick = () => save('p', b.dataset.p));
     main.querySelectorAll('[data-l]').forEach(b => b.onclick = () => save('lvl', b.dataset.l));
     $('#fem').onclick = () => save('fem', !w.fem);
     $('#whoOk').onclick = () => { location.hash = '#/who/tips'; };
   };
 
+
+
+  /* képernyő közepére igazítás: a következő utasítás / kérdés mindig látható legyen */
+  function centerOn(el) { if (!el) return; requestAnimationFrame(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' })); }
+  const nextOpen = sel => [...main.querySelectorAll(sel)].find(e => !e.classList.contains('on'));
 
   /* ---------------- felolvasás ---------------- */
   function readBtn(id) { return window.SERESpeak && SERESpeak.ok ? `<button class="btn readbtn" data-read="${id}">${ic('speak', 24)}<span>FELOLVASÁS</span></button>` : ''; }
@@ -325,6 +332,7 @@
         $('#fb').innerHTML = `<div class="callout ${right ? 'ok' : 'warn'} mt">${ic(right ? 'check' : 'warn', 26)}<div><b>${right ? 'Helyes!' : 'Nem jó.'}</b> ${right ? '' : 'A helyes válasz: ' + esc(q.good)}</div></div>
           <button class="btn ${right ? 'green' : ''}" id="nx" style="width:100%;justify-content:center;font-size:22px">${i < qs.length - 1 ? 'Következő kérdés ›' : 'Eredmény ›'}</button>`;
         $('#nx').onclick = () => { i++; picked = null; show(); window.scrollTo(0, 0); };
+        centerOn($('#nx'));
       });
     };
     show();
@@ -342,7 +350,7 @@
 
   /* --- BAJBAN VAGYOK: forgatókönyvek --- */
   const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
-  V.sos = (id) => {
+  V.sos = (id, focus) => {
     if (!id) {
       main.innerHTML = `<section class="card frame" style="border-color:var(--warn)"><div class="ch-head">${ic('warn', 52)}<div><h1>Bajban vagyok</h1><div class="muted">Először: <b>állj meg, lélegezz.</b> Aztán válaszd ki, mi történt.</div></div></div></section>
         <a class="sosbtn" href="#/stop" style="margin-bottom:14px">${ic('stop', 48)}<span>S-T-O-P<small>Állj meg · Gondolkodj · Figyelj · Tervezz</small></span></a>
@@ -363,7 +371,11 @@
       </section>
       <div class="row"><a class="btn ghost" href="#/sos">‹ Másik helyzet</a><button class="btn ghost" id="sosReset">Újrakezdés</button></div>`;
     bindRead(() => [x.t + '.'].concat(x.steps.map(([t], i) => (i + 1) + '. ' + t), x.extra.length ? ['Neked külön:'].concat(x.extra) : []));
-    main.querySelectorAll('.sosck').forEach(b => b.onclick = () => { const s = LS.get('sos', {}); s[id + b.dataset.i] = !s[id + b.dataset.i]; LS.set('sos', s); V.sos(id); window.scrollTo(0, window.scrollY); });
+    main.querySelectorAll('.sosck').forEach(b => b.onclick = () => { const s = LS.get('sos', {}); const k = id + b.dataset.i; s[k] = !s[k]; LS.set('sos', s); V.sos(id, s[k] ? 'next' : 'keep:' + b.dataset.i); });
+    const nx = nextOpen('.sosl li');
+    if (focus === 'next') centerOn(nx || main.querySelector('.callout.warn, .btn.ghost.mt') || main.lastElementChild);
+    else if (focus && focus.startsWith('keep:')) centerOn(main.querySelector(`.sosck[data-i="${focus.slice(5)}"]`));
+    else if (nx && nx !== main.querySelector('.sosl li')) centerOn(nx);
     $('#sosReset').onclick = () => { const s = LS.get('sos', {}); x.steps.forEach((_, i) => delete s[id + i]); x.extra.forEach((_, i) => delete s[id + 'p' + i]); LS.set('sos', s); V.sos(id); };
   };
   const tile = (href, icon, t, s) => `<a class="tile" href="${href}">${ic(icon, 44)}<span>${t}</span><small>${s}</small></a>`;
@@ -489,7 +501,7 @@
   };
 
   /* --- S-T-O-P --- */
-  V.stop = () => {
+  V.stop = (focus) => {
     const st = LS.get('stop', {});
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('stop', 52)}<div><h1>S-T-O-P</h1><div class="muted" style="font-size:22px">Az első percek – mielőtt bármit tennél.</div></div></div></section>
       ${D.stop.map((s, i) => `<section class="stop-card ${st[i] ? 'done' : ''}" data-i="${i}"><div class="L">${s.k}</div><div><h3>${esc(s.t)}</h3>
@@ -497,8 +509,10 @@
       <div class="row"><button class="btn ghost" id="stopReset">Újrakezdés</button><a class="btn" href="#/prio">Tovább: prioritások ›</a></div>`;
     main.querySelectorAll('.chk').forEach(b => b.onclick = () => {
       const s = LS.get('stop', {}); s[b.dataset.k] = !s[b.dataset.k];
-      const i = b.dataset.k.split('-')[0]; s[i] = D.stop[i].x.every((_, j) => s[i + '-' + j]); LS.set('stop', s); V.stop();
+      const i = b.dataset.k.split('-')[0]; s[i] = D.stop[i].x.every((_, j) => s[i + '-' + j]); LS.set('stop', s); V.stop(s[b.dataset.k] ? 'next' : b.dataset.k);
     });
+    if (focus === 'next') centerOn(nextOpen('.chk') || main.querySelector('.row'));
+    else if (focus) centerOn(main.querySelector(`.chk[data-k="${focus}"]`));
     $('#stopReset').onclick = () => { LS.set('stop', {}); V.stop(); };
   };
 
@@ -525,12 +539,12 @@
         <div><i class="dot" style="--c:var(--ok)"></i>FONTOS – megbízható</div><div><i class="dot" style="--c:var(--purple)"></i>NAVIGÁCIÓ</div>
         <div><i class="dot" style="--c:var(--yel)"></i>ALAP – egyszerű, kell</div><div><span style="color:var(--warn);font-family:Silkscreen">!</span>&nbsp;kötelező alapelem</div></div>
       </section><div class="row"><button class="btn ghost" id="kitReset">Ürítés</button></div>`;
-    main.querySelectorAll('.slot').forEach(b => b.onclick = () => { const h = LS.get('kit', {}); h[b.dataset.id] = !h[b.dataset.id]; LS.set('kit', h); V.kit(); });
+    main.querySelectorAll('.slot').forEach(b => b.onclick = () => { const h = LS.get('kit', {}); h[b.dataset.id] = !h[b.dataset.id]; LS.set('kit', h); const y = scrollY; V.kit(); scrollTo(0, y); });
     $('#kitReset').onclick = () => { LS.set('kit', {}); V.kit(); };
   };
 
   /* --- checklisták --- */
-  V.check = (id) => {
+  V.check = (id, focus) => {
     if (!id) {
       const st = LS.get('chk', {});
       main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('check', 48)}<div><h1>Checklisták</h1></div></div></section>
@@ -543,7 +557,9 @@
       <div class="progress">${c.items.map((_, i) => `<i class="${i < d ? 'f' : ''}"></i>`).join('')}</div>
       ${c.items.map((x, i) => `<button class="chk ${st[c.id + i] ? 'on' : ''}" data-i="${i}"><span class="box"></span><span>${esc(x)}</span></button>`).join('')}
       </section><div class="row"><a class="btn ghost" href="#/check">‹ Checklisták</a><button class="btn ghost" id="chkReset">Nullázás</button></div>`;
-    main.querySelectorAll('.chk').forEach(b => b.onclick = () => { const s = LS.get('chk', {}); s[c.id + b.dataset.i] = !s[c.id + b.dataset.i]; LS.set('chk', s); V.check(id); });
+    main.querySelectorAll('.chk').forEach(b => b.onclick = () => { const s = LS.get('chk', {}); s[c.id + b.dataset.i] = !s[c.id + b.dataset.i]; LS.set('chk', s); V.check(id, s[c.id + b.dataset.i] ? 'next' : b.dataset.i); });
+    if (focus === 'next') centerOn(nextOpen('.chk') || main.querySelector('.row'));
+    else if (focus != null) centerOn(main.querySelector(`.chk[data-i="${focus}"]`));
     $('#chkReset').onclick = () => { const s = LS.get('chk', {}); c.items.forEach((_, i) => delete s[c.id + i]); LS.set('chk', s); V.check(id); };
   };
 

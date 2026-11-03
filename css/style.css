@@ -541,3 +541,9 @@ img, svg.px { content-visibility: auto; }
 .homefit .scene { flex: 1; min-height: 0; position: relative; overflow: hidden; border: 3px solid var(--khaki-d); box-shadow: 0 0 0 3px var(--line); }
 .homefit .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 75%; image-rendering: pixelated; }
 .homefit .tools { flex: none; align-content: start; }
+/* v2.2: nem lehet „a semmibe” görgetni */
+html, body { overscroll-behavior: none; }
+main { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.sec { content-visibility: visible; contain-intrinsic-size: none; }
+body.menu-open, body:has(.gate) { overflow: hidden; }
+body:has(.readbar:not(.hidden)) main { padding-bottom: 84px; }
