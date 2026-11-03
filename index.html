@@ -13,6 +13,20 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SERE PIXEL">
+<script>
+/* Ha a telefon "Asztali webhely" módban nyitja meg (≈980px széles nézet), visszaskálázzuk telefonos nézetre */
+(function () {
+  try {
+    var coarse = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
+    var w = window.innerWidth;
+    if (coarse && w > 700 && (window.devicePixelRatio || 1) < 1.8 && screen.width < 900 || coarse && w > 700 && screen.width < 600) {
+      var target = Math.min(430, Math.max(360, screen.width < 600 ? screen.width : 412));
+      document.documentElement.style.zoom = (w / target).toFixed(3);
+      document.documentElement.classList.add('deskfix');
+    }
+  } catch (e) {}
+})();
+</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -27,7 +41,7 @@
 <div class="drawer-bg" id="drawerBg"></div>
 <aside class="drawer" id="drawer" aria-label="Menü" aria-hidden="true"></aside>
 <main id="main"><noscript>A SERE PIXEL futtatásához JavaScript szükséges.</noscript></main>
-<script>window.SERE_VERSION = '2.0.1';</script>
+<script>window.SERE_VERSION = '2.1.0';</script>
 <script src="js/music.js"></script>
 <script src="js/speak.js"></script>
 <script src="js/sprites.js"></script>

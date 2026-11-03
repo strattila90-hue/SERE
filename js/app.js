@@ -137,8 +137,10 @@
       <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
       <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
       <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 38)}<span>${esc(x.t)}</span></a>`).join('')}</div>
+      <div class="scene"><canvas id="cover" width="160" height="90" aria-label="Egyedül álló katona az erdőszélen"></canvas></div>
       <div class="tools"><a href="#/toc">${ic('book', 28)}Kézikönyv</a><a href="#/guides">${ic('fire', 28)}Kártyák</a><a href="#/compass">${ic('compass', 28)}Iránytű</a><a href="#/map">${ic('map', 28)}Térkép</a></div>
     </div>`;
+    drawCover();
   };
   V.status = () => {
     const a = statAdvice();
@@ -287,9 +289,10 @@
         return `<section class="card lesson ${ok ? 'ok' : ''} ${locked ? 'lock' : ''}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">${ic(CH_ICON[c.id] || 'book', 40)}<div style="flex:1;min-width:0">
           <h3 style="margin:0">${c.id}. ${esc(c.title)}</h3><div class="muted" style="font-size:19px">Olvasva: ${pr}% · ${res ? 'Legjobb: ' + res.best + '%' : 'Vizsga: még nincs'} ${ok ? '· <span style="color:var(--ok)">✓ TELJESÍTVE</span>' : ''}</div>
           <div class="bar mt" style="--c:var(--blue);height:10px">${Array.from({ length: 10 }, (_, j) => `<i class="${j < pr / 10 ? 'f' : ''}"></i>`).join('')}</div></div></div>
-          ${locked ? `<div class="muted mt" style="font-size:20px">🔒 Előbb teljesítsd a ${C[i - 1].id}. fejezet vizsgáját.</div>` : `<div class="row mt"><a class="btn ghost" href="#/ch/${c.id}">${ic('book', 20)}Tanulás</a>${QZ[c.id] ? `<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${c.id}">${ic('check', 20)}Vizsga</a>` : ''}</div>`}</section>`; }).join('')}
+          ${locked ? `<div class="muted mt" style="font-size:20px">🔒 Előbb teljesítsd a ${C[i - 1].id}. fejezet vizsgáját.</div>` : `<div class="row mt"><a class="btn ghost" href="#/ch/${c.id}">${ic('book', 20)}Tanulás</a><a class="btn ghost" href="#/ch/${c.id}" data-autoread="1">${ic('speak', 20)}Hallgatás</a>${QZ[c.id] ? `<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${c.id}">${ic('check', 20)}Vizsga</a>` : ''}</div>`}</section>`; }).join('')}
       <button class="chk ${LS.get('courseFree', false) ? 'on' : ''}" id="free" style="font-size:21px"><span class="box"></span><span style="text-decoration:none;color:var(--ink)">Szabad sorrend (zárolás nélkül)</span></button>
       <p class="muted" style="font-size:18px">Gyakorló kurzus – nem helyettesíti a hivatalos SERE „A” e-learning vizsgát.</p>`;
+    main.querySelectorAll('[data-autoread]').forEach(a => a.addEventListener('click', () => { window.__autoRead = true; }));
     $('#free').onclick = () => { LS.set('courseFree', !LS.get('courseFree', false)); V.course(); };
   };
   V.exam = (id) => {
@@ -411,7 +414,8 @@
       return '';
     };
     main.innerHTML = `
-      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div></section>
+      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div>
+        ${SERESpeak.ok ? `<button class="btn readall" id="readAll">${ic('speak', 26)}<span>TELJES FEJEZET FELOLVASÁSA</span></button>` : ''}</section>
       ${ch.sections.map(s => `<section class="card sec" id="s-${s.id}" data-sid="${s.id}">
         <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>${readBtn(s.id)}
         ${s.web ? '<div class="webnote"><span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból — ellenőrizd a hatályos szakutasítással</div><div class="rule"></div>' : '<div class="rule"></div>'}
@@ -421,13 +425,37 @@
         ${QZ[ch.id] ? `<a class="btn green" href="#/exam/${ch.id}">${ic('check', 20)}Vizsga</a>` : `<a class="btn ghost" href="#/toc">Tartalom</a>`}
         ${i < C.length - 1 ? `<a class="btn" href="#/ch/${C[i + 1].id}">${C[i + 1].id}. fejezet ›</a>` : '<span></span>'}
       </div>`;
-    bindRead(sid => { const sc = ch.sections.find(q => q.id === sid); return [sc.title + '.'].concat(sc.blocks.flatMap(b => b.items || [b.x])); });
+    const secText = sc => [sc.id + '. ' + sc.title + '.'].concat(sc.blocks.flatMap(b => b.items || [b.x]));
+    bindRead(sid => secText(ch.sections.find(q => q.id === sid)));
+    // teljes fejezet: szakaszonként, a hallott rész kiemelve és görgetve, lebegő vezérlővel
+    let playing = false, cur = 0;
+    const ra = $('#readAll');
+    const bar = document.createElement('div'); bar.className = 'readbar hidden';
+    bar.innerHTML = `<button id="rbPrev">‹‹</button><span id="rbTxt"></span><button id="rbStop">■ ÁLLJ</button><button id="rbNext">››</button>`;
+    document.body.appendChild(bar);
+    const mark = () => main.querySelectorAll('.sec').forEach((el, k) => el.classList.toggle('reading', playing && k === cur));
+    const playSec = () => {
+      if (cur >= ch.sections.length) { stopAll(); toast('Fejezet vége'); return; }
+      const sc = ch.sections[cur]; playing = true; mark(); bar.classList.remove('hidden');
+      $('#rbTxt').textContent = sc.id + ' ' + sc.title;
+      const el = document.getElementById('s-' + sc.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      SERESpeak.onEnd = () => { if (playing) { cur++; playSec(); } };
+      SERESpeak.speak((cur === 0 ? [ch.id + '. fejezet: ' + ch.title + '.'] : []).concat(secText(sc)));
+    };
+    const stopAll = () => { playing = false; SERESpeak.onEnd = null; SERESpeak.stop(); mark(); bar.classList.add('hidden'); if (ra) ra.querySelector('span').textContent = 'TELJES FEJEZET FELOLVASÁSA'; };
+    if (ra) ra.onclick = () => { if (playing) return stopAll(); if (window.SEREMusic && SEREMusic.on) SEREMusic.stop(); cur = 0; ra.querySelector('span').textContent = 'ÁLLJ'; playSec(); if (!SERESpeak.hasHu) toast('Nincs magyar hang – Beállítások › Szövegfelolvasás'); };
+    $('#rbStop').onclick = stopAll;
+    $('#rbNext').onclick = () => { SERESpeak.onEnd = null; SERESpeak.stop(); cur = Math.min(cur + 1, ch.sections.length); playSec(); };
+    $('#rbPrev').onclick = () => { SERESpeak.onEnd = null; SERESpeak.stop(); cur = Math.max(cur - 1, 0); playSec(); };
+    // szakasz-gombról is folytatható: a kiválasztottól indul
+    main.querySelectorAll('.sec').forEach((el, k) => el.addEventListener('dblclick', () => { cur = k; SERESpeak.stop(); playSec(); }));
     const seen = seenAll();
     const io = new IntersectionObserver(es => {
       es.forEach(e => { if (e.isIntersecting) { seen[e.target.dataset.sid] = 1; LS.set('seen', seen); } });
     }, { threshold: .55 });
     main.querySelectorAll('.sec').forEach(s => io.observe(s));
-    cleanup = () => io.disconnect();
+    cleanup = () => { io.disconnect(); playing = false; SERESpeak.onEnd = null; bar.remove(); };
+    if (window.__autoRead && ra) { window.__autoRead = false; setTimeout(() => ra.click(), 300); }
     if (sec) { const el = document.getElementById('s-' + sec); if (el) setTimeout(() => el.scrollIntoView(), 30); } else window.scrollTo(0, 0);
   };
 
@@ -857,9 +885,9 @@
   let prevRoute = '';
   let kidSaid = false;
   function route() {
-    if (window.SERESpeak && !kidSaid) SERESpeak.stop();
-    if (document.body.classList.contains('menu-open')) closeMenu();
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }
+    if (window.SERESpeak && !kidSaid) { SERESpeak.onEnd = null; SERESpeak.stop(); }
+    if (document.body.classList.contains('menu-open')) closeMenu();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     let v = V[parts[0]] ? parts[0] : 'home';
     if (v === 'kid') LS.set('kid', true);
@@ -867,7 +895,9 @@
     document.body.classList.toggle('kidmode', v === 'kid');
     document.body.classList.toggle('is-home', v === 'home');
     $('#backBtn').style.visibility = v === 'home' || (v === 'kid' && !parts[1]) ? 'hidden' : 'visible';
+    const zf = parseFloat(document.documentElement.style.zoom) || 1;
     document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px');
+    document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px');
     $('#crumb').textContent = CRUMB[v];
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     V[v](...parts.slice(1));
@@ -878,6 +908,7 @@
     b.onclick = () => { location.hash = '#/' + (b.dataset.nav === 'home' ? '' : b.dataset.nav); };
   });
   window.addEventListener('hashchange', route);
+  window.addEventListener('resize', () => { const zf = parseFloat(document.documentElement.style.zoom) || 1; document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px'); });
   applyMode();
   route();
   setTimeout(() => installPopup(false), 700);

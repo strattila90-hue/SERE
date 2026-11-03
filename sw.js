@@ -1,5 +1,5 @@
-/* SERE PIXEL service worker — offline + automatikus frissítés (hálózat először, gyorsítótár tartalék) */
-const VERSION = 'sere-pixel-v2.0.1';
+/* SERE PIXEL service worker — azonnali indulás a tárból, frissítés a háttérben */
+const VERSION = 'sere-pixel-v2.1.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/quiz.js', 'js/app.js',
@@ -17,11 +17,10 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
-  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3500));
-  e.respondWith(
-    Promise.race([fetch(e.request, { cache: 'no-cache' }), timeout]).then(res => {
-      if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(e.request, copy)); }
-      return res;
-    }).catch(() => caches.match(e.request, { ignoreSearch: true }).then(hit => hit || caches.match('index.html')))
-  );
+  e.respondWith(caches.open(VERSION).then(async c => {
+    const hit = await c.match(e.request, { ignoreSearch: true });
+    const net = fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }).catch(() => null);
+    if (hit) { e.waitUntil(net); return hit; }
+    return (await net) || (await c.match('index.html')) || Response.error();
+  }));
 });
