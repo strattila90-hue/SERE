@@ -490,7 +490,7 @@ body.menu-open { overflow: hidden; }
 body.kidmode .hamb, body.kidmode .sosmini { display: none; }
 body.is-home main { zoom: 1 !important; padding: 8px 8px 0; }
 .homefit { height: calc(100dvh - var(--toph, 64px) - 8px); min-height: 520px; }
-.backbtn { font-family: 'Silkscreen', monospace; font-size: 30px; color: var(--khaki-l); line-height: 1; }
+.backbtn { min-width: 40px; font-family: 'Silkscreen', monospace; font-size: 30px; color: var(--khaki-l); line-height: 1; }
 .homefit .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; }
 .homefit .duo .kidentry { grid-template-columns: 36px 1fr; padding: 8px 10px; font-size: 22px; }
 .homefit .duo .kidentry small { font-size: 18px; }
@@ -505,3 +505,13 @@ body.is-home main { zoom: 1 !important; padding: 8px 8px 0; }
 .opt:disabled { cursor: default; }
 .cert { border-color: var(--yel) !important; }
 .statusline { flex-wrap: wrap; gap: 4px 10px; }
+/* v2.0.1: visszafogottabb méretek a főoldalon */
+.homefit .scen { flex: none; grid-template-rows: none; grid-auto-rows: 84px; }
+.homefit .sbtn { font-size: 20px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; padding: 6px 8px; }
+.homefit .sbtn .px { width: 32px; height: 32px; flex: none; }
+.homefit .sosbtn { font-size: 26px; padding: 10px 12px; }
+.homefit .sosbtn small { font-size: 19px; }
+.homefit .sosbtn .px { width: 36px; height: 36px; }
+.homefit .tools { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-content: end; }
+.homefit .tools a { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--khaki-l); background: var(--panel); border: 3px solid var(--khaki-d); padding: 8px 2px; font-family: 'Pixelify', monospace; font-size: 16px; }
+.homefit .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); } .homefit .duo .kidentry { min-width: 0; font-size: 20px; } .homefit .duo .kidentry .px { width: 30px; height: 30px; }

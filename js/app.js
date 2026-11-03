@@ -137,7 +137,7 @@
       <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
       <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
       <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 38)}<span>${esc(x.t)}</span></a>`).join('')}</div>
-      <div class="hint">☰ menü: kézikönyv, kártyák, iránytű, térkép…</div>
+      <div class="tools"><a href="#/toc">${ic('book', 28)}Kézikönyv</a><a href="#/guides">${ic('fire', 28)}Kártyák</a><a href="#/compass">${ic('compass', 28)}Iránytű</a><a href="#/map">${ic('map', 28)}Térkép</a></div>
     </div>`;
   };
   V.status = () => {
@@ -720,7 +720,7 @@
 
 
   /* ---------------- betűméret ---------------- */
-  function applyFs() { const f = LS.get('fs', 1); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); }
+  function applyFs() { const f = LS.get('fs', 0); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); }
   applyFs();
 
   /* ---------------- zene ---------------- */
@@ -798,7 +798,7 @@
   function drawerHTML() {
     const h = location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
     const it = (href, icon, t, sub) => `<a class="di ${h === href.replace('#/', '').split('/')[0] ? 'on' : ''}" href="${href}">${ic(icon, 30)}<span>${t}${sub ? `<br><small>${sub}</small>` : ''}</span><span>›</span></a>`;
-    const fs = LS.get('fs', 1), night = isNight(), mus = window.SEREMusic && SEREMusic.on;
+    const fs = LS.get('fs', 0), night = isNight(), mus = window.SEREMusic && SEREMusic.on;
     return `<div class="dhead"><img src="icons/icon-v3-192.png" alt=""><div><div class="brand">SERE <b>PIXEL</b></div><div class="muted" style="font-size:18px">v${window.SERE_VERSION} · offline</div></div></div>
       ${it('#/', 'star', 'Főoldal')}
       ${it('#/sos', 'warn', 'Bajban vagyok')}
