@@ -95,5 +95,85 @@ window.SERE_QUIZ = {
     ['Milyen legyen a mentési helyszín?', 'Akadálymentes, a közelben rejtett várakozással', 'Sűrű erdő közepe', 'Falu főtere', 'Vezetékek alatt'],
     ['Mi a teendő helikopteres beszálláskor?', 'Fej le, a rotortól távol, utasítás szerint', 'Futás a farokrotor felé', 'Felállni és integetni', 'Egyedül beszállni'],
     ['Mi a fogság lelki túlélésének alapja?', 'Hit, bajtársiasság, rutin, fegyelem', 'Együttműködés az ellenséggel', 'Elszigetelődés a többiektől', 'Propaganda-nyilatkozat']
+  ],
+  'B1': [
+    ["Miért kell több tűzgyújtási mód a „B” szinten?", "Mert egy eszköz elveszhet vagy elázhat", "Mert a gyufa tilos", "Mert az öngyújtó túl nehéz", "Mert a tűz mindig rejtett legyen"],
+    ["Melyik éleszték ég nedvesen is?", "Nyírfakéreg", "Zöld fűzfalevél", "Nedves moha", "Friss fenyőtű"],
+    ["Melyik tűz ad alacsony lángot, kevés füstöt és fényt?", "Dakota-gödör", "Gúla", "Jelzőtűz zöld lombbal", "Rönkház"],
+    ["Mekkora legyen az avarkunyhó avarrétege?", "60–90 cm", "5–10 cm", "1–2 cm", "Nem kell avar"],
+    ["Hóbarlangban hol legyen a bejárat?", "A fekhelynél alacsonyabban", "A tetején", "A fekhellyel egy szintben", "Nem kell bejárat"],
+    ["Mi a hipotermia veszélyes jele?", "A reszketés megszűnik, zavartság jelentkezik", "Enyhe fázás", "Libabőr", "Éhségérzet"],
+    ["Mit ne tegyél fagyási sérülésnél?", "Dörzsölni vagy tűz mellett melegíteni", "Szélvédett helyre menni", "Szárazon tartani", "Testmelegen felolvasztani, ha nem fagy vissza"],
+    ["Mi a hőguta elsődleges ellátása?", "Azonnali hűtés", "Meleg takaró", "Sok só víz nélkül", "Erős mozgás"]
+  ],
+  'B2': [
+    ["Mire jó leginkább a napkollektoros lepárló?", "Sós vagy szennyezett víz tisztítására", "Nagy mennyiségű ivóvízre", "Élelem főzésére", "Jelzésre"],
+    ["Hogyan nyerj vizet hóból?", "Olvaszd meg, ne edd", "Edd meg nagy falatokban", "Keverd sóval", "Hagyd a zsebedben"],
+    ["Elegendő-e a szűrés a természetes víz biztonságához?", "Nem, fertőtleníteni is kell", "Igen, mindig", "Csak télen", "Csak forrásvíznél nem"],
+    ["Mit tegyél a gombákkal terepen?", "Soha ne edd meg őket", "Csak a színeseket edd meg", "Nyersen edd", "Csak a kicsiket edd meg"],
+    ["Melyik növény minden része halálosan mérgező?", "Tiszafa", "Csalán", "Pitypang", "Útifű"],
+    ["Hogyan fogyassz rovarokat?", "Mindig főzve vagy sütve", "Nyersen, élve", "Csak a szőröseket", "Csak az élénk színűeket"],
+    ["Szabad-e békeidőben csapdázni?", "Nem, engedélyhez kötött; csak valódi túlélési helyzetben", "Igen, bárhol", "Csak hétvégén", "Csak erdőben"],
+    ["Miért ne bontsd az állatot a vízforrás mellett?", "Szag, ragadozók, nyomok és szennyezés miatt", "Mert ott hideg van", "Mert ott nincs fény", "Nincs ilyen szabály"]
+  ],
+  'B3': [
+    ["Hogyan találod meg a Sarkcsillagot?", "A Göncöl két hátsó csillaga közti távolság ötszörösével", "Az Orion övének közepén", "A Holdtól jobbra", "A legfényesebb csillag mindig az"],
+    ["Csillagmozgás-módszer: a csillag felfelé mozdul. Merre nézel?", "Kelet", "Nyugat", "Észak", "Dél"],
+    ["Árnyékbot-módszer: mit jelöl az első pont?", "Nyugatot", "Keletet", "Északot", "Délt"],
+    ["Analóg óra-módszer (északi félteke): mi mutat dél felé?", "A kismutató és a 12-es közti szög felezője", "A nagymutató", "A 6-os szám", "A másodpercmutató"],
+    ["Megbízható iránymutató a moha a fán?", "Nem", "Igen, mindig északon nő", "Igen, mindig délen nő", "Csak télen"],
+    ["Mi a holtszámítás?", "Ismert pontból ismert irányban mért távolság alapján követett helyzet", "GPS használata", "Csillagok számolása", "Visszafordulás az elejére"],
+    ["Mit jelent a szándékos eltérítés?", "Tudatosan a cél egyik oldalára célzol egy vonalas tereptárgyon", "Véletlen irányváltás", "Az iránytű elforgatása", "Ellenség megtévesztése"],
+    ["Mi a „kézikorlát” a navigációban?", "Vonalas tereptárgy, amely mentén haladsz", "Az iránytű zsinórja", "Lépcső korlátja", "A térkép széle"]
+  ],
+  'B4': [
+    ["Mi a mozgás alapciklusa ellenséges területen?", "Figyelj – mozogj – figyelj", "Fuss – pihenj – fuss", "Mozogj megállás nélkül", "Csak nappal mozogj"],
+    ["Hogyan kelj át egy úton?", "Megfigyelés után merőlegesen, gyorsan, egyesével", "Hosszan az úton haladva", "Csoportban, lassan", "A legegyenesebb, legbeláthatóbb szakaszon"],
+    ["Mi a lebukás egyik fő oka?", "Türelmetlenség és fáradtság", "Túl sok pihenés", "Lassú mozgás", "Éjszakai mozgás"],
+    ["Mit tegyél, ha drónt hallasz?", "Dermedj meg, maradj takarásban", "Fuss a nyílt területre", "Integess", "Gyújts tüzet"],
+    ["Mi véd a hőkamera ellen?", "Takarás föld, szikla, sűrű növényzet mögött", "Sötét ruha nyílt terepen", "Mozgás éjjel nyílt terepen", "Semmi"],
+    ["Melyik földi jel jelenti: orvosi segítség kell?", "X", "V", "N", "Y"],
+    ["Hogyan közeledj a mentőkhöz?", "Rejtve, amíg nem azonosítod őket; kezek láthatóan, ne fuss", "Futva, kiabálva", "Fegyverrel a kézben", "Hátulról, csendben"],
+    ["Mit árul el a bekapcsolt telefon?", "A helyzetedet", "Semmit", "Csak a nevedet", "Csak a hőmérsékletet"]
+  ],
+  'C1': [
+    ["Kinek szól a SERE „C” szint?", "Magas elfogási kockázatú állománynak", "Minden újoncnak", "Csak civileknek", "Csak orvosoknak"],
+    ["Mire szolgál az ISOPREP?", "A mentők ezzel azonosítanak", "Fegyvernyilvántartás", "Élelmiszer-igénylés", "Szabadság kérése"],
+    ["Mit ne vigyél magaddal veszélyes feladatra?", "Leveleket, fényképeket, felesleges iratokat", "Túlélőkészletet", "Iránytűt", "Vizet"],
+    ["Hogyan viselkedj az elfogás pillanatában, ha az ellenállás kilátástalan?", "Ne provokálj, kezek láthatóan, kövesd az utasításokat", "Támadj azonnal", "Kiabálj és fenyegetőzz", "Fuss el bármi áron"],
+    ["Miért fontos figyelni elfogáskor?", "Az információ később a szökéshez kellhet", "Hogy panaszt tehess", "Nem fontos", "Hogy ne unatkozz"],
+    ["Mikor van gyakran a legjobb esély a szökésre?", "Az elfogás utáni korai szakaszban", "Évek múlva", "Soha", "Csak a kihallgatás alatt"],
+    ["Mit mérlegelj szökés előtt?", "Esély, egészség, cél, a kudarc következményei", "Csak az időjárást", "Csak a saját kényelmedet", "Semmit, azonnal menni kell"],
+    ["Helyettesíti ez a fejezet a „C” tanfolyamot?", "Nem, csak elméleti alap", "Igen, teljesen", "Igen, ha elolvasod kétszer", "Csak tiszteknek"]
+  ],
+  'C2': [
+    ["Melyik egyezmény védi a hadifoglyokat?", "III. Genfi Egyezmény", "Hágai Egyezmény a kulturális javakról", "Ottawai Egyezmény", "Schengeni Egyezmény"],
+    ["Milyen adatokat köteles megadni a hadifogoly?", "Név, rendfokozat, születési dátum, szolgálati szám", "Egysége helyét", "A haditervet", "A családja címét"],
+    ["Ki vezeti a fogolycsoportot?", "A rangidős fogoly", "A fogva tartó", "A legfiatalabb", "Senki"],
+    ["Mit tegyél, ha nyilatkozat aláírását kérik?", "Ne írj alá semmit, ami a hazád vagy társaid ellen használható", "Írd alá, hogy jobb ellátást kapj", "Írd alá mindet", "Javítsd ki és írd alá"],
+    ["Mire számíts kihallgatáskor?", "Kedvesség, ígéret, fáradtság, félrevezetés váltakozására", "Csak kiabálásra", "Semmire", "Azonnali szabadon engedésre"],
+    ["Mit tegyél, ha hibáztál a kihallgatáson?", "Ne add fel, állj vissza a kiinduló álláspontra", "Mondj el mindent", "Hagyd abba az evést", "Támadd meg a kihallgatót"],
+    ["Hadifogoly-e a békeidőben túszul ejtett katona?", "Nem, más a jogi helyzete", "Igen, mindig", "Csak ha egyenruhában van", "Csak hétvégén"],
+    ["Mit tegyél mentő akció alatt?", "Feküdj le, kezek láthatóan, ne fuss", "Fuss a mentők felé", "Kapj fegyvert", "Bújj el a mentők elől"]
+  ],
+  'C3': [
+    ["Mi a fogság egyik legnagyobb ellensége?", "A reménytelenség", "A hideg étel", "Az unalom hiánya", "A túl sok alvás"],
+    ["Normális-e a félelem és az alvászavar fogságban?", "Igen, rendkívüli helyzetre adott normális reakció", "Nem, gyengeség jele", "Csak tiszteknél", "Soha nem fordul elő"],
+    ["Miért fontos a testmozgás szűk helyen is?", "A test és a lélek karbantartása", "Hogy fáradt légy", "Hogy az őrök lássák", "Nem fontos"],
+    ["Mit tegyél a fogva tartók által adott étellel?", "Fogyaszd el, az erődre szükség van", "Utasítsd vissza tiltakozásul", "Csak a felét edd meg", "Add oda az őröknek"],
+    ["Mi volt a vietnámi hadifoglyok ismert kommunikációs módja?", "Kopogó kód 5×5-ös betűtáblával", "Mobiltelefon", "Füstjelek", "Rádió"],
+    ["Hogyan erősítsd a csoportot fogságban?", "Figyelj a társakra, ne terjessz pletykát", "Vádold a gyengébbeket", "Különülj el", "Fogadj el kedvezményt a többiek rovására"],
+    ["Mi a fertőzés jele egy sebnél?", "Pirosság, duzzanat, láz, bűz", "Viszketés nélküli heg", "Gyors gyógyulás", "Hideg bőr"],
+    ["Mit tegyél, ha egy társad nem eszik és bezárkózik?", "Foglalkozz vele, támogasd", "Hagyd békén végleg", "Jelentsd az őröknek", "Vedd el az ételét"]
+  ],
+  'C4': [
+    ["Mikor nagyobb a szökés esélye?", "Minél korábban, ha a helyzet kedvező", "Mindig csak évek múlva", "Csak nappal", "Soha"],
+    ["Mi a teendő sikeres szökés után?", "Azonnal az elkerülés szabályai szerint mozogni", "Pihenni a fogolytábor mellett", "Tüzet gyújtani és jelezni", "Visszamenni a társakért egyedül"],
+    ["Hogyan viselkedj, amikor a mentők betörnek?", "Feküdj le, kezek láthatóan, kövesd az utasításokat", "Fuss feléjük", "Kapd fel a fogvatartó fegyverét", "Bújj el"],
+    ["Miért kezelnek gyanúsként a mentők?", "Mert amíg nem azonosítottak, mindenkit veszélyesnek tekintenek", "Mert nem hisznek neked", "Mert ez büntetés", "Nem kezelnek így"],
+    ["Mi a reintegráció első lépése?", "Orvosi ellátás és pihenés", "Azonnali szolgálatba állás", "Sajtótájékoztató", "Szabadság nélküli munka"],
+    ["Miért fontos a debriefing?", "Segíthet a még fogságban lévőknek és a kiképzésnek", "Hogy megbüntessenek", "Nem fontos", "Csak papírmunka"],
+    ["Normális-e hónapokig tartó alvászavar szabadulás után?", "Igen, és kezelhető – kérj segítséget", "Nem, gyengeség", "Csak civileknél", "Soha nem fordul elő"],
+    ["Mit tehetsz már most a felkészülésért?", "ISOPREP frissítése, kondíció, tudás, rendezett papírok", "Semmit", "Csak várni", "Titokban tartani mindent a családtól"]
   ]
 };

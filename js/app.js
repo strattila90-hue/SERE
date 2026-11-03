@@ -11,7 +11,11 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
   const ic = (n, s = 32) => PX.img(n, s);
-  const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal' };
+  const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal', B1: 'fire', B2: 'water', B3: 'compass', B4: 'eye', C1: 'warn', C2: 'book', C3: 'heart', C4: 'heli' };
+  const LVL = { A: { n: 'ALFA', c: 'var(--blue)', risk: 'alacsony kockázat' }, B: { n: 'BRAVO', c: 'var(--acc)', risk: 'közepes kockázat' }, C: { n: 'CHARLIE', c: 'var(--warn)', risk: 'magas kockázat' } };
+  const lvlOf = c => /^[BC]/.test(c.id) ? c.id[0] : 'A';
+  const chName = id => /^[BC]\d/.test(id) ? (id[0] === 'B' ? 'Bravo ' : 'Charlie ') + id.slice(1) : id;
+  const chNum = id => /^[BC]\d/.test(id) ? `<span style="color:${LVL[id[0]].c}">${id[0]}</span>${id.slice(1)}` : id;
   let cleanup = null;
 
   function toast(msg) {
@@ -311,21 +315,27 @@
   const QZ = window.SERE_QUIZ || {};
   const cres = () => LS.get('course', {});
   function chProgress(ch) { const seen = seenAll(); return Math.round(ch.sections.filter(s => seen[s.id]).length / ch.sections.length * 100); }
-  V.course = () => {
-    const r = cres(), passed = C.filter(c => r[c.id] && r[c.id].best >= 70).length, all = passed === C.length;
-    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('book', 52)}<div><h1>Tanfolyam</h1><div class="muted">SERE „A” gyakorló kurzus · fejezetenként lecke + 10 kérdéses vizsga (70%)</div></div></div>
-      <div class="progress">${C.map(c => `<i class="${r[c.id] && r[c.id].best >= 70 ? 'f' : ''}"></i>`).join('')}</div>
-      <div class="statusline"><span>TELJESÍTVE: ${passed}/${C.length}</span><span class="st ${all ? 'ok' : ''}">${all ? 'KÉSZ ✓' : 'FOLYAMATBAN'}</span></div></section>
-      ${all ? `<a class="sosbtn" href="#/cert" style="background:var(--ok);border-color:#14532d;color:#08140a;margin-bottom:12px;animation:none">${ic('star', 44)}<span>OKLEVÉL<small>a gyakorló kurzus teljesítve</small></span></a>` : ''}
-      ${C.map((c, i) => { const res = r[c.id], pr = chProgress(c), ok = res && res.best >= 70, locked = i > 0 && !(r[C[i - 1].id] && r[C[i - 1].id].best >= 70) && !LS.get('courseFree', false);
+  V.course = (lv) => {
+    lv = LVL[lv] ? lv : (LS.get('courseLvl', 'A'));
+    LS.set('courseLvl', lv);
+    const r = cres(), L = LVL[lv], CL = C.filter(c => lvlOf(c) === lv);
+    const passedOf = l => C.filter(c => lvlOf(c) === l && r[c.id] && r[c.id].best >= 70).length;
+    const passed = passedOf(lv), all = passed === CL.length;
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('book', 52)}<div><h1>Tanfolyam</h1><div class="muted">SERE gyakorló kurzus · fejezetenként lecke + vizsga (70%)</div></div></div>
+      <div class="lvtabs">${Object.entries(LVL).map(([k, v]) => { const n = C.filter(c => lvlOf(c) === k).length, p = passedOf(k); return `<a class="lvtab ${k === lv ? 'on' : ''}" href="#/course/${k}" style="--c:${v.c}"><b data-notr>${k}</b><span data-notr>${v.n}</span><small>${p}/${n}</small></a>`; }).join('')}</div>
+      <div class="muted mt" style="font-size:19px"><b style="color:${L.c}" data-notr>SERE „${lv}”</b> · <span>${L.risk}</span> · <span>${lv === 'A' ? 'a feltöltött tananyag alapján' : 'nyilvános NATO-tagállami kézikönyvek alapján (ATP 3-50.21, AFH 10-644, FM 21-76-1)'}</span></div>
+      <div class="progress">${CL.map(c => `<i class="${r[c.id] && r[c.id].best >= 70 ? 'f' : ''}"></i>`).join('')}</div>
+      <div class="statusline"><span>TELJESÍTVE: ${passed}/${CL.length}</span><span class="st ${all ? 'ok' : ''}">${all ? 'KÉSZ ✓' : 'FOLYAMATBAN'}</span></div></section>
+      ${all ? `<a class="sosbtn" href="#/cert/${lv}" style="background:var(--ok);border-color:#14532d;color:#08140a;margin-bottom:12px;animation:none">${ic('star', 44)}<span>OKLEVÉL<small>a gyakorló kurzus teljesítve</small></span></a>` : ''}
+      ${CL.map((c, i) => { const res = r[c.id], pr = chProgress(c), ok = res && res.best >= 70, locked = i > 0 && !(r[CL[i - 1].id] && r[CL[i - 1].id].best >= 70) && !LS.get('courseFree', false);
         return `<section class="card lesson ${ok ? 'ok' : ''} ${locked ? 'lock' : ''}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">${ic(CH_ICON[c.id] || 'book', 40)}<div style="flex:1;min-width:0">
-          <h3 style="margin:0">${c.id}. ${esc(c.title)}</h3><div class="muted" style="font-size:19px">Olvasva: ${pr}% · ${res ? 'Legjobb: ' + res.best + '%' : 'Vizsga: még nincs'} ${ok ? '· <span style="color:var(--ok)">✓ TELJESÍTVE</span>' : ''}</div>
-          <div class="bar mt" style="--c:var(--blue);height:10px">${Array.from({ length: 10 }, (_, j) => `<i class="${j < pr / 10 ? 'f' : ''}"></i>`).join('')}</div></div></div>
-          ${locked ? `<div class="muted mt" style="font-size:20px">🔒 Előbb teljesítsd a ${C[i - 1].id}. fejezet vizsgáját.</div>` : `<div class="row mt"><a class="btn ghost" href="#/ch/${c.id}">${ic('book', 20)}Tanulás</a><a class="btn ghost" href="#/ch/${c.id}" data-autoread="1">${ic('speak', 20)}Hallgatás</a>${QZ[c.id] ? `<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${c.id}">${ic('check', 20)}Vizsga</a>` : ''}</div>`}</section>`; }).join('')}
+          <h3 style="margin:0"><span class="lvp" style="color:${LVL[lvlOf(c)].c}" data-notr>${chName(c.id)}.</span> ${esc(c.title)}</h3><div class="muted" style="font-size:19px">Olvasva: ${pr}% · ${res ? 'Legjobb: ' + res.best + '%' : 'Vizsga: még nincs'} ${ok ? '· <span style="color:var(--ok)">✓ TELJESÍTVE</span>' : ''}</div>
+          <div class="bar mt" style="--c:${L.c};height:10px">${Array.from({ length: 10 }, (_, j) => `<i class="${j < pr / 10 ? 'f' : ''}"></i>`).join('')}</div></div></div>
+          ${locked ? `<div class="muted mt" style="font-size:20px">🔒 Előbb teljesítsd a ${chName(CL[i - 1].id)}. fejezet vizsgáját.</div>` : `<div class="row mt"><a class="btn ghost" href="#/ch/${c.id}">${ic('book', 20)}Tanulás</a><a class="btn ghost" href="#/ch/${c.id}" data-autoread="1">${ic('speak', 20)}Hallgatás</a>${QZ[c.id] ? `<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${c.id}">${ic('check', 20)}Vizsga</a>` : ''}</div>`}</section>`; }).join('')}
       <button class="chk ${LS.get('courseFree', false) ? 'on' : ''}" id="free" style="font-size:21px"><span class="box"></span><span style="text-decoration:none;color:var(--ink)">Szabad sorrend (zárolás nélkül)</span></button>
-      <p class="muted" style="font-size:18px">Gyakorló kurzus – nem helyettesíti a hivatalos SERE „A” e-learning vizsgát.</p>`;
+      <p class="muted" style="font-size:18px">${lv === 'A' ? 'Gyakorló kurzus – nem helyettesíti a hivatalos SERE „A” e-learning vizsgát.' : 'Nem hivatalos NATO SERE képzés: nyilvános források alapján készült elméleti felkészítő. A „B” és „C” szint lényege a gyakorlati kiképzés minősített oktatókkal.'}</p>`;
     main.querySelectorAll('[data-autoread]').forEach(a => a.addEventListener('click', () => { window.__autoRead = true; }));
-    $('#free').onclick = () => { LS.set('courseFree', !LS.get('courseFree', false)); V.course(); };
+    $('#free').onclick = () => { LS.set('courseFree', !LS.get('courseFree', false)); V.course(lv); };
   };
   V.exam = (id) => {
     const ch = C.find(c => c.id === id), bank = QZ[id]; if (!ch || !bank) return V.course();
@@ -336,16 +346,16 @@
       if (i >= qs.length) {
         const pct = Math.round(score / qs.length * 100), ok = pct >= 70, r = cres(), prev = r[id] || { best: 0, tries: 0 };
         r[id] = { best: Math.max(prev.best, pct), tries: prev.tries + 1, last: pct }; LS.set('course', r);
-        const next = C[C.findIndex(c => c.id === id) + 1];
+        const lv = lvlOf(ch), next = C.filter(c => lvlOf(c) === lv)[C.filter(c => lvlOf(c) === lv).findIndex(c => c.id === id) + 1];
         main.innerHTML = `<section class="card frame center" style="border-color:${ok ? 'var(--ok)' : 'var(--warn)'}">${ic(ok ? 'star' : 'warn', 80)}
           <h1 style="font-size:40px">${pct}%</h1><h2 style="color:${ok ? 'var(--ok)' : 'var(--warn)'}">${ok ? 'SIKERES VIZSGA!' : 'Még nem sikerült'}</h2>
           <p>${score}/${qs.length} jó válasz · a küszöb 70%</p>
           ${ok ? '' : `<p class="muted">Olvasd át újra a fejezetet, és próbáld meg ismét.</p>`}
-          <div class="row" style="justify-content:center">${ok && next ? `<a class="btn green" href="#/ch/${next.id}">Következő: ${next.id}. fejezet ›</a>` : ''}<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${id}">Újra</a><a class="btn ghost" href="#/course">Tanfolyam</a></div></section>`;
+          <div class="row" style="justify-content:center">${ok && next ? `<a class="btn green" href="#/ch/${next.id}">Következő: ${chName(next.id)}. fejezet ›</a>` : ''}<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${id}">Újra</a><a class="btn ghost" href="#/course/${lv}">Tanfolyam</a></div></section>`;
         return;
       }
       const q = qs[i];
-      main.innerHTML = `<section class="card frame"><div class="statusline"><span>${ch.id}. FEJEZET · VIZSGA</span><span>${i + 1}/${qs.length}</span></div>
+      main.innerHTML = `<section class="card frame"><div class="statusline"><span>${chName(ch.id)}. FEJEZET · VIZSGA</span><span>${i + 1}/${qs.length}</span></div>
         <div class="progress">${qs.map((_, j) => `<i class="${j < i ? 'f' : ''}"></i>`).join('')}</div>
         <h2 style="font-size:28px;margin:10px 0 14px">${esc(q.q)}</h2>
         <div class="opts">${q.opts.map((o, j) => `<button class="opt" data-j="${j}"><span class="ol" data-notr>${'ABCD'[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
@@ -362,14 +372,15 @@
     };
     show();
   };
-  V.cert = () => {
+  V.cert = (lv) => {
+    lv = LVL[lv] ? lv : 'A'; const n = C.filter(c => lvlOf(c) === lv).length;
     const w = LS.get('certName', '');
     main.innerHTML = `<section class="card frame center cert">${ic('star', 72)}<div class="stencil" style="font-size:18px">SERE PIXEL · GYAKORLÓ KURZUS</div>
       <h1 style="font-size:34px">OKLEVÉL</h1><p>Igazoljuk, hogy</p>
       <input type="text" id="cn" value="${esc(w)}" placeholder="Írd ide a neved" style="text-align:center;font-size:28px">
-      <p>sikeresen teljesítette a SERE „A” szint ${C.length} fejezetének gyakorló vizsgáit.</p>
+      <p>sikeresen teljesítette a <b data-notr>SERE „${lv}”</b> (${LVL[lv].n}) szint ${n} fejezetének gyakorló vizsgáit.</p>
       <p class="muted" style="font-size:19px">${new Date().toLocaleDateString(I18N.loc)} · nem hivatalos igazolás</p></section>
-      <div class="row"><a class="btn ghost" href="#/course">‹ Tanfolyam</a></div>`;
+      <div class="row"><a class="btn ghost" href="#/course/${lv}">‹ Tanfolyam</a></div>`;
     $('#cn').oninput = e => LS.set('certName', e.target.value);
   };
 
@@ -413,16 +424,17 @@
     const match = s => !query || (s.title + ' ' + JSON.stringify(s.blocks)).toLowerCase().includes(query);
     main.innerHTML = `
       <section class="card frame">
-        <div class="ch-head">${ic('book', 48)}<div><h1>Kézikönyv</h1><div class="stencil" style="font-size:16px">SERE LEVEL "A" · FIELD MANUAL</div></div></div>
+        <div class="ch-head">${ic('book', 48)}<div><h1>Kézikönyv</h1><div class="stencil" style="font-size:16px" data-notr>SERE LEVEL A · B · C · FIELD MANUAL</div></div></div>
         <div class="rule"></div>
         <input type="text" id="q" placeholder="Keresés a kézikönyvben…" value="${esc(q || '')}" aria-label="Keresés">
         <p class="muted" style="font-size:22px;margin:8px 0 0"><span class="badge src">TANANYAG</span> a feltöltött diák alapján · <span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból, a tananyag tartalomjegyzéke szerint</p>
       </section>
-      ${C.map(ch => {
+      ${C.map((ch, ci) => {
         const secs = ch.sections.filter(match); if (!secs.length) return '';
+        const lv = lvlOf(ch), head = (ci === 0 || lvlOf(C[ci - 1]) !== lv) ? `<div class="lvhead" style="--c:${LVL[lv].c}"><b data-notr>SERE „${lv}” · ${LVL[lv].n}</b><span>${LVL[lv].risk}</span></div>` : '';
         const done = ch.sections.filter(s => seen[s.id]).length;
         const isOpen = query || open.includes(ch.id);
-        return `<div class="toc-ch"><button data-ch="${ch.id}" aria-expanded="${isOpen}">${ic(CH_ICON[ch.id] || 'book', 32)}<span class="num">${ch.id}</span><span class="tt">${esc(ch.title)}<br><small class="muted" style="font-family:VT323;font-size:20px">${esc(ch.sub)}</small></span><span class="pr">${done}/${ch.sections.length}</span></button>
+        return head + `<div class="toc-ch"><button data-ch="${ch.id}" aria-expanded="${isOpen}">${ic(CH_ICON[ch.id] || 'book', 32)}<span class="num ${ch.id.length > 1 ? 'two' : ''}" data-notr>${chNum(ch.id)}</span><span class="tt">${esc(ch.title)}<br><small class="muted" style="font-family:VT323;font-size:20px">${esc(ch.sub)}</small></span><span class="pr">${done}/${ch.sections.length}</span></button>
           <ul class="toc-list ${isOpen ? '' : 'hidden'}">${secs.map(s => `<li><button data-go="${ch.id}/${s.id}"><span class="sid">${s.id}</span><span class="sn">${esc(s.title)} ${s.web ? '<span class="badge web" title="Nyilvános forrásból kiegészítve">+</span>' : ''}</span><span class="seen">${seen[s.id] ? '✓' : ''}</span></button></li>`).join('')}</ul></div>`;
       }).join('')}`;
     const qi = $('#q');
@@ -451,16 +463,16 @@
       return '';
     };
     main.innerHTML = `
-      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num">${ch.id}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div>
+      <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num ${ch.id.length > 1 ? 'two' : ''}" data-notr>${chNum(ch.id)}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div>
         ${SERESpeak.ok ? `<button class="btn readall" id="readAll">${ic('speak', 26)}<span>TELJES FEJEZET FELOLVASÁSA</span></button>` : ''}</section>
       ${ch.sections.map(s => `<section class="card sec" id="s-${s.id}" data-sid="${s.id}">
         <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>${readBtn(s.id)}
         ${s.web ? '<div class="webnote"><span class="badge web">KIEGÉSZÍTVE</span> nyilvános forrásokból — ellenőrizd a hatályos szakutasítással</div><div class="rule"></div>' : '<div class="rule"></div>'}
         ${s.blocks.map(block).join('')}</section>`).join('')}
       <div class="pager">
-        ${i > 0 ? `<a class="btn ghost" href="#/ch/${C[i - 1].id}">‹ ${C[i - 1].id}. fejezet</a>` : '<span></span>'}
+        ${i > 0 ? `<a class="btn ghost" href="#/ch/${C[i - 1].id}">‹ ${chName(C[i - 1].id)}. fejezet</a>` : '<span></span>'}
         ${QZ[ch.id] ? `<a class="btn green" href="#/exam/${ch.id}">${ic('check', 20)}Vizsga</a>` : `<a class="btn ghost" href="#/toc">Tartalom</a>`}
-        ${i < C.length - 1 ? `<a class="btn" href="#/ch/${C[i + 1].id}">${C[i + 1].id}. fejezet ›</a>` : '<span></span>'}
+        ${i < C.length - 1 ? `<a class="btn" href="#/ch/${C[i + 1].id}">${chName(C[i + 1].id)}. fejezet ›</a>` : '<span></span>'}
       </div>`;
     const secText = sc => [sc.id + '. ' + sc.title + '.'].concat(sc.blocks.flatMap(b => b.items || [b.x]));
     bindRead(sid => secText(ch.sections.find(q => q.id === sid)));
@@ -477,7 +489,7 @@
       $('#rbTxt').textContent = sc.id + ' ' + sc.title;
       const el = document.getElementById('s-' + sc.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       SERESpeak.onEnd = () => { if (playing) { cur++; playSec(); } };
-      SERESpeak.speak((cur === 0 ? [ch.id + '. fejezet: ' + ch.title + '.'] : []).concat(secText(sc)));
+      SERESpeak.speak((cur === 0 ? [chName(ch.id) + '. fejezet: ' + ch.title + '.'] : []).concat(secText(sc)));
     };
     const stopAll = () => { playing = false; SERESpeak.onEnd = null; SERESpeak.stop(); mark(); bar.classList.add('hidden'); if (ra) ra.querySelector('span').textContent = 'TELJES FEJEZET FELOLVASÁSA'; };
     if (ra) ra.onclick = () => { if (playing) return stopAll(); if (window.SEREMusic && SEREMusic.on) SEREMusic.stop(); cur = 0; ra.querySelector('span').textContent = 'ÁLLJ'; playSec(); if (!SERESpeak.hasHu) toast('Nincs magyar hang – Beállítások › Szövegfelolvasás'); };
@@ -943,7 +955,7 @@
     if (document.querySelector('.gate')) { document.querySelector('.gate [data-x], .gate #gNo') ? document.querySelector('.gate [data-x], .gate #gNo').click() : null; return; }
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     if (navDepth > 0 && history.length > 1) { navDepth -= 2; history.back(); return; }
-    const up = { ch: '#/toc', guide: '#/guides', exam: '#/course', cert: '#/course', check: parts[1] ? '#/check' : '#/', sos: parts[1] ? '#/sos' : '#/', who: parts[1] ? '#/who' : '#/', kid: parts[1] ? '#/kid' : '#/kid' };
+    const up = { ch: '#/toc', guide: '#/guides', exam: '#/course/' + ((parts[1] || '').match(/^[BC]/) ? parts[1][0] : 'A'), cert: '#/course/' + (parts[1] || 'A'), check: parts[1] ? '#/check' : '#/', sos: parts[1] ? '#/sos' : '#/', who: parts[1] ? '#/who' : '#/', kid: parts[1] ? '#/kid' : '#/kid' };
     location.hash = up[parts[0]] || '#/';
   };
   // húzás balra a menü bezárásához

@@ -26,7 +26,7 @@
     let tr = d[key];
     if (tr == null) {
       // számozott sor („3. szöveg”), zárójeles vagy kettőspontos folytatás
-      let m = key.match(/^(\d+[.)]\s+)([\s\S]+)$/);
+      let m = key.match(/^((?:[A-Za-z]+ )?\d+[.)]\s+)([\s\S]+)$/);
       if (m && d[m[2]] != null) tr = m[1] + d[m[2]];
       if (tr == null) { m = key.match(/^([\s\S]+?)([.:!?])$/); if (m && d[m[1]] != null) tr = d[m[1]] + m[2]; }
       if (tr == null) for (const [re, fn] of PAT()) { const mm = key.match(re); if (mm) { tr = typeof fn === 'function' ? fn(mm, T) : fn; break; } }

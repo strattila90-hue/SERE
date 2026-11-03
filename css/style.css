@@ -716,3 +716,17 @@ body.kidmode * { -webkit-user-select: none; user-select: none; }
   body.is-home main { max-width: 1500px; }
 }
 @media (max-width: 599px) { .hm-dock a { font-size: clamp(11px, 3.1vw, 15px); letter-spacing: -.2px; } }
+/* v3.2 – SERE szintek */
+.lvtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.lvtab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; text-decoration: none; color: var(--khaki-l); background: var(--panel); border: 2px solid rgba(196,165,116,.2); border-top: 5px solid var(--c); font-family: 'Pixelify', monospace; }
+.lvtab b { font: 26px/1 'Silkscreen', 'Pixelify', monospace; color: var(--c); }
+.lvtab span { font-size: 16px; letter-spacing: 1px; }
+.lvtab small { font: 18px/1 'VT323', monospace; color: var(--muted); }
+.lvtab.on { background: color-mix(in srgb, var(--c) 18%, var(--panel)); border-color: var(--c); }
+.lvhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 18px 2px 6px; padding-bottom: 4px; border-bottom: 3px solid var(--c); font-family: 'Pixelify', monospace; }
+.lvhead b { color: var(--c); font-size: 20px; letter-spacing: 1px; }
+.lvhead span { color: var(--muted); font-size: 17px; }
+.ch-head .num.two { font-size: 34px; white-space: nowrap; }
+.toc-ch .num.two { font-size: 21px; min-width: 40px; }
+.ch-head .num { flex: none; }
+.lvp { font-family: 'VT323', monospace; font-weight: 400; font-size: 1.15em; letter-spacing: .5px; }
