@@ -45,7 +45,7 @@
       ? { sky: '#070b08', far: '#0f1a10', mid: '#152316', near: '#1c2e1b', lite: '#2a3d22', clear: '#3a2a1c', clear2: '#4a3423', hull: '#8a8f86', hull2: '#5d625a', acc: '#ff4a2a' }
       : { sky: '#16240f', far: '#203619', mid: '#2c4a22', near: '#3b5f2b', lite: '#5d7f39', clear: '#8a7a4a', clear2: '#a99560', hull: '#e4e2d6', hull2: '#9a9c92', acc: '#ff9500' };
     g.fillStyle = P.sky; g.fillRect(0, 0, W, H);
-    if (night) { for (let i = 0; i < 40; i++) { g.fillStyle = rnd() > .7 ? '#d4a07c' : '#6e5a4a'; g.fillRect((rnd() * W) | 0, (rnd() * 26) | 0, 1, 1); } g.fillStyle = '#d4a07c'; g.fillRect(132, 6, 6, 6); g.fillStyle = P.sky; g.fillRect(134, 5, 6, 6); }
+    if (night) { for (let i = 0; i < 40; i++) { g.fillStyle = rnd() > .7 ? '#d4a07c' : '#6e5a4a'; g.fillRect((rnd() * W) | 0, (rnd() * 26) | 0, 1, 1); } g.fillStyle = '#d4a07c'; g.fillRect(133, 5, 6, 8); g.fillRect(132, 6, 8, 6); g.fillStyle = P.sky; g.fillRect(136, 5, 5, 7); g.fillRect(135, 6, 6, 5); }
     const tree = (x, y, h, c, c2) => {
       for (let i = 0; i < h; i++) { const w = Math.max(1, ((i / h) * h * .42) | 0); g.fillStyle = (i % 4 === 1) ? c2 : c; g.fillRect(x - w, y - h + i, w * 2 + 1, 1); }
       g.fillStyle = '#2a1c10'; g.fillRect(x, y, 1, 3);
@@ -53,27 +53,47 @@
     for (let x = -4; x < W + 6; x += 6) tree(x + ((rnd() * 4) | 0), 34 + ((rnd() * 4) | 0), 18 + ((rnd() * 8) | 0), P.far, P.mid);
     g.fillStyle = P.far; g.fillRect(0, 34, W, H);
     // tisztás
-    for (let y = 40; y < 84; y++) {
-      const t = (y - 62) / 22, half = Math.sqrt(Math.max(0, 1 - t * t)) * 62;
+    for (let y = 56; y < 90; y++) {
+      const t = (y - 74) / 18, half = Math.sqrt(Math.max(0, 1 - t * t)) * 70;
       for (let x = (80 - half) | 0; x < 80 + half; x++) { g.fillStyle = rnd() > .82 ? P.clear2 : (rnd() > .9 ? P.lite : P.clear); g.fillRect(x, y, 1, 1); }
     }
     for (let i = 0; i < 90; i++) { g.fillStyle = rnd() > .5 ? P.mid : P.near; g.fillRect((rnd() * W) | 0, 36 + ((rnd() * 54) | 0), 1, 1); }
-    // roncs (törzs, szárny, darabok)
-    g.save(); g.translate(78, 60); g.rotate(-0.42);
-    g.fillStyle = P.hull2; g.fillRect(-30, -4, 58, 9);
-    g.fillStyle = P.hull; g.fillRect(-30, -5, 58, 7);
-    g.fillStyle = P.hull; g.fillRect(24, -12, 6, 10);
-    g.fillStyle = P.hull2; g.fillRect(-8, 2, 14, 14); g.fillRect(-6, -18, 12, 14);
-    g.fillStyle = '#2a2d2a'; for (let i = -24; i < 20; i += 5) g.fillRect(i, -3, 2, 2);
-    g.fillStyle = P.acc; g.fillRect(4, -4, 3, 3);
-    g.restore();
-    g.fillStyle = P.hull2; [[40, 70], [46, 74], [110, 52], [118, 58], [104, 72], [52, 50]].forEach(([x, y]) => g.fillRect(x, y, 3, 2));
-    // X jelölés
-    g.fillStyle = P.acc; for (let i = 0; i < 7; i++) { g.fillRect(118 + i, 64 + i, 2, 1); g.fillRect(124 - i, 64 + i, 2, 1); }
+    const Z = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w * 2, h * 2); };
+    // ösvény a fák felé
+    g.fillStyle = night ? '#2a1e14' : '#7a6a3e'; for (let i = 0; i < 20; i++) g.fillRect(80 + Math.round(Math.sin(i / 3) * 3), 58 - i, 3, 1);
+    // ponyvamenedék (A-típus) balra, 2× lépték
+    const sh = night ? ['#1c2a17', '#24361e'] : ['#4f6b2e', '#7d9a45'];
+    const bx = 40, by = 64;
+    for (let i = 0; i < 9; i++) { Z(bx - i * 2, by + i * 2, i + 1, 1, sh[0]); Z(bx + 2, by + i * 2, i + 1, 1, sh[1]); }
+    for (let i = 3; i < 9; i++) { const w = Math.floor(i / 3); Z(bx - w * 2, by + i * 2, w * 2 + 1, 1, '#0b0f09'); }
+    Z(bx, by - 4, 1, 2, '#2a1c10');
+    // tábortűz jobbra + füst, 2× lépték
+    const fx = 118, fy = 80;
+    Z(fx - 8, fy, 9, 1, '#3a2a1c');
+    [[-10, 0], [10, 0], [-8, 2], [8, 2]].forEach(([x, y]) => Z(fx + x, fy + y, 1, 1, '#6b6b60'));
+    const fl = night ? ['#ff4a2a', '#ff9500', '#ffd60a'] : ['#ff9500', '#ffd60a', '#fff3b0'];
+    Z(fx - 4, fy - 8, 5, 4, fl[0]); Z(fx - 2, fy - 12, 3, 2, fl[0]); Z(fx, fy - 16, 1, 2, fl[0]);
+    Z(fx - 2, fy - 6, 3, 3, fl[1]); Z(fx, fy - 10, 1, 2, fl[1]); Z(fx, fy - 4, 1, 2, fl[2]);
+    if (night) { g.fillStyle = 'rgba(255,90,40,.09)'; for (let r = 26; r > 6; r -= 5) g.fillRect(fx - r, fy - r / 2, r * 2, r); }
+    g.fillStyle = night ? 'rgba(120,100,90,.35)' : 'rgba(210,210,200,.45)';
+    [[0, -20], [2, -24], [0, -28], [-2, -32], [-2, -36], [0, -40], [2, -44]].forEach(([x, y], i) => g.fillRect(fx + x, fy + y, 3 + (i > 3 ? 1 : 0), 3));
+    // a magányos szárazföldi katona (hátulról, az erdőt figyeli) — fő motívum, 2× lépték
+    const SOL = [
+      '......KKKK......', '.....KHHHHK.....', '....KHHHHHhK....', '...KHHHHHHHhKR..', '...KhhhhhhhhKR..',
+      '....KKSSSSKK.R..', '...KUUKKKKUUKR..', '..KUKPPPPPPKUKR.', '..KUKPPPPPPKUKR.', '..KUKppppppKUKR.',
+      '..KUKPPPPPPKUK..', '..KUKPPPPPPKUK..', '..KSKPPPPPPKSK..', '...KKpppppKK....', '....KUUUUUUK....',
+      '....KUUuUUUK....', '....KUUKKUUK....', '....KUUKKUUK....', '....KuuKKuuK....', '....KUUKKUUK....',
+      '....KBBKKBBK....', '...KBBBKKBBBK...', '...KKKK..KKKK...'];
+    const SP = night
+      ? { K: '#050705', H: '#2c3a24', h: '#1c2618', S: '#6e4a33', U: '#2a3820', u: '#1d2817', P: '#3a2f22', p: '#2a2118', B: '#120d08', R: '#0a0a0a' }
+      : { K: '#141810', H: '#5d6b3a', h: '#43502a', S: '#c99a72', U: '#5d6b3a', u: '#43502a', P: '#6b5a3a', p: '#4f4229', B: '#2a2218', R: '#1c1c1c' };
+    const sx = 64, sy = 40;
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(sx + 4, sy + 45, 26, 3);
+    SOL.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const c = row[x]; if (c !== '.') Z(sx + x * 2, sy + y * 2, 1, 1, SP[c]); } });
     // előtér fák
-    for (let x = -2; x < W; x += 9) { if (x > 30 && x < 130) continue; tree(x + ((rnd() * 3) | 0), 92, 30 + ((rnd() * 10) | 0), P.near, P.lite); }
+    for (let x = -2; x < W; x += 9) { if (x > 14 && x < 142) continue; tree(x + ((rnd() * 3) | 0), 92, 30 + ((rnd() * 10) | 0), P.near, P.lite); }
     // iránytű jelvény
-    const cx = 22, cy = 66;
+    const cx = 15, cy = 15;
     g.fillStyle = '#141810'; g.fillRect(cx - 13, cy - 13, 27, 27);
     g.fillStyle = night ? '#6e4a33' : '#c4a574'; g.fillRect(cx - 12, cy - 12, 25, 25);
     g.fillStyle = '#141810'; g.fillRect(cx - 10, cy - 10, 21, 21);
@@ -114,10 +134,10 @@
   V.home = () => {
     const a = statAdvice();
     main.innerHTML = `
-      <section class="card cover frame"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL borító: lezuhant roncs egy erdei tisztáson"></canvas>
+      <section class="card cover frame"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL borító: egyedül álló katona az erdőszélen, ponyvamenedékkel és tűzzel"></canvas>
         <div class="title"><div class="big">SERE<br><b>PIXEL</b></div>
-        <div class="sub">SURVIVAL GUIDE</div><div class="dash">▪▪▪▪▪▪ ★ ▪▪▪▪▪▪</div>
-        <div class="mt"><span class="stamp">FIELD MANUAL · SERE „A”</span></div></div></section>
+        <div class="sub">SURVIVAL GUIDE</div><div class="sub" style="font-size:12px;color:var(--muted)">ALONE · LAND FORCES</div><div class="dash">▪▪▪▪▪▪ ★ ▪▪▪▪▪▪</div>
+        <div class="mt"><span class="stamp">FIELD MANUAL · EGYEDÜL A TEREPEN</span></div></div></section>
 
       <section class="card">
         <div class="statusline"><span>STATUS</span><span class="muted" style="font-family:Pixelify;font-size:13px">koppints a sávokra</span></div>
