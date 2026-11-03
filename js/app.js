@@ -247,6 +247,13 @@
   }
 
   /* ---------------- GYEREK MÓD ---------------- */
+  function kid112() {
+    main.querySelectorAll('.kid112').forEach(a => a.onclick = e => {
+      if (!SERESpeak.ok) return;
+      e.preventDefault(); SERESpeak.speak('Hívom a száztizenkettőt. Mondd el, hol vagy és mi történt.');
+      setTimeout(() => { location.href = 'tel:112'; }, 1800);
+    });
+  }
   V.kid = (id) => {
     document.body.classList.add('kidmode');
     if (!id) {
@@ -254,8 +261,13 @@
         <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" style="--c:${k.c}">${ic(k.icon, 72)}<span>${esc(k.t)}</span></a>`).join('')}</div>
         <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
         <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button>`;
-      setTimeout(() => SERESpeak.ok && SERESpeak.speak(['Segítek! Koppints arra, ami történt.']), 300);
+      if (kidSaid) kidSaid = false; else setTimeout(() => SERESpeak.ok && SERESpeak.speak(['Segítek! Koppints arra, ami történt.']), 300);
+      main.querySelectorAll('.kidbtn').forEach(a => a.addEventListener('click', e => {
+        const k = D.kid.find(x => x.id === a.getAttribute('href').split('/').pop());
+        if (k && SERESpeak.ok) { kidSaid = true; SERESpeak.speak([k.t + '.', k.say[0]], { rate: 0.88, pitch: 1.1 }); }
+      }));
       const ex = $('#kidExit'); let t = null;
+      kid112(); ex.addEventListener('click', () => SERESpeak.ok && SERESpeak.speak('Tartsd nyomva a kilépéshez.'));
       const start = () => { t = setTimeout(() => { LS.set('kid', false); document.body.classList.remove('kidmode'); SERESpeak.stop(); location.hash = '#/'; }, 1500); ex.classList.add('hold'); };
       const end = () => { clearTimeout(t); ex.classList.remove('hold'); };
       ex.addEventListener('pointerdown', start); ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => ex.addEventListener(e, end));
@@ -274,9 +286,13 @@
         </section>
         <a class="kid112" href="tel:112">${ic('phone', 48)}<span>HÍVD: 112</span></a>
         <a class="kidback" href="#/kid">‹ Vissza</a>`;
-      SERESpeak.ok && SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
-      $('#kPrev').onclick = () => { if (i) { i--; show(); } };
-      $('#kNext').onclick = () => { if (i < k.say.length - 1) { i++; show(); } else { SERESpeak.stop(); location.hash = '#/kid'; } };
+      if (kidSaid) kidSaid = false; else SERESpeak.ok && SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+      $('#kPrev').onclick = () => { if (i) { i--; show(); } else SERESpeak.speak('Ez az első lépés.'); };
+      $('#kNext').onclick = () => { if (i < k.say.length - 1) { i++; show(); } else { kidSaid = true; SERESpeak.speak(['Ügyes vagy! Visszamegyünk.', 'Segítek! Koppints arra, ami történt.']); location.hash = '#/kid'; } };
+      main.querySelector('.kidback').addEventListener('click', () => { kidSaid = true; SERESpeak.speak(['Vissza.', 'Segítek! Koppints arra, ami történt.']); });
+      main.querySelector('.kidpic').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+      main.querySelector('.kidsay').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
+      kid112();
       $('#kRep').onclick = () => SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
     };
     show();
@@ -743,8 +759,9 @@
   const NAV = { kid: 'home', who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
   const CRUMB = { kid: 'Gyerek mód', who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
   let prevRoute = '';
+  let kidSaid = false;
   function route() {
-    if (window.SERESpeak) SERESpeak.stop();
+    if (window.SERESpeak && !kidSaid) SERESpeak.stop();
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     let v = V[parts[0]] ? parts[0] : 'home';
