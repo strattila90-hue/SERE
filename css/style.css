@@ -286,7 +286,7 @@ h3 { font-size: 20px; }
 /* ---------- compass ---------- */
 .compass-wrap { display: grid; place-items: center; padding: 6px 0; }
 #compass { width: min(78vw, 340px); height: auto; image-rendering: pixelated; }
-.hdg { text-align: center; font-family: 'Silkscreen', monospace; font-size: 44px; color: var(--khaki-l); text-shadow: 3px 3px 0 var(--line); }
+.hdg { text-align: center; font-family: 'Pixelify', monospace; font-weight: 700; font-size: 44px; color: var(--khaki-l); text-shadow: 3px 3px 0 var(--line); }
 .hdg small { display: block; font-family: 'Pixelify', monospace; font-size: 16px; color: var(--muted); letter-spacing: 0; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 input[type=number], input[type=text], select {
@@ -309,3 +309,4 @@ input[type=text] { width: 100%; }
 .center { text-align: center; }
 .mt { margin-top: 10px; }
 .foot { text-align: center; font-size: 16px; color: var(--muted); margin-top: 18px; }
+input[type=range] { accent-color: var(--acc); }
