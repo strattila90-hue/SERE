@@ -28,12 +28,10 @@
   function applyMode() {
     const n = isNight();
     document.body.classList.toggle('night', n);
-    $('#modeBtn').innerHTML = ic(n ? 'moon' : 'sun', 26);
-    $('#modeBtn').title = n ? 'Éjszakai mód (koppints: nappal)' : 'Nappali mód (koppints: éjszaka)';
+
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = n ? '#070a07' : '#142414';
     if (typeof drawCover === 'function' && $('#cover')) drawCover();
   }
-  $('#modeBtn').onclick = () => { LS.set('mode', isNight() ? 'day' : 'night'); applyMode(); };
 
   /* ---------------- borító jelenet ---------------- */
   function drawCover() {
@@ -132,49 +130,25 @@
   const V = {};
 
   V.home = () => {
+    const p = prof();
+    main.innerHTML = `<div class="homefit">
+      ${p ? `<a class="whochip" href="#/who/tips">${ic(p.icon, 28)}<span>${esc(p.n)}</span><b>tanácsok ›</b></a>`
+          : `<a class="whochip cta" href="#/who">${ic('star', 28)}<span>KI VAGY? – szabd személyre</span><b style="color:inherit">›</b></a>`}
+      <a class="sosbtn" href="#/sos">${ic('warn', 44)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span></a>
+      <div class="duo"><a class="kidentry" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a><a class="kidentry course" href="#/course">${ic('book', 34)}<span>TANFOLYAM<small>${C.filter(c => (cres()[c.id] || {}).best >= 70).length}/${C.length} kész</small></span></a></div>
+      <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 38)}<span>${esc(x.t)}</span></a>`).join('')}</div>
+      <div class="hint">☰ menü: kézikönyv, kártyák, iránytű, térkép…</div>
+    </div>`;
+  };
+  V.status = () => {
     const a = statAdvice();
-    main.innerHTML = `
-      <section class="card cover frame hero"><canvas id="cover" width="160" height="90" aria-label="SERE PIXEL: egyedül álló katona az erdőszélen"></canvas>
-        <div class="title"><div class="big sm">SERE <b>PIXEL</b></div><div class="sub">EGYEDÜL A TEREPEN · SURVIVAL GUIDE</div></div></section>
-
-      ${whoCard()}
-      <a class="sosbtn" href="#/sos">${ic('warn', 48)}<span>BAJBAN VAGYOK<small>Most kell a SERE tudás – lépésről lépésre</small></span></a>
-
-      <a class="kidentry" href="#/kid">${ic('heart', 44)}<span>GYEREK MÓD<small>Nagy gombok, egyszerű szavak, felolvassa – add oda a gyereknek</small></span><b>›</b></a>
-      <h2 class="hh">Mi történt?</h2>
-      <div class="scen">${scenList().map(x => `<a class="sbtn" href="#/sos/${x.id}" style="--c:${x.c}">${ic(x.icon, 44)}<span>${esc(x.t)}<small>${esc(x.sub)}</small></span></a>`).join('')}</div>
-
-      <h2 class="hh">Tudástár és eszközök</h2>
-      <div class="biglist">
-        ${row('#/toc', 'book', 'Kézikönyv', '8 fejezet · tartalomjegyzék · keresés')}
-        ${row('#/guides', 'fire', 'Gyors kártyák', 'tűz · menedék · víz · jelzés · navigáció · elsősegély')}
-        ${row('#/compass', 'compass', 'Iránytű', 'fok · vonás · Cammenga kattanás')}
-        ${row('#/map', 'map', 'Térkép-jelölő', 'GPS pontok offline · MGRS')}
-        ${row('#/stop', 'stop', 'S-T-O-P', 'az első percek')}
-        ${row('#/prio', 'signal', 'SERE prioritások', 'jelzés › védelem › egészség › mozgás › ellátás')}
-        ${row('#/kit', 'pack', 'Kit-builder', 'mi legyen nálad')}
-        ${row('#/check', 'check', 'Checklisták', 'bevetés előtt · menedék · tűz · link-up')}
-      </div>
-
-      <section class="card mt">
-        <div class="statusline"><span>ÁLLAPOTOM</span><span class="muted" style="font-family:Pixelify;font-size:16px">koppints a sávokra</span></div>
-        <div class="rule"></div>
-        <div class="stats">${statsHTML()}</div>
-        <div class="callout ok mt" style="margin-bottom:0">${ic(a.low.icon, 26)}<div>${esc(a.txt)} <a href="#/guide/${a.low.g}">Kártya ›</a></div></div>
-      </section>
-
-      <div class="homebtns">
-        <button class="btn hb" id="hUpd">${ic('sun', 32)}<span>FRISSÍTÉS<small>v${window.SERE_VERSION}</small></span></button>
-        <button class="btn hb" id="hShr">${ic('signal', 32)}<span>MEGOSZTÁS<small>link + QR</small></span></button>
-        ${isStandalone() ? '' : `<button class="btn green hb wide" id="hIns">${ic('pack', 32)}<span>TELEPÍTÉS<small>offline használathoz</small></span></button>`}
-      </div>
-      <p class="foot">STAY PREPARED. STAY ALIVE. · Offline működik · adatok csak ezen az eszközön</p>`;
-    drawCover();
-    $('#hUpd').onclick = () => doUpdate(true); $('#hShr').onclick = doShare; const hi = $('#hIns'); if (hi) hi.onclick = () => installPopup(true);
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('heart', 48)}<div><h1>Állapotom</h1><div class="muted">Koppints a sávokra – a tanács ehhez igazodik.</div></div></div>
+        <div class="rule"></div><div class="stats">${statsHTML()}</div>
+        <div class="callout ok mt" style="margin-bottom:0">${ic(a.low.icon, 26)}<div>${esc(a.txt)} <a href="#/guide/${a.low.g}">Kártya ›</a></div></div></section>`;
     main.querySelectorAll('.bar').forEach(bar => {
       bar.addEventListener('click', e => {
         const r = bar.getBoundingClientRect(); const val = Math.max(0, Math.min(10, Math.ceil(((e.clientX - r.left) / r.width) * 10)));
-        const v = LS.get('stats', { viz: 8, eh: 7, en: 6, mor: 9 }); v[bar.dataset.bar] = val; LS.set('stats', v); V.home();
+        const v = LS.get('stats', { viz: 8, eh: 7, en: 6, mor: 9 }); v[bar.dataset.bar] = val; LS.set('stats', v); V.status();
       });
     });
   };
@@ -298,6 +272,71 @@
     show();
   };
 
+
+  /* ---------------- TANFOLYAM ---------------- */
+  const QZ = window.SERE_QUIZ || {};
+  const cres = () => LS.get('course', {});
+  function chProgress(ch) { const seen = seenAll(); return Math.round(ch.sections.filter(s => seen[s.id]).length / ch.sections.length * 100); }
+  V.course = () => {
+    const r = cres(), passed = C.filter(c => r[c.id] && r[c.id].best >= 70).length, all = passed === C.length;
+    main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('book', 52)}<div><h1>Tanfolyam</h1><div class="muted">SERE „A” gyakorló kurzus · fejezetenként lecke + 10 kérdéses vizsga (70%)</div></div></div>
+      <div class="progress">${C.map(c => `<i class="${r[c.id] && r[c.id].best >= 70 ? 'f' : ''}"></i>`).join('')}</div>
+      <div class="statusline"><span>TELJESÍTVE: ${passed}/${C.length}</span><span class="st ${all ? 'ok' : ''}">${all ? 'KÉSZ ✓' : 'FOLYAMATBAN'}</span></div></section>
+      ${all ? `<a class="sosbtn" href="#/cert" style="background:var(--ok);border-color:#14532d;color:#08140a;margin-bottom:12px;animation:none">${ic('star', 44)}<span>OKLEVÉL<small>a gyakorló kurzus teljesítve</small></span></a>` : ''}
+      ${C.map((c, i) => { const res = r[c.id], pr = chProgress(c), ok = res && res.best >= 70, locked = i > 0 && !(r[C[i - 1].id] && r[C[i - 1].id].best >= 70) && !LS.get('courseFree', false);
+        return `<section class="card lesson ${ok ? 'ok' : ''} ${locked ? 'lock' : ''}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">${ic(CH_ICON[c.id] || 'book', 40)}<div style="flex:1;min-width:0">
+          <h3 style="margin:0">${c.id}. ${esc(c.title)}</h3><div class="muted" style="font-size:19px">Olvasva: ${pr}% · ${res ? 'Legjobb: ' + res.best + '%' : 'Vizsga: még nincs'} ${ok ? '· <span style="color:var(--ok)">✓ TELJESÍTVE</span>' : ''}</div>
+          <div class="bar mt" style="--c:var(--blue);height:10px">${Array.from({ length: 10 }, (_, j) => `<i class="${j < pr / 10 ? 'f' : ''}"></i>`).join('')}</div></div></div>
+          ${locked ? `<div class="muted mt" style="font-size:20px">🔒 Előbb teljesítsd a ${C[i - 1].id}. fejezet vizsgáját.</div>` : `<div class="row mt"><a class="btn ghost" href="#/ch/${c.id}">${ic('book', 20)}Tanulás</a>${QZ[c.id] ? `<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${c.id}">${ic('check', 20)}Vizsga</a>` : ''}</div>`}</section>`; }).join('')}
+      <button class="chk ${LS.get('courseFree', false) ? 'on' : ''}" id="free" style="font-size:21px"><span class="box"></span><span style="text-decoration:none;color:var(--ink)">Szabad sorrend (zárolás nélkül)</span></button>
+      <p class="muted" style="font-size:18px">Gyakorló kurzus – nem helyettesíti a hivatalos SERE „A” e-learning vizsgát.</p>`;
+    $('#free').onclick = () => { LS.set('courseFree', !LS.get('courseFree', false)); V.course(); };
+  };
+  V.exam = (id) => {
+    const ch = C.find(c => c.id === id), bank = QZ[id]; if (!ch || !bank) return V.course();
+    const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const qs = shuffle(bank).slice(0, 10).map(q => ({ q: q[0], good: q[1], opts: shuffle(q.slice(1)) }));
+    let i = 0, score = 0, picked = null;
+    const show = () => {
+      if (i >= qs.length) {
+        const pct = Math.round(score / qs.length * 100), ok = pct >= 70, r = cres(), prev = r[id] || { best: 0, tries: 0 };
+        r[id] = { best: Math.max(prev.best, pct), tries: prev.tries + 1, last: pct }; LS.set('course', r);
+        const next = C[C.findIndex(c => c.id === id) + 1];
+        main.innerHTML = `<section class="card frame center" style="border-color:${ok ? 'var(--ok)' : 'var(--warn)'}">${ic(ok ? 'star' : 'warn', 80)}
+          <h1 style="font-size:40px">${pct}%</h1><h2 style="color:${ok ? 'var(--ok)' : 'var(--warn)'}">${ok ? 'SIKERES VIZSGA!' : 'Még nem sikerült'}</h2>
+          <p>${score}/${qs.length} jó válasz · a küszöb 70%</p>
+          ${ok ? '' : `<p class="muted">Olvasd át újra a fejezetet, és próbáld meg ismét.</p>`}
+          <div class="row" style="justify-content:center">${ok && next ? `<a class="btn green" href="#/ch/${next.id}">Következő: ${next.id}. fejezet ›</a>` : ''}<a class="btn ${ok ? 'ghost' : ''}" href="#/exam/${id}">Újra</a><a class="btn ghost" href="#/course">Tanfolyam</a></div></section>`;
+        return;
+      }
+      const q = qs[i];
+      main.innerHTML = `<section class="card frame"><div class="statusline"><span>${ch.id}. FEJEZET · VIZSGA</span><span>${i + 1}/${qs.length}</span></div>
+        <div class="progress">${qs.map((_, j) => `<i class="${j < i ? 'f' : ''}"></i>`).join('')}</div>
+        <h2 style="font-size:28px;margin:10px 0 14px">${esc(q.q)}</h2>
+        <div class="opts">${q.opts.map((o, j) => `<button class="opt" data-j="${j}"><span class="ol">${'ABCD'[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+        <div id="fb"></div>${readBtn('q')}</section>`;
+      bindRead(() => [q.q].concat(q.opts.map((o, j) => 'ABCD'[j] + ': ' + o)));
+      main.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        if (picked !== null) return; picked = +b.dataset.j; const right = q.opts[picked] === q.good; if (right) score++;
+        main.querySelectorAll('.opt').forEach(x => { const o = q.opts[+x.dataset.j]; if (o === q.good) x.classList.add('good'); else if (x === b) x.classList.add('bad'); x.disabled = true; });
+        $('#fb').innerHTML = `<div class="callout ${right ? 'ok' : 'warn'} mt">${ic(right ? 'check' : 'warn', 26)}<div><b>${right ? 'Helyes!' : 'Nem jó.'}</b> ${right ? '' : 'A helyes válasz: ' + esc(q.good)}</div></div>
+          <button class="btn ${right ? 'green' : ''}" id="nx" style="width:100%;justify-content:center;font-size:22px">${i < qs.length - 1 ? 'Következő kérdés ›' : 'Eredmény ›'}</button>`;
+        $('#nx').onclick = () => { i++; picked = null; show(); window.scrollTo(0, 0); };
+      });
+    };
+    show();
+  };
+  V.cert = () => {
+    const w = LS.get('certName', '');
+    main.innerHTML = `<section class="card frame center cert">${ic('star', 72)}<div class="stencil" style="font-size:18px">SERE PIXEL · GYAKORLÓ KURZUS</div>
+      <h1 style="font-size:34px">OKLEVÉL</h1><p>Igazoljuk, hogy</p>
+      <input type="text" id="cn" value="${esc(w)}" placeholder="Írd ide a neved" style="text-align:center;font-size:28px">
+      <p>sikeresen teljesítette a SERE „A” szint ${C.length} fejezetének gyakorló vizsgáit.</p>
+      <p class="muted" style="font-size:19px">${new Date().toLocaleDateString('hu-HU')} · nem hivatalos igazolás</p></section>
+      <div class="row"><a class="btn ghost" href="#/course">‹ Tanfolyam</a></div>`;
+    $('#cn').oninput = e => LS.set('certName', e.target.value);
+  };
+
   /* --- BAJBAN VAGYOK: forgatókönyvek --- */
   const GLINK = { stop: '#/stop', map: '#/map', compass: '#/compass' };
   V.sos = (id) => {
@@ -379,7 +418,7 @@
         ${s.blocks.map(block).join('')}</section>`).join('')}
       <div class="pager">
         ${i > 0 ? `<a class="btn ghost" href="#/ch/${C[i - 1].id}">‹ ${C[i - 1].id}. fejezet</a>` : '<span></span>'}
-        <a class="btn ghost" href="#/toc">Tartalom</a>
+        ${QZ[ch.id] ? `<a class="btn green" href="#/exam/${ch.id}">${ic('check', 20)}Vizsga</a>` : `<a class="btn ghost" href="#/toc">Tartalom</a>`}
         ${i < C.length - 1 ? `<a class="btn" href="#/ch/${C[i + 1].id}">${C[i + 1].id}. fejezet ›</a>` : '<span></span>'}
       </div>`;
     bindRead(sid => { const sc = ch.sections.find(q => q.id === sid); return [sc.title + '.'].concat(sc.blocks.flatMap(b => b.items || [b.x])); });
@@ -681,8 +720,7 @@
 
 
   /* ---------------- betűméret ---------------- */
-  function applyFs() { const f = LS.get('fs', 1); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); $('#fsBtn').textContent = ['A', 'A+', 'A++'][f]; }
-  $('#fsBtn').onclick = () => { LS.set('fs', (LS.get('fs', 1) + 1) % 3); applyFs(); };
+  function applyFs() { const f = LS.get('fs', 1); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); }
   applyFs();
 
   /* ---------------- zene ---------------- */
@@ -755,19 +793,81 @@
     window.addEventListener('appinstalled', () => render('done'));
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+
+  /* ---------------- oldalsó menü ---------------- */
+  function drawerHTML() {
+    const h = location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
+    const it = (href, icon, t, sub) => `<a class="di ${h === href.replace('#/', '').split('/')[0] ? 'on' : ''}" href="${href}">${ic(icon, 30)}<span>${t}${sub ? `<br><small>${sub}</small>` : ''}</span><span>›</span></a>`;
+    const fs = LS.get('fs', 1), night = isNight(), mus = window.SEREMusic && SEREMusic.on;
+    return `<div class="dhead"><img src="icons/icon-v3-192.png" alt=""><div><div class="brand">SERE <b>PIXEL</b></div><div class="muted" style="font-size:18px">v${window.SERE_VERSION} · offline</div></div></div>
+      ${it('#/', 'star', 'Főoldal')}
+      ${it('#/sos', 'warn', 'Bajban vagyok')}
+      ${it('#/kid', 'heart', 'Gyerek mód')}
+      <div class="dsec">TUDÁSTÁR</div>
+      ${it('#/course', 'check', 'Tanfolyam', 'leckék + vizsgák')}
+      ${it('#/toc', 'book', 'Kézikönyv', '8 fejezet · keresés')}
+      ${it('#/guides', 'fire', 'Gyors kártyák', 'tűz · menedék · víz · jelzés…')}
+      ${it('#/stop', 'stop', 'S-T-O-P')}
+      ${it('#/prio', 'signal', 'SERE prioritások')}
+      <div class="dsec">ESZKÖZÖK</div>
+      ${it('#/compass', 'compass', 'Iránytű')}
+      ${it('#/map', 'map', 'Térkép-jelölő')}
+      ${it('#/kit', 'pack', 'Kit-builder')}
+      ${it('#/check', 'check', 'Checklisták')}
+      ${it('#/status', 'heart', 'Állapotom')}
+      <div class="dsec">BEÁLLÍTÁS</div>
+      ${it('#/who', 'star', 'Ki vagy?', (prof() || {}).n || 'nincs beállítva')}
+      <div class="drow"><button data-fs="0" class="${fs === 0 ? 'on' : ''}">A</button><button data-fs="1" class="${fs === 1 ? 'on' : ''}">A+</button><button data-fs="2" class="${fs === 2 ? 'on' : ''}">A++</button></div>
+      <div class="drow" style="grid-template-columns:1fr 1fr"><button id="dNight">${night ? '☾ Éjszaka' : '☀ Nappal'}</button><button id="dMus" class="${mus ? 'on' : ''}">♪ Zene ${mus ? 'BE' : 'KI'}</button></div>
+      <div class="dsec">APP</div>
+      <button class="di" id="dUpd">${ic('sun', 30)}<span>Frissítés</span><span>›</span></button>
+      <button class="di" id="dShr">${ic('signal', 30)}<span>Megosztás</span><span>›</span></button>
+      ${isStandalone() ? '' : `<button class="di" id="dIns">${ic('pack', 30)}<span>Telepítés</span><span>›</span></button>`}
+      ${it('#/about', 'book', 'Névjegy, QR')}`;
+  }
+  function openMenu() {
+    const d = $('#drawer'); d.innerHTML = drawerHTML(); document.body.classList.add('menu-open'); d.setAttribute('aria-hidden', 'false'); $('#menuBtn').setAttribute('aria-expanded', 'true');
+    d.querySelectorAll('a.di').forEach(a => a.addEventListener('click', closeMenu));
+    d.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { LS.set('fs', +b.dataset.fs); applyFs(); openMenu(); });
+    $('#dNight').onclick = () => { LS.set('mode', isNight() ? 'day' : 'night'); applyMode(); openMenu(); };
+    $('#dMus').onclick = () => { setMusic(!SEREMusic.on); openMenu(); };
+    $('#dUpd').onclick = () => { closeMenu(); doUpdate(true); };
+    $('#dShr').onclick = () => { closeMenu(); doShare(); };
+    const di = $('#dIns'); if (di) di.onclick = () => { closeMenu(); installPopup(true); };
+  }
+  function closeMenu() { document.body.classList.remove('menu-open'); $('#drawer').setAttribute('aria-hidden', 'true'); $('#menuBtn').setAttribute('aria-expanded', 'false'); }
+  $('#menuBtn').onclick = () => document.body.classList.contains('menu-open') ? closeMenu() : openMenu();
+  $('#drawerBg').onclick = closeMenu;
+  let navDepth = 0;
+  window.addEventListener('hashchange', () => { navDepth++; });
+  $('#backBtn').onclick = () => {
+    if (document.body.classList.contains('menu-open')) return closeMenu();
+    if (document.querySelector('.gate')) { document.querySelector('.gate [data-x], .gate #gNo') ? document.querySelector('.gate [data-x], .gate #gNo').click() : null; return; }
+    const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+    if (navDepth > 0 && history.length > 1) { navDepth -= 2; history.back(); return; }
+    const up = { ch: '#/toc', guide: '#/guides', exam: '#/course', cert: '#/course', check: parts[1] ? '#/check' : '#/', sos: parts[1] ? '#/sos' : '#/', who: parts[1] ? '#/who' : '#/', kid: parts[1] ? '#/kid' : '#/kid' };
+    location.hash = up[parts[0]] || '#/';
+  };
+  // húzás balra a menü bezárásához
+  (() => { let x0 = null; const d = $('#drawer'); d.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); d.addEventListener('touchend', e => { if (x0 != null && x0 - e.changedTouches[0].clientX > 60) closeMenu(); x0 = null; }, { passive: true }); })();
+
   /* ---------------- router ---------------- */
-  const NAV = { kid: 'home', who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
-  const CRUMB = { kid: 'Gyerek mód', who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
+  const NAV = { course: 'home', exam: 'home', cert: 'home', status: 'home', kid: 'home', who: 'home', sos: 'sos', home: '', toc: 'toc', ch: 'toc', guides: 'guides', guide: 'guides', prio: 'home', stop: 'home', kit: 'home', check: 'home', compass: 'map', map: 'map', about: 'home' };
+  const CRUMB = { course: 'Tanfolyam', exam: 'Vizsga', cert: 'Oklevél', status: 'Állapotom', kid: 'Gyerek mód', who: 'Ki vagy?', sos: 'Bajban vagyok', home: 'Főmenü', toc: 'Kézikönyv', ch: 'Kézikönyv', guides: 'Útmutatók', guide: 'Útmutató', prio: 'Prioritások', stop: 'S-T-O-P', kit: 'Kit-builder', check: 'Checklisták', compass: 'Iránytű', map: 'Térkép-jelölő', about: 'Telepítés' };
   let prevRoute = '';
   let kidSaid = false;
   function route() {
     if (window.SERESpeak && !kidSaid) SERESpeak.stop();
+    if (document.body.classList.contains('menu-open')) closeMenu();
     if (cleanup) { try { cleanup(); } catch (e) { } cleanup = null; }
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     let v = V[parts[0]] ? parts[0] : 'home';
     if (v === 'kid') LS.set('kid', true);
     else if (LS.get('kid', false)) { location.replace('#/kid'); return; }
     document.body.classList.toggle('kidmode', v === 'kid');
+    document.body.classList.toggle('is-home', v === 'home');
+    $('#backBtn').style.visibility = v === 'home' || (v === 'kid' && !parts[1]) ? 'hidden' : 'visible';
+    document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px');
     $('#crumb').textContent = CRUMB[v];
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     V[v](...parts.slice(1));

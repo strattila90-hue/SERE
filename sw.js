@@ -1,8 +1,8 @@
 /* SERE PIXEL service worker — offline + automatikus frissítés (hálózat először, gyorsítótár tartalék) */
-const VERSION = 'sere-pixel-v1.8.0';
+const VERSION = 'sere-pixel-v2.0.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
-  'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/app.js',
+  'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/quiz.js', 'js/app.js',
   'fonts/VT323-Regular.woff', 'fonts/PixelifySanswght.woff', 'fonts/Silkscreen-Bold.woff',
   'icons/icon-v3-192.png', 'icons/icon-v3-512.png', 'icons/maskable-v3-512.png', 'icons/apple-touch-icon-v3.png'
 ];

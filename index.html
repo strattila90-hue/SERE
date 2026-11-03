@@ -17,27 +17,23 @@
 </head>
 <body>
 <header class="top">
-  <a href="#/" style="text-decoration:none"><img src="icons/icon-v3-192.png" width="34" height="34" alt="" style="image-rendering:pixelated;display:block"></a>
-  <div><div class="brand">SERE <b>PIXEL</b></div><div class="crumb" id="crumb">Főmenü</div></div>
+  <button class="iconbtn backbtn" id="backBtn" aria-label="Vissza">‹</button>
+  <button class="iconbtn hamb" id="menuBtn" aria-label="Menü" aria-expanded="false"><i></i><i></i><i></i></button>
+  <a href="#/" class="brandlink"><img src="icons/icon-v3-192.png" width="38" height="38" alt=""><span><span class="brand">SERE <b>PIXEL</b></span><span class="crumb" id="crumb">Főmenü</span></span></a>
   <span class="sp"></span>
-  <button class="iconbtn fsbtn" id="fsBtn" aria-label="Betűméret">A+</button>
   <button class="iconbtn fsbtn" id="musBtn" aria-label="Zene be/ki">♪</button>
-  <button class="iconbtn" id="modeBtn" aria-label="Nappal / éjszaka váltás"></button>
+  <a class="iconbtn sosmini" id="sosMini" href="#/sos" aria-label="Bajban vagyok">!</a>
 </header>
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer" aria-label="Menü" aria-hidden="true"></aside>
 <main id="main"><noscript>A SERE PIXEL futtatásához JavaScript szükséges.</noscript></main>
-<nav class="nav" aria-label="Fő navigáció">
-  <button data-nav="home" data-icon="star" data-label="Főmenü"></button>
-  <button data-nav="toc" data-icon="book" data-label="Kézikönyv"></button>
-  <button data-nav="sos" data-icon="warn" data-label="BAJ"></button>
-  <button data-nav="guides" data-icon="fire" data-label="Kártyák"></button>
-  <button data-nav="map" data-icon="map" data-label="Térkép"></button>
-</nav>
-<script>window.SERE_VERSION = '1.8.0';</script>
+<script>window.SERE_VERSION = '2.0.0';</script>
 <script src="js/music.js"></script>
 <script src="js/speak.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/content.js"></script>
 <script src="js/data.js"></script>
+<script src="js/quiz.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
