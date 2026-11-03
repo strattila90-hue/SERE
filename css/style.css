@@ -740,3 +740,27 @@ body.kidmode * { -webkit-user-select: none; user-select: none; }
 .kidbtn.talk .kidtap { opacity: 1; }
 .kid112.talk { outline: 6px solid #fff; animation: kidpulse .7s ease-in-out infinite alternate; }
 @keyframes kidpulse { to { filter: brightness(1.25); } }
+/* v3.4 – betűk a dobozban, frissítés-sáv */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.hm-tag { right: 10px; white-space: nowrap; overflow: hidden; }
+.hm-sos > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; }
+.hm-sos small { white-space: nowrap; }
+.hm-kid > span { max-width: 100%; overflow: hidden; }
+.hm-t span { overflow: hidden; max-height: 2.3em; }
+.hm-dock a span { text-overflow: clip; display: block; text-align: center; width: 100%; }
+.hm-chip span { flex: 1; }
+.upbar { height: 26px; border: 3px solid var(--khaki-d); background: var(--bg2); box-shadow: 0 0 0 3px var(--line); margin: 14px 0 8px; }
+.upbar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--ok) 0 10px, #2aa34a 10px 14px); transition: width .2s; }
+.uppct { font: 40px/1 'Silkscreen', 'Pixelify', monospace; color: var(--ok); text-align: center; }
+.hm-chip.lang span { flex: none; overflow: visible; }
+.hm { min-height: 440px; }
+@media (max-height: 600px) { .hm { gap: 7px; } .hm-scen { grid-auto-rows: 46px; gap: 6px; } .hm-sos { padding: 7px 10px; } .hm-dock a { padding: 5px 2px; gap: 2px; } .hm-dock .px { width: 22px; height: 22px; } }
+.hm-st { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+.hm-st > span { display: block; white-space: nowrap; overflow: hidden; }
+.hm-st small { overflow: hidden; }
+.hm-sos > span.hm-st { white-space: normal; }
+.top .brandlink > span { min-width: 0; overflow: hidden; display: flex; flex-direction: column; }
+.top .brand, .top .crumb { white-space: nowrap; overflow: hidden; display: block; }
+.top .brandlink { min-width: 0; flex: 1 1 auto; }
+.upbar { width: 100%; min-width: 240px; align-self: stretch; box-sizing: border-box; }
+.uppct { font-family: 'VT323', monospace; font-size: 52px; }

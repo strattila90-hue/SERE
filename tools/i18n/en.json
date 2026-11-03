@@ -1504,5 +1504,10 @@
 "Nem találod anyát vagy apát? Ez a gyerek a kérdőjellel.": "Can't find mum or dad? It's the child with the question mark.",
 "Ha nagy a baj, nyomd meg a piros telefont.": "If it's really bad, press the red phone.",
 "Mi történt? Nyomd meg a képet!": "What happened? Press the picture!",
-"Ha ez a baj, nyomd meg még egyszer!": "If that's the problem, press it again!"
+"Ha ez a baj, nyomd meg még egyszer!": "If that's the problem, press it again!",
+"Új verzió keresése…": "Checking for a new version…",
+"Fájlok letöltése…": "Downloading files…",
+"Telepítés…": "Installing…",
+"Kész – újraindítás…": "Done – restarting…",
+"Frissítés nem sikerült – a mentett verzió fut": "Update failed – the saved version is running"
 }

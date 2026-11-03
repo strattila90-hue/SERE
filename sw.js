@@ -1,5 +1,5 @@
 /* SERE PIXEL service worker — azonnali indulás a tárból, frissítés a háttérben */
-const VERSION = 'sere-pixel-v3.3.0';
+const VERSION = 'sere-pixel-v3.4.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/quiz.js', 'js/i18n.js', 'js/i18n.en.js', 'js/i18n.sk.js', 'js/content.en.js', 'js/content.sk.js', 'js/app.js',
@@ -7,7 +7,8 @@ const ASSETS = [
   'icons/icon-v3-192.png', 'icons/icon-v3-512.png', 'icons/maskable-v3-512.png', 'icons/apple-touch-icon-v3.png'
 ];
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
+  // ha az app a frissítés gombbal már előtöltötte ezt a verziót, nem tölti le újra
+  e.waitUntil(caches.open(VERSION).then(c => Promise.all(ASSETS.map(async u => { if (!(await c.match(u))) await c.add(new Request(u, { cache: 'reload' })); }))));
 });
 self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting(); });
 self.addEventListener('activate', e => {

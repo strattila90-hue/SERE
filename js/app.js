@@ -143,28 +143,28 @@
               : `<a class="hm-chip cta" href="#/who">${ic('star', 24)}<span>KI VAGY?</span><b>›</b></a>`}
           <button class="hm-chip lang" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button>
         </div>
-        <div class="hm-tag"><b>OFFLINE</b> TÚLÉLÉSI KÉZIKÖNYV</div>
+        <div class="hm-tag" data-fit><b>OFFLINE</b> TÚLÉLÉSI KÉZIKÖNYV</div>
       </div>
       <div class="hm-act">
-        <a class="hm-sos" href="#/sos">${ic('warn', 40)}<span>BAJBAN VAGYOK<small>lépésről lépésre</small></span><b>›</b></a>
-        <a class="hm-kid" href="#/kid">${ic('heart', 34)}<span>GYEREK<br>MÓD</span></a>
+        <a class="hm-sos" href="#/sos">${ic('warn', 40)}<span class="hm-st"><span data-fit>BAJBAN VAGYOK</span><small data-fit>lépésről lépésre</small></span><b>›</b></a>
+        <a class="hm-kid" href="#/kid">${ic('heart', 34)}<span data-fit="2">GYEREK<br>MÓD</span></a>
       </div>
       <div class="hm-side">
         <div class="hm-lbl">Mi történt?</div>
-        <div class="hm-scen">${scenList().map(x => `<a class="hm-t" href="#/sos/${x.id}" style="--c:${x.c}"><i>${ic(x.icon, 30)}</i><span>${esc(x.t)}</span></a>`).join('')}</div>
+        <div class="hm-scen">${scenList().map(x => `<a class="hm-t" href="#/sos/${x.id}" style="--c:${x.c}"><i>${ic(x.icon, 30)}</i><span data-fit="2">${esc(x.t)}</span></a>`).join('')}</div>
         <nav class="hm-dock">
-          <a href="#/course">${ic('star', 26)}<span>Tanfolyam</span>${done ? `<em>${done}/${C.length}</em>` : ''}</a>
-          <a href="#/toc">${ic('book', 26)}<span>Kézikönyv</span></a>
-          <a href="#/guides">${ic('fire', 26)}<span>Kártyák</span></a>
-          <a href="#/compass">${ic('compass', 26)}<span>Iránytű</span></a>
-          <a href="#/map">${ic('map', 26)}<span>Térkép</span></a>
+          <a href="#/course">${ic('star', 26)}<span data-fit>Tanfolyam</span>${done ? `<em>${done}/${C.length}</em>` : ''}</a>
+          <a href="#/toc">${ic('book', 26)}<span data-fit>Kézikönyv</span></a>
+          <a href="#/guides">${ic('fire', 26)}<span data-fit>Kártyák</span></a>
+          <a href="#/compass">${ic('compass', 26)}<span data-fit>Iránytű</span></a>
+          <a href="#/map">${ic('map', 26)}<span data-fit>Térkép</span></a>
         </nav>
       </div>
     </div>`;
     drawCover();
     const hero = $('.hm-hero');
-    const fitHero = () => { if (!hero || !hero.isConnected) return window.removeEventListener('resize', fitHero); hero.classList.remove('flat', 'short'); const hh = hero.getBoundingClientRect().height; hero.classList.toggle('flat', hh < 100); hero.classList.toggle('short', hh < 170); };
-    requestAnimationFrame(fitHero); window.addEventListener('resize', fitHero);
+    const fitHero = () => { if (!hero || !hero.isConnected) return; hero.classList.remove('flat', 'short'); const hh = hero.getBoundingClientRect().height; hero.classList.toggle('flat', hh < 100); hero.classList.toggle('short', hh < 170); };
+    requestAnimationFrame(() => { fitHero(); requestAnimationFrame(() => fitText()); }); const onRs = () => { fitHero(); fitText(); }; window.addEventListener('resize', onRs); cleanup = () => window.removeEventListener('resize', onRs);
     $('#langBtn').onclick = () => langModal(null, true);
   };
   V.status = () => {
@@ -238,6 +238,14 @@
 
 
   /* képernyő közepére igazítás: a következő utasítás / kérdés mindig látható legyen */
+  // feliratok beférnek a dobozba: ha kilóg (pl. a telefon nagyított betűmérete miatt), a betűméretet csökkenti
+  function fitText(root) {
+    (root || document).querySelectorAll('[data-fit]').forEach(el => {
+      el.style.fontSize = ''; let fs = parseFloat(getComputedStyle(el).fontSize), n = 0;
+      const two = el.dataset.fit === '2', over = () => el.scrollWidth > el.clientWidth + 1 || (two && el.scrollHeight > el.clientHeight + 2);
+      while (over() && fs > 9 && n++ < 30) { fs -= 1; el.style.fontSize = fs + 'px'; }
+    });
+  }
   function centerOn(el) { if (!el) return; requestAnimationFrame(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' })); }
   const nextOpen = sel => [...main.querySelectorAll(sel)].find(e => !e.classList.contains('on'));
 
@@ -834,11 +842,24 @@
   /* ---------------- frissítés + megosztás ---------------- */
   let swReg = null;
   async function doUpdate(manual) {
-    if (manual) toast('Frissítés keresése…');
+    if (!manual) { try { if (swReg) { await swReg.update(); if (swReg.waiting) swReg.waiting.postMessage('skip'); } } catch (e) { } return; }
+    if (!navigator.onLine) return toast('Nincs internet – a mentett verzió fut');
+    const m = showModal(`<h2>Frissítés</h2><div class="upbar"><i id="upFill"></i></div><div class="uppct" id="upPct" data-notr>0%</div><p class="muted" id="upMsg">Új verzió keresése…</p>`, null, { noClose: true });
+    const set = (pct, msg) => { const f = m.g.querySelector('#upFill'), t = m.g.querySelector('#upPct'); if (f) f.style.width = pct + '%'; if (t) t.textContent = Math.round(pct) + '%'; if (msg) m.g.querySelector('#upMsg').textContent = T(msg); };
     try {
-      if (swReg) { await swReg.update(); if (swReg.waiting) { swReg.waiting.postMessage('skip'); return; } }
-      if (manual) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); location.reload(); }
-    } catch (e) { if (manual) toast('Nincs internet – a mentett verzió fut'); }
+      const sw = await (await fetch('sw.js', { cache: 'no-store' })).text();
+      const ver = (sw.match(/VERSION = '([^']+)'/) || [])[1], list = JSON.parse('[' + (sw.match(/ASSETS = \[([\s\S]*?)\];/) || [, ''])[1].replace(/'/g, '"').replace(/,\s*$/, '') + ']');
+      if (!ver || !list.length) throw new Error('sw');
+      set(2, 'Fájlok letöltése…');
+      const c = await caches.open(ver); let done = 0;
+      const one = async u => { const r = await fetch(u, { cache: 'reload' }); if (r.ok) await c.put(u, r); done++; set(2 + done / list.length * 93); };
+      for (let i = 0; i < list.length; i += 4) await Promise.all(list.slice(i, i + 4).map(one));
+      set(96, 'Telepítés…');
+      if (swReg) { await swReg.update().catch(() => { }); const w = swReg.waiting || swReg.installing; if (w) { const go = () => { set(100, 'Kész – újraindítás…'); w.postMessage('skip'); }; if (w.state === 'installed') go(); else w.addEventListener('statechange', () => w.state === 'installed' && go()); setTimeout(() => location.reload(), 6000); return; } }
+      set(100, 'Kész – újraindítás…');
+      const ks = await caches.keys(); await Promise.all(ks.filter(k => k !== ver).map(k => caches.delete(k)));
+      setTimeout(() => location.reload(), 400);
+    } catch (e) { m.close(); toast('Frissítés nem sikerült – a mentett verzió fut'); }
   }
   const APP_URL = 'https://strattila90-hue.github.io/SERE/?qr=1';
   async function doShare() {
@@ -999,7 +1020,7 @@
     const zf = parseFloat(document.documentElement.style.zoom) || 1;
     document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px');
     document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px');
-    $('#crumb').textContent = CRUMB[v];
+    $('#crumb').textContent = CRUMB[v]; requestAnimationFrame(() => fitText(document.querySelector('.top')));
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     V[v](...parts.slice(1));

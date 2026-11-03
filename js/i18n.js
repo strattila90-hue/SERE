@@ -54,16 +54,19 @@
     if (root.querySelectorAll) root.querySelectorAll('[placeholder],[title],[aria-label],[alt]').forEach(el => ATTRS.forEach(a => { const v = el.getAttribute(a); if (v && /[A-Za-zÀ-ž]/.test(v)) { const t = T(v); if (t !== v) el.setAttribute(a, t); } }));
     busy = false;
   }
+  let mo = null;
   function watch() {
     if (lang === 'hu') return;
     translate(document.body);
-    new MutationObserver(ms => {
+    if (mo) return; // egyetlen figyelő az app teljes élete alatt (korábban minden oldalváltáskor új jött létre)
+    mo = new MutationObserver(ms => {
       if (busy) return;
       for (const m of ms) {
         if (m.type === 'characterData') { const v = m.target.nodeValue, t = T(v); if (t !== v) { busy = true; m.target.nodeValue = t; busy = false; } }
         else m.addedNodes.forEach(nd => { if (nd.nodeType === 1) translate(nd); else if (nd.nodeType === 3) { const v = nd.nodeValue, t = T(v); if (t !== v) { busy = true; nd.nodeValue = t; busy = false; } } });
       }
-    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
     // a <title> is
     document.title = T(document.title);
   }

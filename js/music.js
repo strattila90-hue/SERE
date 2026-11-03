@@ -1,6 +1,6 @@
 /* SERE PIXEL — saját, generált chiptune „túlélő” zene (Web Audio, offline, nincs hangfájl) */
 (function () {
-  let ctx = null, master = null, timer = null, step = 0, on = false, nextT = 0;
+  let ctx = null, NB = null, master = null, timer = null, step = 0, on = false, nextT = 0;
   const BPM = 72, SPB = 60 / BPM / 2; // nyolcadok
   // a-moll pentaton, sötét, lassú dallam (saját szerzemény)
   const N = { A2: 110, C3: 130.81, D3: 146.83, E3: 164.81, G3: 196, A3: 220, C4: 261.63, D4: 293.66, E4: 329.63, G4: 392, A4: 440 };
@@ -16,12 +16,11 @@
     o.connect(g).connect(dest || master); o.start(t); o.stop(t + d + 0.05);
   }
   function noise(t, d, vol, f) {
-    const len = Math.floor(ctx.sampleRate * d), buf = ctx.createBuffer(1, len, ctx.sampleRate), ch = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+    if (!NB) { const len = ctx.sampleRate * 2; NB = ctx.createBuffer(1, len, ctx.sampleRate); const ch = NB.getChannelData(0); for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1; }
     const s = ctx.createBufferSource(), flt = ctx.createBiquadFilter(), g = ctx.createGain();
-    s.buffer = buf; flt.type = 'bandpass'; flt.frequency.value = f; flt.Q.value = 0.7;
+    s.buffer = NB; s.loop = true; flt.type = 'bandpass'; flt.frequency.value = f; flt.Q.value = 0.7;
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + d * 0.4); g.gain.linearRampToValueAtTime(0, t + d);
-    s.connect(flt).connect(g).connect(master); s.start(t);
+    s.connect(flt).connect(g).connect(master); s.start(t); s.stop(t + d + 0.05);
   }
   function sched() {
     while (nextT < ctx.currentTime + 0.25) {
