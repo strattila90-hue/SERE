@@ -175,5 +175,19 @@ window.SERE_QUIZ = {
     ["Miért fontos a debriefing?", "Segíthet a még fogságban lévőknek és a kiképzésnek", "Hogy megbüntessenek", "Nem fontos", "Csak papírmunka"],
     ["Normális-e hónapokig tartó alvászavar szabadulás után?", "Igen, és kezelhető – kérj segítséget", "Nem, gyengeség", "Csak civileknél", "Soha nem fordul elő"],
     ["Mit tehetsz már most a felkészülésért?", "ISOPREP frissítése, kondíció, tudás, rendezett papírok", "Semmit", "Csak várni", "Titokban tartani mindent a családtól"]
+  ],
+  'N1': [
+    ["Mi a nukleáris doktrína fő célja?", "Az elrettentés", "A gyors területszerzés", "Az atomerőművek védelme", "A fegyverzet titokban tartása"],
+    ["Mit tegyél a nukleáris villanás pillanatában a szabadban?", "Hasra fekszel fedezék mögött, arccal lefelé", "Megnézed, merre volt a robbanás", "Futni kezdesz a legközelebbi autóhoz", "Felállsz, hogy jobban láss"],
+    ["Nagyjából mennyi időd van a lökéshullám után menedéket találni a csapadék előtt?", "Körülbelül 10 perc vagy több", "Néhány másodperc", "Pontosan 2 óra", "Egy teljes nap"],
+    ["Hol a legjobb menedék a radioaktív csapadék ellen?", "Pincében vagy nagy betonépület közepén", "Autóban, zárt ablakokkal", "Sátorban", "A legfelső emeleten, az ablak mellett"],
+    ["Legalább mennyi ideig maradj bent, ha a hatóság mást nem mond?", "24 óráig", "30 percig", "2 óráig", "Amíg el nem áll az eső"],
+    ["Mit mond ki a 7:10-es szabály?", "Az idő hétszereződésével a sugárzás tizedére esik", "7 óra után 10-szer nagyobb a sugárzás", "7 km-en belül 10 percig veszélyes", "10 óra után 7-szer kisebb a sugárzás"],
+    ["Mi az első lépés a mentesítésnél, ha kint voltál?", "Levenni a felső ruharéteget, és bezacskózni", "Kézfertőtlenítővel bekenni a bőrt", "Erősen ledörzsölni a bőrt kefével", "Kimosni a ruhát és újra felvenni"],
+    ["Melyik étel biztonságos a csapadék után?", "A csomagolt vagy beltéren tárolt, letörölt csomagolású", "A kertben szedett gyümölcs", "A szabadban hagyott, fedetlen tál étel", "Az esővíz"],
+    ["Mikor szedj jódtablettát?", "Csak ha a hatóság elrendeli", "Minden reggel megelőzésből", "Ha szirénát hallasz", "Ha fáj a fejed"],
+    ["Mi ellen véd a jódtabletta?", "Csak a radioaktív jód ellen", "Minden sugárzás ellen", "A lökéshullám ellen", "Az égési sérülések ellen"],
+    ["Mi működik akkor is, ha a mobilhálózat és az internet leáll?", "Elemes vagy tekerős rádió", "Okostelefonos hírfolyam", "Wi-Fi-s okostévé", "Videóhívás"],
+    ["Mit tegyél kitelepítéskor?", "Csak utasításra indulsz, iratokkal és gyógyszerrel", "Azonnal elindulsz a családodért gyalog", "Otthon maradsz minden utasítás ellenére", "Elhagyod a gyógyszereidet, hogy könnyebb legyen"]
   ]
 };

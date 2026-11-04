@@ -11,10 +11,13 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
   const ic = (n, s = 32) => PX.img(n, s);
-  const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal', B1: 'fire', B2: 'water', B3: 'compass', B4: 'eye', C1: 'warn', C2: 'book', C3: 'heart', C4: 'heli' };
+  const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal', B1: 'fire', B2: 'water', B3: 'compass', B4: 'eye', C1: 'warn', C2: 'book', C3: 'heart', C4: 'heli', N1: 'nuke' };
   const LVL = { A: { n: 'ALFA', c: 'var(--blue)', risk: 'alacsony kockázat' }, B: { n: 'BRAVO', c: 'var(--acc)', risk: 'közepes kockázat' }, C: { n: 'CHARLIE', c: 'var(--warn)', risk: 'magas kockázat' } };
-  const lvlOf = c => /^[BC]/.test(c.id) ? c.id[0] : 'A';
-  const chName = id => /^[BC]\d/.test(id) ? (id[0] === 'B' ? 'Bravo ' : 'Charlie ') + id.slice(1) : id;
+  const lvlOf = c => /^[BC]/.test(c.id) ? c.id[0] : /^N/.test(c.id) ? 'X' : 'A';
+  // EXTRA fejezetek (pl. nukleáris helyzet): a kézikönyvben külön csoport, a szintek tanúsítványát nem befolyásolják
+  const XLVL = { n: 'EXTRA', c: 'var(--warn)', risk: 'különleges helyzetek' };
+  const lvInfo = l => LVL[l] || XLVL;
+  const chName = id => /^[BC]\d/.test(id) ? (id[0] === 'B' ? 'Bravo ' : 'Charlie ') + id.slice(1) : /^N\d/.test(id) ? 'Extra ' + id.slice(1) : id;
   const chNum = id => /^[BC]\d/.test(id) ? `<span style="color:${LVL[id[0]].c}">${id[0]}</span>${id.slice(1)}` : id;
   let cleanup = null;
 
@@ -130,6 +133,30 @@
     return { low, txt: tips[low.id] };
   }
 
+  /* ---------------- emlékezés: hol jártál, mi a szinted ---------------- */
+  const RESUME = { ch: 'book', guide: 'fire', course: 'star', toc: 'book', compass: 'compass', map: 'map', kit: 'pack', check: 'check', prio: 'signal', stop: 'stop', status: 'heart' };
+  const remember = h => LS.set('last', { h, t: Date.now() });
+  function lastInfo() {
+    const L = LS.get('last', null); if (!L || !L.h) return null;
+    const p = L.h.replace(/^#\/?/, '').split('/');
+    if (p[0] === 'ch') {
+      const ch = C.find(c => c.id === p[1]); if (!ch) return null;
+      const sc = p[2] && ch.sections.find(x => x.id === p[2]);
+      return { h: L.h, icon: CH_ICON[ch.id] || 'book', t: sc ? sc.id + ' ' + sc.title : chName(ch.id) + '. ' + ch.title };
+    }
+    if (p[0] === 'guide') { const g = D.guides.find(x => x.id === p[1]); return g ? { h: L.h, icon: g.icon, t: g.title } : null; }
+    return RESUME[p[0]] ? { h: L.h, icon: RESUME[p[0]], t: CRUMB[p[0]] } : null;
+  }
+  // szint: a legmagasabb teljesen letett szint, és a folyamatban lévő szint állása
+  function myLevel() {
+    const r = cres(), ok = c => (r[c.id] || {}).best >= 70;
+    const full = l => { const L = C.filter(c => lvlOf(c) === l); return L.length && L.every(ok); };
+    const earned = ['C', 'B', 'A'].find(full) || null;
+    let cur = LS.get('courseLvl', 'A'); if (!LVL[cur]) cur = 'A';
+    const CL = C.filter(c => lvlOf(c) === cur);
+    return { earned, cur, passed: CL.filter(ok).length, total: CL.length };
+  }
+
   /* ---------------- nézetek ---------------- */
   const V = {};
 
@@ -143,7 +170,10 @@
               : `<a class="hm-chip cta" href="#/who">${ic('star', 24)}<span>KI VAGY?</span><b>›</b></a>`}
           <button class="hm-chip lang" id="langBtn" aria-label="Nyelv">${flag(I18N.lang)}<span data-notr>${I18N.LANGS[I18N.lang].flag}</span></button>
         </div>
-        <div class="hm-tag" data-fit><b>OFFLINE</b> TÚLÉLÉSI KÉZIKÖNYV</div>
+        ${(() => { const li = lastInfo(), lv = myLevel(), L = LVL[lv.earned || lv.cur];
+          const lvChip = `<a class="hm-chip lvl" href="#/course/${lv.cur}" style="--c:${L.c}"><b data-notr>${lv.earned ? '★ ' + LVL[lv.earned].n : LVL[lv.cur].n}</b><small data-notr>${lv.passed}/${lv.total}</small></a>`;
+          return li ? `<div class="hm-res"><a class="hm-chip resume" href="${li.h}">${ic(li.icon, 22)}<span class="rt"><small>FOLYTATÁS</small><span>${esc(li.t)}</span></span><b>›</b></a>${lvChip}</div>`
+                    : `<div class="hm-res"><div class="hm-tag" data-fit><b>OFFLINE</b> TÚLÉLÉSI KÉZIKÖNYV</div>${lvChip}</div>`; })()}
       </div>
       <div class="hm-act">
         <a class="hm-sos" href="#/sos">${ic('warn', 40)}<span class="hm-st"><span data-fit>BAJBAN VAGYOK</span><small data-fit>lépésről lépésre</small></span><b>›</b></a>
@@ -468,7 +498,7 @@
       </section>
       ${C.map((ch, ci) => {
         const secs = ch.sections.filter(match); if (!secs.length) return '';
-        const lv = lvlOf(ch), head = (ci === 0 || lvlOf(C[ci - 1]) !== lv) ? `<div class="lvhead" style="--c:${LVL[lv].c}"><b data-notr>SERE „${lv}” · ${LVL[lv].n}</b><span>${LVL[lv].risk}</span></div>` : '';
+        const lv = lvlOf(ch), head = (ci === 0 || lvlOf(C[ci - 1]) !== lv) ? `<div class="lvhead" style="--c:${lvInfo(lv).c}"><b data-notr>${LVL[lv] ? `SERE „${lv}” · ` : ''}${lvInfo(lv).n}</b><span>${lvInfo(lv).risk}</span></div>` : '';
         const done = ch.sections.filter(s => seen[s.id]).length;
         const isOpen = query || open.includes(ch.id);
         return head + `<div class="toc-ch"><button data-ch="${ch.id}" aria-expanded="${isOpen}">${ic(CH_ICON[ch.id] || 'book', 32)}<span class="num ${ch.id.length > 1 ? 'two' : ''}" data-notr>${chNum(ch.id)}</span><span class="tt">${esc(ch.title)}<br><small class="muted" style="font-family:VT323;font-size:20px">${esc(ch.sub)}</small></span><span class="pr">${done}/${ch.sections.length}</span></button>
@@ -488,6 +518,7 @@
   V.ch = (id, sec) => {
     const i = C.findIndex(c => c.id === id); const ch = C[i];
     if (!ch) return V.toc();
+    const chPos = LS.get('chPos', {}), resumeSec = !sec && chPos[id] && chPos[id] !== ch.sections[0].id ? ch.sections.find(x => x.id === chPos[id]) : null;
     const block = b => {
       switch (b.t) {
         case 'p': return `<p>${fmt(b.x)}</p>`;
@@ -501,6 +532,7 @@
     };
     main.innerHTML = `
       <section class="card frame"><div class="ch-head">${ic(CH_ICON[ch.id] || 'book', 52)}<div class="num ${ch.id.length > 1 ? 'two' : ''}" data-notr>${chNum(ch.id)}</div><div><h1>${esc(ch.title)}</h1><div class="muted" style="font-size:22px">${esc(ch.sub)}</div></div></div>
+        ${resumeSec ? `<a class="btn green resume" href="#/ch/${ch.id}/${resumeSec.id}">${ic('book', 24)}<span>Folytatás itt: <b data-notr>${resumeSec.id}</b> ${esc(resumeSec.title)}</span></a>` : ''}
         ${SERESpeak.ok ? `<button class="btn readall" id="readAll">${ic('speak', 26)}<span>TELJES FEJEZET FELOLVASÁSA</span></button>` : ''}</section>
       ${ch.sections.map(s => `<section class="card sec" id="s-${s.id}" data-sid="${s.id}">
         <h2><span class="sid">${s.id}</span>${esc(s.title)}</h2>${readBtn(s.id)}
@@ -541,7 +573,7 @@
     main.querySelectorAll('.sec').forEach((el, k) => el.addEventListener('dblclick', () => { cur = k; SERESpeak.stop(); playSec(); }));
     const seen = seenAll();
     const io = new IntersectionObserver(es => {
-      es.forEach(e => { if (e.isIntersecting) { seen[e.target.dataset.sid] = 1; LS.set('seen', seen); } });
+      es.forEach(e => { if (e.isIntersecting) { const sid = e.target.dataset.sid; seen[sid] = 1; LS.set('seen', seen); const cp = LS.get('chPos', {}); cp[ch.id] = sid; LS.set('chPos', cp); remember('#/ch/' + ch.id + '/' + sid); } });
     }, { threshold: .55 });
     main.querySelectorAll('.sec').forEach(s => io.observe(s));
     cleanup = () => { io.disconnect(); playing = false; SERESpeak.onEnd = null; bar.remove(); };
@@ -842,7 +874,7 @@
 
 
   /* ---------------- betűméret ---------------- */
-  function applyFs() { const f = LS.get('fs', 0); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); }
+  function applyFs() { const f = LS.get('fs', 0); document.body.classList.remove('fs1', 'fs2'); if (f) document.body.classList.add('fs' + f); document.body.classList.toggle('rf', LS.get('font', 'read') === 'read'); }
   applyFs();
 
   /* ---------------- zene ---------------- */
@@ -972,7 +1004,7 @@
       ${it('#/kid', 'heart', 'Gyerek mód')}
       <div class="dsec">TUDÁSTÁR</div>
       ${it('#/course', 'check', 'Tanfolyam', 'leckék + vizsgák')}
-      ${it('#/toc', 'book', 'Kézikönyv', '8 fejezet · keresés')}
+      ${it('#/toc', 'book', 'Kézikönyv', C.length + ' fejezet · keresés')}
       ${it('#/guides', 'fire', 'Gyors kártyák', 'tűz · menedék · víz · jelzés…')}
       ${it('#/stop', 'stop', 'S-T-O-P')}
       ${it('#/prio', 'signal', 'SERE prioritások')}
@@ -986,6 +1018,7 @@
       ${it('#/who', 'star', 'Ki vagy?', (prof() || {}).n || 'nincs beállítva')}
       <button class="di" id="dLang">${flag(I18N.lang)}<span data-notr>Nyelv · Jazyk · Language<br><small>${I18N.LANGS[I18N.lang].n}</small></span><span>›</span></button>
       <div class="drow"><button data-fs="0" class="${fs === 0 ? 'on' : ''}">A</button><button data-fs="1" class="${fs === 1 ? 'on' : ''}">A+</button><button data-fs="2" class="${fs === 2 ? 'on' : ''}">A++</button></div>
+      <div class="drow" style="grid-template-columns:1fr 1fr"><button data-font="read" class="${LS.get('font', 'read') === 'read' ? 'on' : ''}" style="font-family:system-ui,sans-serif">Olvasható betű</button><button data-font="px" class="${LS.get('font', 'read') === 'px' ? 'on' : ''}">Retró betű</button></div>
       <div class="drow" style="grid-template-columns:1fr 1fr"><button id="dNight">${night ? '☾ Éjszaka' : '☀ Nappal'}</button><button id="dMus" class="${mus ? 'on' : ''}">♪ Zene ${mus ? 'BE' : 'KI'}</button></div>
       <div class="dsec">APP</div>
       <button class="di" id="dUpd">${ic('refresh', 30)}<span>Frissítés</span><span>›</span></button>
@@ -997,6 +1030,7 @@
     const d = $('#drawer'); d.innerHTML = drawerHTML(); document.body.classList.add('menu-open'); d.setAttribute('aria-hidden', 'false'); $('#menuBtn').setAttribute('aria-expanded', 'true');
     d.querySelectorAll('a.di').forEach(a => a.addEventListener('click', closeMenu));
     d.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { LS.set('fs', +b.dataset.fs); applyFs(); openMenu(); });
+    d.querySelectorAll('[data-font]').forEach(b => b.onclick = () => { LS.set('font', b.dataset.font); applyFs(); openMenu(); });
     $('#dNight').onclick = () => { LS.set('mode', isNight() ? 'day' : 'night'); applyMode(); openMenu(); };
     $('#dMus').onclick = () => { setMusic(!SEREMusic.on); openMenu(); };
     $('#dUpd').onclick = () => { closeMenu(); doUpdate(true); };
@@ -1044,6 +1078,7 @@
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     V[v](...parts.slice(1));
+    if (RESUME[v] && !(v === 'ch' && !parts[1])) remember(location.hash || '#/');
     if (v !== 'ch' && !(v === 'sos' && parts[1] && prevRoute === location.hash)) window.scrollTo(0, 0); prevRoute = location.hash;
   }
   document.querySelectorAll('.nav button').forEach(b => {

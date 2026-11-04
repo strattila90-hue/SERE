@@ -941,3 +941,35 @@ body.kidmode, body:has(.kidfit), body:has(.kidcard) { overflow-y: auto !importan
 body:has(.kidfit) main { padding-bottom: calc(var(--sab) + 6px) !important; }
 .kidfit { height: auto !important; min-height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 14px - var(--sab)); }
 .kidfit .kidgrid { flex: 1 0 auto; }
+
+/* ===================== v4.0 – olvashatóság, folytatás, szint ===================== */
+/* olvasható betű (alapértelmezett): a hosszú szövegek rendes, jól olvasható betűvel; a címek maradnak pixelesek */
+body.rf main :is(.sec p, .sec li, .callout > div, .lesson p, .lesson li, .card > p, .opt > span:last-child, .step p, .stp, .gstep, .tip) {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif; font-size: 19px; line-height: 1.55; letter-spacing: 0; font-weight: 450;
+}
+body.rf main :is(.sec p, .sec li, .callout > div) b { font-weight: 700; color: var(--khaki-l); }
+body.rf main .sec ul li::before { top: 10px; }
+body.rf main .sec ol li { padding-left: 32px; }
+body.rf.fs1 main, body.rf.fs2 main { zoom: 1; }
+body.rf.fs1 main :is(.sec p, .sec li, .callout > div, .lesson p, .lesson li, .card > p, .opt > span:last-child) { font-size: 21px; }
+body.rf.fs2 main :is(.sec p, .sec li, .callout > div, .lesson p, .lesson li, .card > p, .opt > span:last-child) { font-size: 24px; }
+body.rf main .sec { line-height: 1.55; }
+/* fejezet- és szakaszszámok: a Silkscreen számjegyei nehezen olvashatók */
+.toc-ch .num, .ch-head .num, .sec h2 .sid, .sid { font-family: 'Pixelify', monospace !important; font-weight: 700; }
+/* folytatás gomb a fejezet elején */
+.btn.resume { width: 100%; justify-content: flex-start; margin: 10px 0 0; font-size: 20px; text-align: left; }
+.btn.resume span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* főoldal: folytatás + szint a kép alján */
+.hm-res { position: absolute; z-index: 2; left: 8px; right: 8px; bottom: 8px; display: flex; gap: 8px; align-items: flex-end; }
+.hm-res .hm-tag { position: static; flex: 1; min-width: 0; align-self: center; }
+.hm-chip.resume { flex: 1; min-width: 0; height: auto; min-height: 44px; padding: 4px 10px; background: rgba(52,199,89,.9); color: #062b10; border-color: #0b3d18; }
+.hm-chip.resume .rt { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 1px; }
+.hm-chip.resume .rt small { font: 400 13px/1 'Silkscreen', 'Pixelify', monospace; letter-spacing: 1px; opacity: .85; }
+.hm-chip.resume .rt span { font-size: clamp(14px, 4vw, 18px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hm-chip.resume b { color: #062b10; }
+.hm-chip.lvl { flex: none; height: auto; min-height: 44px; flex-direction: column; justify-content: center; gap: 2px; padding: 4px 10px; border-color: var(--c); }
+.hm-chip.lvl b { margin: 0; color: var(--c); font: 400 13px/1 'Silkscreen', 'Pixelify', monospace; letter-spacing: 1px; }
+.hm-chip.lvl small { font: 600 16px/1 'Pixelify', monospace; color: var(--khaki-l); }
+.hm-hero.flat .hm-res { position: static; margin-top: 8px; }
+.hm-hero.flat .hm-res .hm-tag { display: none; }
+.hm-hero.short:not(.flat) .hm-chips .hm-chip { height: 36px; }
