@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SERE PIXEL – nyomtatható tananyag</title>
+<!-- SERE PIXEL — nyomtatható A4 tananyag. Az app saját adataiból és fordításaiból épül (tools/pdf/make_pdf.py). -->
+<script>
+  (function () { var l = (location.search.match(/lang=(\w+)/) || [])[1] || 'hu'; try { localStorage.setItem('sp:lang', JSON.stringify(l)); } catch (e) { } })();
+</script>
+<style>
+  @font-face { font-family: 'Pixelify'; src: url('../../fonts/PixelifySanswght.woff') format('woff'); font-weight: 400 700; }
+  @page { size: A4; margin: 16mm 15mm 18mm 15mm; }
+  :root { --ink: #1b1f17; --muted: #5d6656; --line: #c9cfbf; --acc: #c2410c; --ok: #1f7a35; --warn: #b91c1c; --blue: #1d4ed8; --khaki: #8a6d3b; --soft: #f4f1e6; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font: 10.4pt/1.5 'Inter', 'DejaVu Sans', sans-serif; color: var(--ink); }
+  h1, h2, h3, .px-font { font-family: 'Pixelify', 'Inter', sans-serif; font-weight: 700; line-height: 1.15; }
+  h1 { font-size: 24pt; margin: 0 0 4mm; }
+  h2 { font-size: 15pt; margin: 6mm 0 2mm; }
+  h3 { font-size: 12pt; margin: 4mm 0 1.5mm; }
+  p { margin: 0 0 2mm; }
+  b { font-weight: 700; }
+  img.px { image-rendering: pixelated; vertical-align: middle; }
+  .page { break-before: page; }
+  .avoid { break-inside: avoid; }
+  section { position: relative; }
+  .mk { position: absolute; top: 0; right: 0; font-size: 2px; line-height: 1; color: #fff; }
+  /* címlap */
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; border: 3mm solid var(--ink); padding: 14mm 12mm; background: var(--soft); }
+  .cover .t1 { font: 700 46pt/1 'Pixelify', sans-serif; letter-spacing: 1mm; }
+  .cover .t1 span { color: var(--warn); }
+  .cover .t2 { font: 600 18pt/1.2 'Pixelify', sans-serif; margin-top: 4mm; color: var(--khaki); }
+  .cover .hero { display: flex; gap: 6mm; align-items: flex-end; justify-content: center; margin: 10mm 0; }
+  .cover .meta { font-size: 11pt; color: var(--muted); }
+  .cover .meta b { color: var(--ink); }
+  .cover .sos { margin-top: 6mm; display: inline-flex; gap: 4mm; align-items: center; background: var(--warn); color: #fff; padding: 3mm 6mm; font: 700 20pt/1 'Pixelify', sans-serif; }
+  /* tartalomjegyzék */
+  .toc { columns: 1; }
+  .toc .part { font: 700 13pt/1.2 'Pixelify', sans-serif; margin: 5mm 0 1.5mm; color: var(--acc); }
+  .toc .row { display: flex; align-items: baseline; gap: 2mm; padding: .6mm 0; }
+  .toc .row .n { min-width: 14mm; font-weight: 700; color: var(--khaki); }
+  .toc .row .dots { flex: 1; border-bottom: 1px dotted var(--line); transform: translateY(-1mm); }
+  .toc .row .pg { min-width: 8mm; text-align: right; font-variant-numeric: tabular-nums; }
+  /* rész-nyitó */
+  .partpage { height: 250mm; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 0 10mm; border-left: 4mm solid var(--acc); }
+  .partpage .k { font: 700 14pt/1 'Pixelify', sans-serif; color: var(--acc); letter-spacing: 1mm; }
+  .partpage h1 { font-size: 34pt; margin: 3mm 0; }
+  .partpage p { font-size: 12pt; color: var(--muted); max-width: 140mm; }
+  /* kártyák */
+  /* rács: a kártyák soronként csoportosítva (.gr), egy sor sosem vágódik ketté két oldal között */
+  .gr { display: flex; gap: 4mm; margin-bottom: 4mm; break-inside: avoid; page-break-inside: avoid; align-items: stretch; }
+  .gr > * { flex: 1 1 0; min-width: 0; }
+  .gr.n2 > :only-child { flex: 0 1 calc(50% - 2mm); }
+  .card { border: .6mm solid var(--ink); padding: 3.5mm 4mm; background: #fff; break-inside: avoid; }
+  .card.soft { background: var(--soft); }
+  .card h3 { margin-top: 0; display: flex; gap: 2.5mm; align-items: center; }
+  .head { display: flex; gap: 4mm; align-items: center; border-bottom: .8mm solid var(--ink); padding-bottom: 2.5mm; margin-bottom: 4mm; }
+  .head h1 { margin: 0; }
+  .head .sub { color: var(--muted); font-size: 10pt; }
+  .head .num { font: 800 24pt/1 'Inter', sans-serif; color: var(--acc); letter-spacing: -.5pt; }
+  ul, ol { margin: 0 0 2mm; padding-left: 5.5mm; }
+  li { margin: 0 0 1mm; }
+  .tag { display: flex; gap: 2mm; align-items: flex-start; margin-top: 2mm; padding: 1.5mm 2.5mm; font-size: 9.5pt; }
+  .tag.warn, .callout.warn { background: #fde8e8; border-left: 1.2mm solid var(--warn); }
+  .tag.tip, .callout.ok { background: #e6f4ea; border-left: 1.2mm solid var(--ok); }
+  .callout { display: flex; gap: 2.5mm; align-items: flex-start; padding: 2mm 3mm; margin: 0 0 2.5mm; break-inside: avoid; }
+  .callout.quote { background: var(--soft); border-left: 1.2mm solid var(--khaki); font-weight: 600; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 8mm 1fr 9mm; gap: 2mm; align-items: start; padding: 1.6mm 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+  .steps li::before { content: counter(s); font: 700 13pt/1 'Pixelify', sans-serif; color: var(--acc); }
+  .chk { list-style: none; padding: 0; }
+  .chk li { display: flex; gap: 3mm; align-items: flex-start; padding: 1.2mm 0; border-bottom: 1px dotted var(--line); }
+  .chk li::before { content: ''; flex: none; width: 4.2mm; height: 4.2mm; border: .5mm solid var(--ink); margin-top: .4mm; }
+  .bigk { font: 700 30pt/1 'Pixelify', sans-serif; color: var(--acc); min-width: 12mm; }
+  .prio { display: flex; gap: 4mm; align-items: center; }
+  .rar { font: 700 8pt/1 'Inter', sans-serif; padding: .8mm 1.5mm; color: #fff; border-radius: .6mm; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.6pt; }
+  th, td { border: 1px solid var(--line); padding: .9mm 2mm; text-align: left; vertical-align: middle; }
+  th { background: var(--soft); }
+  /* kézikönyv */
+  .sec { margin-bottom: 3mm; }
+  .sec h2 { display: flex; gap: 2.5mm; align-items: baseline; border-bottom: .3mm solid var(--line); padding-bottom: 1mm; break-after: avoid; }
+  .sec h2 .sid { color: var(--acc); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 12.5pt; }
+  .web { display: inline-block; font: 700 7.5pt/1 'Inter', sans-serif; color: var(--acc); border: .3mm solid var(--acc); padding: .6mm 1.2mm; margin-left: 1mm; vertical-align: middle; }
+  /* gyerek kártyák */
+  .kid { border: 1.2mm solid var(--c); padding: 3mm; break-inside: avoid; background: #fff; }
+  .kid .kt { display: flex; gap: 3mm; align-items: center; font: 700 14pt/1.1 'Pixelify', sans-serif; color: var(--c); margin-bottom: 2mm; }
+  .kid ol { padding-left: 5mm; font-size: 10.2pt; }
+  /* kvíz */
+  .q { break-inside: avoid; margin-bottom: 2.4mm; }
+  .q .qq { font-weight: 700; }
+  .q .op { display: grid; grid-template-columns: 1fr 1fr; gap: .5mm 4mm; font-size: 9.6pt; padding-left: 5mm; }
+  .key { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1mm 3mm; font-size: 9.5pt; }
+  .note { font-size: 9pt; color: var(--muted); }
+  .lines div { border-bottom: 1px solid var(--line); height: 8mm; }
+</style>
+</head>
+<body>
+<div id="doc"></div>
+<script src="../../js/i18n.js"></script>
+<script src="../../js/sprites.js"></script>
+<script src="../../js/content.js"></script>
+<script src="../../js/content.en.js"></script>
+<script src="../../js/content.sk.js"></script>
+<script src="../../js/i18n.en.js"></script>
+<script src="../../js/i18n.sk.js"></script>
+<script src="../../js/data.js"></script>
+<script src="../../js/quiz.js"></script>
+<script>
+(function () {
+  const lang = I18N.lang, T = window.T;
+  const C = lang === 'hu' ? window.SERE_CONTENT : window['SERE_CONTENT_' + lang.toUpperCase()];
+  const D = window.SERE_DATA, QZ = window.SERE_QUIZ, PX = window.PX;
+  const pages = (window.__PAGES__ || {});           // második menetben: fejezet → oldalszám
+  // a nyomtatvány saját feliratai (nem az appból jönnek)
+  const L = {
+    hu: { sub: 'Túlélési kézikönyv és gyakorló tananyag', ed: 'Nyomtatható kiadás', lang: 'Magyar', toc: 'Tartalom', p1: 'I. rész', p1t: 'Gyors segédletek', p1d: 'Egy pillantással: prioritások, S-T-O-P, mit tegyél bajban, rajzos kártyák, checklisták és felszerelés. Kinyomtatva a hátizsákba is betehető.', p2: 'II. rész', p2t: 'Kézikönyv', p2d: 'A teljes tananyag: SERE „A”, „B”, „C” szint és az EXTRA fejezet.', p3: 'III. rész', p3t: 'Gyakorló vizsgakérdések', p3d: 'Fejezetenként a kérdések, a végén megoldókulccsal. A vizsga 70%-tól sikeres.', prio: 'SERE prioritások', stop: 'S-T-O-P – ha baj van', scen: 'Bajban vagyok – lépésről lépésre', guides: 'Gyors kártyák', checks: 'Checklisták', kit: 'Túlélőkészlet', kitE: 'Alap készlet (mindig legyen nálad)', item: 'Eszköz', cat: 'Fontosság', g: 'Tömeg', who: 'Ki vagy? – tippek szerepkör szerint', fem: 'Nőknek – kiegészítés', civ: 'Civil helyzetek', kid: 'Gyerek mód – kártyák a gyereknek', kidd: 'Olvasd fel vagy beszéld át a gyerekkel. Vágd ki, és tedd a táskájába.', key: 'Megoldókulcs', ch: 'fejezet', notes: 'Jegyzetek, fontos számok', emerg: 'Segélyhívó: 112 – mondd el: KI vagy, HOL vagy, MI történt.', disc: 'Gyakorló segédlet — nem helyettesíti a hivatalos kiképzést és a hatályos szakutasítást.', web: 'KIEGÉSZÍTVE', webn: 'KIEGÉSZÍTVE = nyilvános forrásokból, ellenőrizd a hatályos szakutasítással.', exam: 'Vizsgakérdések', pg: 'oldal', name: 'Név:', date: 'Dátum:', phone: 'Fontos telefonszámok:', RAR: { rare: 'RITKA', imp: 'FONTOS', com: 'ALAP', own: 'NEKED' } },
+    en: { sub: 'Survival manual and training material', ed: 'Printable edition', lang: 'English', toc: 'Contents', p1: 'Part I', p1t: 'Quick aids', p1d: 'At a glance: priorities, S-T-O-P, what to do when in trouble, picture cards, checklists and kit. Print it and keep it in your pack.', p2: 'Part II', p2t: 'Manual', p2d: 'The full course: SERE level “A”, “B”, “C” and the EXTRA chapter.', p3: 'Part III', p3t: 'Practice exam questions', p3d: 'Questions chapter by chapter, with an answer key at the end. A test is passed from 70%.', prio: 'SERE priorities', stop: 'S-T-O-P – when in trouble', scen: 'I’m in trouble – step by step', guides: 'Quick cards', checks: 'Checklists', kit: 'Survival kit', kitE: 'Core kit (always carry it)', item: 'Item', cat: 'Priority', g: 'Weight', who: 'Who are you? – tips by role', fem: 'For women – additions', civ: 'Civilian situations', kid: 'Kid mode – cards for children', kidd: 'Read it aloud or talk it through with your child. Cut it out and put it in their bag.', key: 'Answer key', ch: 'chapter', notes: 'Notes, important numbers', emerg: 'Emergency number: 112 – say WHO you are, WHERE you are, WHAT happened.', disc: 'Practice aid — it does not replace official training and the current regulations.', web: 'SUPPLEMENTED', webn: 'SUPPLEMENTED = from public sources; check against the current regulations.', exam: 'Exam questions', pg: 'page', name: 'Name:', date: 'Date:', phone: 'Important phone numbers:', RAR: { rare: 'RARE', imp: 'IMPORTANT', com: 'BASIC', own: 'YOURS' } },
+    sk: { sub: 'Príručka prežitia a cvičný učebný materiál', ed: 'Tlačové vydanie', lang: 'Slovenčina', toc: 'Obsah', p1: 'I. časť', p1t: 'Rýchle pomôcky', p1d: 'Na prvý pohľad: priority, S-T-O-P, čo robiť v núdzi, obrázkové karty, kontrolné zoznamy a výbava. Vytlač si to a daj do batoha.', p2: 'II. časť', p2t: 'Príručka', p2d: 'Celé učivo: úroveň SERE „A“, „B“, „C“ a kapitola EXTRA.', p3: 'III. časť', p3t: 'Cvičné skúškové otázky', p3d: 'Otázky po kapitolách, na konci s kľúčom správnych odpovedí. Skúška je úspešná od 70 %.', prio: 'Priority SERE', stop: 'S-T-O-P – keď je problém', scen: 'Som v núdzi – krok za krokom', guides: 'Rýchle karty', checks: 'Kontrolné zoznamy', kit: 'Výbava na prežitie', kitE: 'Základná výbava (vždy pri sebe)', item: 'Predmet', cat: 'Dôležitosť', g: 'Hmotnosť', who: 'Kto si? – tipy podľa úlohy', fem: 'Pre ženy – doplnky', civ: 'Civilné situácie', kid: 'Detský režim – karty pre deti', kidd: 'Prečítaj to nahlas alebo to s dieťaťom prejdi. Vystrihni a daj mu do tašky.', key: 'Kľúč odpovedí', ch: 'kapitola', notes: 'Poznámky, dôležité čísla', emerg: 'Tiesňové číslo: 112 – povedz KTO si, KDE si, ČO sa stalo.', disc: 'Cvičná pomôcka — nenahrádza oficiálny výcvik a platné predpisy.', web: 'DOPLNENÉ', webn: 'DOPLNENÉ = z verejných zdrojov; over si to podľa platných predpisov.', exam: 'Skúškové otázky', pg: 'strana', name: 'Meno:', date: 'Dátum:', phone: 'Dôležité telefónne čísla:', RAR: { rare: 'ZRIEDKAVÉ', imp: 'DÔLEŽITÉ', com: 'ZÁKLAD', own: 'TVOJE' } }
+  }[lang];
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const t = s => esc(T(s));
+  const fmt = s => esc(T(s)).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const fmtC = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');   // a kézikönyv szövege már a választott nyelven van
+  const ic = (n, mm) => { const u = PX.url(n); return u ? `<img class="px" src="${u}" style="width:${mm}mm;height:${mm}mm" alt="">` : ''; };
+  const mk = id => `<span class="mk">QXQ${id}QXQ</span>`;   // láthatatlan jelölő az oldalszámokhoz
+  const pg = id => pages[id] ? pages[id] : '';
+  const CH_ICON = { '1': 'book', '2': 'fire', '3': 'shelter', '4': 'water', '5': 'eye', '6': 'compass', '7': 'heli', '8': 'signal', B1: 'fire', B2: 'water', B3: 'compass', B4: 'eye', C1: 'warn', C2: 'book', C3: 'heart', C4: 'heli', N1: 'nuke' };
+  const chName = id => /^[BC]\d/.test(id) ? (id[0] === 'B' ? 'Bravo ' : 'Charlie ') + id.slice(1) : /^N\d/.test(id) ? 'Extra ' + id.slice(1) : id;
+  const col = c => ({ 'var(--acc)': '#c2410c', 'var(--ok)': '#1f7a35', 'var(--warn)': '#b91c1c', 'var(--blue)': '#1d4ed8', 'var(--yel)': '#b58900' }[c] || (/^#/.test(c) ? c : '#8a6d3b'));
+  // determinisztikus keverés: minden nyomtatásnál ugyanaz a sorrend
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  const out = [];
+  /* ---- címlap ---- */
+  out.push(`<section class="cover">
+    <div><div class="t1">SERE <span>PIXEL</span></div><div class="t2">${esc(L.sub)}</div></div>
+    <div class="hero">${ic('fire', 34)}${ic('shelter', 34)}${ic('water', 34)}${ic('compass', 34)}${ic('signal', 34)}</div>
+    <div><div class="meta"><b>${esc(L.ed)}</b> · ${esc(L.lang)} · v${esc(window.SERE_VERSION || '')}</div>
+      <div class="meta">https://strattila90-hue.github.io/SERE/</div>
+      <div class="sos">${ic('phone', 9)} 112</div>
+      <p class="note" style="margin-top:5mm">${esc(L.disc)}</p></div></section>`);
+
+  /* ---- tartalomjegyzék ---- */
+  const tocRow = (id, n, title) => `<div class="row"><span class="n">${esc(n)}</span><span>${esc(title)}</span><span class="dots"></span><span class="pg">${pg(id)}</span></div>`;
+  const p1items = [['prio', L.prio], ['stop', L.stop], ['scen', L.scen], ['guides', L.guides], ['checks', L.checks], ['kit', L.kit], ['who', L.who], ['kid', L.kid]];
+  out.push(`<section class="page"><h1>${esc(L.toc)}</h1><div class="toc">
+    <div class="part">${esc(L.p1)} · ${esc(L.p1t)}</div>${p1items.map(([id, n]) => tocRow(id, '', n)).join('')}
+    <div class="part">${esc(L.p2)} · ${esc(L.p2t)}</div>${C.map(c => tocRow('ch' + c.id, chName(c.id), c.title)).join('')}
+    <div class="part">${esc(L.p3)} · ${esc(L.p3t)}</div>${tocRow('exam', '', L.exam)}${tocRow('key', '', L.key)}${tocRow('notes', '', L.notes)}
+  </div><p class="note" style="margin-top:6mm">${esc(L.webn)}</p></section>`);
+
+  /* ======================= I. RÉSZ ======================= */
+  out.push(`<section class="page partpage"><div class="k">${esc(L.p1)}</div><h1>${esc(L.p1t)}</h1><p>${esc(L.p1d)}</p></section>`);
+  // prioritások + S-T-O-P egy oldalon
+  out.push(`<section class="page">${mk('prio')}<div class="head">${ic('signal', 14)}<h1>${esc(L.prio)}</h1></div>
+    ${D.priorities.map((p, i) => `<div class="card avoid prio" style="margin-bottom:3mm"><span class="bigk">${i + 1}</span>${ic(p.icon, 13)}<div><h3 style="margin:0 0 1mm">${t(p.t)}</h3><div>${fmt(p.x)}</div></div></div>`).join('')}
+    ${mk('stop')}<div class="head" style="margin-top:6mm">${ic('stop', 14)}<h1>${esc(L.stop)}</h1></div>
+    <div class="grid2">${D.stop.map(s => `<div class="card soft"><h3><span class="bigk" style="font-size:22pt">${esc(s.k)}</span>${t(s.t)}</h3><ul>${s.x.map(x => `<li>${t(x)}</li>`).join('')}</ul></div>`).join('')}</div></section>`);
+  // forgatókönyvek
+  const scen = D.scenarios.concat(Object.values(D.civil || {}).map(c => Object.assign({ icon: 'warn', c: 'var(--warn)' }, c)));
+  out.push(`<section class="page">${mk('scen')}<div class="head">${ic('warn', 14)}<h1>${esc(L.scen)}</h1></div>
+    ${scen.map(s => `<div class="card avoid" style="border-color:${col(s.c)};margin-bottom:4mm"><h3 style="color:${col(s.c)}">${ic(s.icon, 9)}${t(s.t)}${s.sub ? `<span class="note" style="font-family:Inter;font-weight:400"> · ${t(s.sub)}</span>` : ''}</h3>
+      <ol class="steps">${s.steps.map(st => `<li><span>${fmt(st[0])}</span>${st[1] ? ic(st[1], 8) : '<span></span>'}</li>`).join('')}</ol></div>`).join('')}</section>`);
+  // gyors kártyák
+  out.push(`<section class="page">${mk('guides')}<div class="head">${ic('fire', 14)}<h1>${esc(L.guides)}</h1></div>
+    ${D.guides.map(g => `<div class="avoid" style="margin-bottom:5mm"><h2 style="display:flex;gap:3mm;align-items:center;margin-top:2mm">${ic(g.icon, 11)}${t(g.title)} <span class="note" style="font-family:Inter">${esc(g.en || '')}</span></h2>
+      <div class="grid2">${g.steps.map((s, i) => `<div class="card"><h3>${ic(s.icon, 9)}<span>${i + 1}. ${t(s.t)}</span></h3><ul>${s.x.map(x => `<li>${t(x)}</li>`).join('')}</ul>${s.tag ? `<div class="tag ${s.tag[0] === 'warn' ? 'warn' : 'tip'}">${ic(s.tag[0] === 'warn' ? 'warn' : 'check', 5)}<span>${t(s.tag[1])}</span></div>` : ''}</div>`).join('')}</div></div>`).join('')}</section>`);
+  // checklisták
+  out.push(`<section class="page">${mk('checks')}<div class="head">${ic('check', 14)}<h1>${esc(L.checks)}</h1></div>
+    <div class="grid2">${D.checklists.map(c => `<div class="card"><h3>${ic(c.icon, 9)}${t(c.t)}</h3><ul class="chk">${c.items.map(x => `<li>${t(x)}</li>`).join('')}</ul></div>`).join('')}</div></section>`);
+  // készlet
+  const rarC = { rare: '#c2410c', imp: '#1f7a35', com: '#b58900', own: '#1d4ed8' };
+  out.push(`<section class="page">${mk('kit')}<div class="head">${ic('pack', 14)}<h1>${esc(L.kit)}</h1></div>
+    <h3>${esc(L.kitE)}</h3><div class="grid3" style="margin-bottom:5mm">${D.kitEssential.map(id => D.kit.find(k => k.id === id)).filter(Boolean).map(k => `<div class="card soft" style="display:flex;gap:3mm;align-items:center">${ic(k.icon, 10)}<b>${t(k.n)}</b></div>`).join('')}</div>
+    <table><tr><th></th><th>${esc(L.item)}</th><th>${esc(L.cat)}</th><th style="text-align:right">${esc(L.g)}</th><th style="width:10mm"></th></tr>
+    ${D.kit.map(k => `<tr><td style="width:10mm">${ic(k.icon, 7)}</td><td>${t(k.n)}</td><td><span class="rar" style="background:${rarC[k.r] || '#666'}">${esc(L.RAR[k.r] || k.r)}</span></td><td style="text-align:right">${k.g} g</td><td><span style="display:inline-block;width:4mm;height:4mm;border:.4mm solid #000"></span></td></tr>`).join('')}
+    <tr><th colspan="3"></th><th style="text-align:right">${D.kit.reduce((a, k) => a + (k.g || 0), 0)} g</th><th></th></tr></table></section>`);
+  // szerepkörök + nőknek
+  out.push(`<section class="page">${mk('who')}<div class="head">${ic('star', 14)}<h1>${esc(L.who)}</h1></div>
+    <div class="grid2">${D.profiles.map(p => `<div class="card"><h3>${ic(p.icon, 9)}<span>${t(p.n)}<br><span class="note" style="font-family:Inter;font-weight:400">${t(p.sub)}</span></span></h3><p class="note" style="color:var(--ink)">${t(p.intro)}</p><ul>${p.tips.map(x => `<li>${t(x)}</li>`).join('')}</ul></div>`).join('')}
+    ${D.female ? `<div class="card soft"><h3>${ic('heart', 9)}${esc(L.fem)}</h3><ul>${D.female.tips.map(x => `<li>${t(x)}</li>`).join('')}</ul></div>` : ''}</div></section>`);
+  // gyerek kártyák
+  out.push(`<section class="page">${mk('kid')}<div class="head">${ic('heart', 14)}<div><h1>${esc(L.kid)}</h1><div class="sub">${esc(L.kidd)}</div></div></div>
+    <div class="grid2">${D.kid.map(k => `<div class="kid" style="--c:${k.c}"><div class="kt">${ic(k.icon, 15)}<span>${t(k.t)}</span></div><ol>${k.say.map(x => `<li>${t(x)}</li>`).join('')}</ol></div>`).join('')}
+    <div class="kid" style="--c:#b91c1c;display:flex;gap:4mm;align-items:center">${ic('phone', 16)}<div style="font:700 24pt/1 Pixelify,sans-serif;color:#b91c1c">112</div></div></div></section>`);
+
+  /* ======================= II. RÉSZ ======================= */
+  out.push(`<section class="page partpage"><div class="k">${esc(L.p2)}</div><h1>${esc(L.p2t)}</h1><p>${esc(L.p2d)}</p></section>`);
+  const block = b => {
+    switch (b.t) {
+      case 'p': return `<p>${fmtC(b.x)}</p>`;
+      case 'li': return `<ul>${b.items.map(x => `<li>${fmtC(x)}</li>`).join('')}</ul>`;
+      case 'ol': return `<ol>${b.items.map(x => `<li>${fmtC(x)}</li>`).join('')}</ol>`;
+      case 'warn': return `<div class="callout warn">${ic('warn', 5)}<div>${fmtC(b.x)}</div></div>`;
+      case 'ok': return `<div class="callout ok">${ic('check', 5)}<div>${fmtC(b.x)}</div></div>`;
+      case 'quote': return `<div class="callout quote">${ic('star', 5)}<div>${fmtC(b.x)}</div></div>`;
+    }
+    return '';
+  };
+  C.forEach(ch => {
+    out.push(`<section class="page">${mk('ch' + ch.id)}<div class="head">${ic(CH_ICON[ch.id] || 'book', 15)}<span class="num">${esc(ch.id)}</span><div><h1>${esc(ch.title)}</h1><div class="sub">${esc(ch.sub)}</div></div></div>
+      ${ch.sections.map(s => `<div class="sec"><h2><span class="sid">${esc(s.id)}</span><span>${esc(s.title)}${s.web ? `<span class="web">${esc(L.web)}</span>` : ''}</span></h2>${s.blocks.map(block).join('')}</div>`).join('')}</section>`);
+  });
+
+  /* ======================= III. RÉSZ ======================= */
+  out.push(`<section class="page partpage"><div class="k">${esc(L.p3)}</div><h1>${esc(L.p3t)}</h1><p>${esc(L.p3d)}</p></section>`);
+  const keys = [];
+  out.push(`<section class="page">${mk('exam')}` + C.filter(ch => QZ[ch.id]).map(ch => {
+    const qs = QZ[ch.id].map(q => { const opts = shuffle(q.slice(1)); return { q: q[0], opts, good: opts.indexOf(q[1]) }; });
+    keys.push({ ch, ks: qs.map(q => 'ABCD'[q.good]) });
+    return `<div class="avoid"><h2>${ic(CH_ICON[ch.id] || 'book', 8)} ${esc(chName(ch.id))}. ${esc(L.ch)} · ${esc(ch.title)}</h2></div>
+      ${qs.map((q, i) => `<div class="q"><div class="qq">${i + 1}. ${t(q.q)}</div><div class="op">${q.opts.map((o, j) => `<span>${'ABCD'[j]}) ${t(o)}</span>`).join('')}</div></div>`).join('')}`;
+  }).join('') + `</section>`);
+  out.push(`<section class="page">${mk('key')}<div class="head">${ic('check', 14)}<h1>${esc(L.key)}</h1></div>
+    ${keys.map(k => `<div class="avoid" style="margin-bottom:3mm"><h3>${esc(chName(k.ch.id))}. ${esc(L.ch)} · ${esc(k.ch.title)}</h3><div class="key">${k.ks.map((a, i) => `<span><b>${i + 1}.</b> ${a}</span>`).join('')}</div></div>`).join('')}</section>`);
+  out.push(`<section class="page">${mk('notes')}<div class="head">${ic('book', 14)}<h1>${esc(L.notes)}</h1></div>
+    <div class="callout warn" style="font-size:12pt">${ic('phone', 7)}<div><b>${esc(L.emerg)}</b></div></div>
+    <p><b>${esc(L.name)}</b></p><div class="lines"><div></div></div><p style="margin-top:3mm"><b>${esc(L.phone)}</b></p>
+    <div class="lines">${'<div></div>'.repeat(20)}</div></section>`);
+
+  document.getElementById('doc').innerHTML = out.join('');
+  document.querySelectorAll('.grid2, .grid3').forEach(g => {
+    const n = g.classList.contains('grid3') ? 3 : 2, kids = [...g.children], frag = document.createDocumentFragment();
+    for (let i = 0; i < kids.length; i += n) { const r = document.createElement('div'); r.className = 'gr n' + n; kids.slice(i, i + n).forEach(k => r.appendChild(k)); frag.appendChild(r); }
+    g.replaceWith(frag);
+  });
+  document.title = 'SERE PIXEL – ' + L.lang;
+  window.__READY__ = true;
+})();
+</script>
+</body>
+</html>

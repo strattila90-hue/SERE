@@ -19,6 +19,15 @@ A dizájn a repülőgépes safety cardok, a katonai field manualok és a 90-es �
 - **Térkép-jelölő**: GPS-pontok offline, távolság + irány, MGRS koordináta
 - **Nappal / éjszaka** téma (automatikus vagy kézi)
 
+## Nyomtatható tananyag (PDF, A4)
+A teljes tananyag nyomtatható változata magyarul, angolul és szlovákul: [`pdf/`](pdf/) mappa (az appban: Menü → Nyomtatható PDF).
+Újragenerálás a tartalom módosítása után:
+
+```
+pip install playwright pypdf && python3 -m playwright install chromium
+python3 tools/pdf/make_pdf.py
+```
+
 ## Telepítés telefonra
 - **Android (Chrome):** nyisd meg a linket → „Telepítés most” vagy ⋮ → *Alkalmazás telepítése*
 - **iPhone (Safari):** Megosztás → *Főképernyőhöz adás*

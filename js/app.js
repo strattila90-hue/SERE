@@ -851,7 +851,7 @@
 
   /* --- telepítés / névjegy --- */
   let deferred = null;
-  V.about = () => {
+  V.about = (sec) => {
     const url = location.origin + location.pathname;
     const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     main.innerHTML = `<section class="card frame"><div class="ch-head">${ic('star', 48)}<div><h1>Telepítés</h1><div class="stencil" style="font-size:16px">OFFLINE · TÉRERŐ NÉLKÜL IS</div></div></div>
@@ -864,10 +864,16 @@
       <h3>iPhone (Safari)</h3><ol class="sec" style="padding:0;list-style:none"><li>Nyisd meg a linket <b>Safariban</b>.</li><li>Megosztás ⬆ → „Főképernyőhöz adás”.</li></ol>
       <div class="callout ok">${ic('check', 26)}<div>Az első megnyitás után minden fájl a telefonon tárolódik – utána repülő módban is működik.</div></div>
       <div class="rule"></div>
+      <h3 id="pdf">${ic('book', 26)} Nyomtatható tananyag (PDF, A4)</h3>
+      <p>A teljes kézikönyv, a gyors kártyák, checklisták, gyerekkártyák és a vizsgakérdések megoldókulccsal – nyomtatáshoz.</p>
+      <div class="row">${[['hu', 'Magyar'], ['en', 'English'], ['sk', 'Slovenčina']].map(([l, n]) => `<a class="btn ${l === I18N.lang ? 'green' : 'ghost'}" href="pdf/SERE-PIXEL-${l}.pdf" target="_blank" rel="noopener" download data-notr>${flag(l)} ${n}</a>`).join('')}</div>
+      <p class="muted" style="font-size:19px">A PDF letöltéséhez internet kell.</p>
+      <div class="rule"></div>
       <h3>Forrás és felelősség</h3>
       <p>A „TANANYAG” jelölésű részek a SERE „A” szintű e-learning tananyag alapján, összefoglalva készültek. A <span class="badge web">KIEGÉSZÍTVE</span> részek a tananyag tartalomjegyzéke szerint, nyilvános forrásokból (NATO/US PR doktrína, katonai kézikönyvek) készültek.</p>
       <p class="muted">Gyakorló segédlet – nem helyettesíti a hivatalos kiképzést és a hatályos HVKF szakutasítást.</p>
       <p class="muted" style="font-size:21px">Fonts: VT323, Pixelify Sans, Silkscreen (SIL OFL) · v${window.SERE_VERSION}</p></section>`;
+    if (sec === 'pdf') setTimeout(() => { const el = document.getElementById('pdf'); if (el) el.scrollIntoView({ block: 'start' }); }, 80);
     const ib = $('#instBtn'); if (ib) ib.onclick = () => installPopup(true);
     $('#shareBtn').onclick = doShare;
   };
@@ -1024,6 +1030,7 @@
       <button class="di" id="dUpd">${ic('refresh', 30)}<span>Frissítés</span><span>›</span></button>
       <button class="di" id="dShr">${ic('share', 30)}<span>Megosztás</span><span>›</span></button>
       ${isStandalone() ? '' : `<button class="di" id="dIns">${ic('pack', 30)}<span>Telepítés</span><span>›</span></button>`}
+      ${it('#/about/pdf', 'book', 'Nyomtatható PDF', 'A4 · 3 nyelven')}
       ${it('#/about', 'book', 'Névjegy, QR')}`;
   }
   function openMenu() {

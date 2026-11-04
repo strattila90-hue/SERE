@@ -973,3 +973,4 @@ body.rf main .sec { line-height: 1.55; }
 .hm-hero.flat .hm-res { position: static; margin-top: 8px; }
 .hm-hero.flat .hm-res .hm-tag { display: none; }
 .hm-hero.short:not(.flat) .hm-chips .hm-chip { height: 36px; }
+#pdf { scroll-margin-top: calc(var(--toph, 64px) + 12px); }
