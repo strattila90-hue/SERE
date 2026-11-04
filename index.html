@@ -14,18 +14,27 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SERE PIXEL">
 <script>
-/* Ha a telefon "Asztali webhely" módban nyitja meg (≈980px széles nézet), visszaskálázzuk telefonos nézetre */
+/* Telefonos nézet biztosítása. Ha a telefon "Asztali webhely" módban (≈980px széles nézet) nyitja meg, visszaskálázzuk.
+   Telepített appnál az első pillanatban a telefon még rossz méretet adhat, ezért az app később újra lefuttatja (SEREfit). */
 (function () {
-  try {
-    var coarse = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
-    var w = window.innerWidth;
-    var tall = window.innerHeight / w > 1.7 || (screen.height || 0) / (screen.width || 1) > 1.7;
-    if (coarse && w > 700 && (screen.width < 600 || tall)) {
-      var target = Math.min(430, Math.max(360, screen.width < 600 ? screen.width : 412));
-      document.documentElement.style.zoom = (w / target).toFixed(3);
-      document.documentElement.classList.add('deskfix');
-    }
-  } catch (e) {}
+  var cur = '';
+  window.SEREfit = function () {
+    try {
+      var de = document.documentElement, w = window.innerWidth, h = window.innerHeight;
+      if (!w || !h) return false;
+      var coarse = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
+      var tall = h / w > 1.7 || (screen.height || 0) / (screen.width || 1) > 1.7;
+      var z = '';
+      if (coarse && w > 700 && (screen.width < 600 || tall)) {
+        var target = Math.min(430, Math.max(360, screen.width < 600 ? screen.width : 412));
+        z = (w / target).toFixed(3);
+      }
+      if (z === cur) return false;
+      cur = z; de.style.zoom = z; de.classList.toggle('deskfix', !!z);
+      return true;
+    } catch (e) { return false; }
+  };
+  window.SEREfit();
 })();
 </script>
 <link rel="preload" href="fonts/VT323-Regular.woff" as="font" type="font/woff" crossorigin>
@@ -45,7 +54,7 @@
 <div class="drawer-bg" id="drawerBg"></div>
 <aside class="drawer" id="drawer" aria-label="Menü" aria-hidden="true"></aside>
 <main id="main"><noscript>A SERE PIXEL futtatásához JavaScript szükséges.</noscript></main>
-<script>window.SERE_VERSION = '3.6.2';</script>
+<script>window.SERE_VERSION = '3.8.0';</script>
 <script src="js/i18n.js"></script>
 <script src="js/music.js"></script>
 <script src="js/speak.js"></script>

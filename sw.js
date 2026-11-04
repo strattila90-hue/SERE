@@ -1,5 +1,6 @@
-/* SERE PIXEL service worker — azonnali indulás a tárból, frissítés a háttérben */
-const VERSION = 'sere-pixel-v3.6.2';
+/* SERE PIXEL service worker — azonnali indulás a tárból; új verzió csak egyben, a VERSION emelésével érkezik
+   (korábban a háttérben fájlonként cserélődött, így egy indításon belül régi és új fájlok keveredhettek) */
+const VERSION = 'sere-pixel-v3.8.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/quiz.js', 'js/i18n.js', 'js/i18n.en.js', 'js/i18n.sk.js', 'js/content.en.js', 'js/content.sk.js', 'js/app.js',
@@ -20,8 +21,13 @@ self.addEventListener('fetch', e => {
   if (url.origin !== location.origin) return;
   e.respondWith(caches.open(VERSION).then(async c => {
     const hit = await c.match(e.request, { ignoreSearch: true });
-    const net = fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }).catch(() => null);
-    if (hit) { e.waitUntil(net); return hit; }
-    return (await net) || (await c.match('index.html')) || Response.error();
+    if (hit) return hit;
+    try {
+      const res = await fetch(e.request);
+      if (res.ok) c.put(e.request, res.clone());
+      return res;
+    } catch (x) {
+      return (e.request.mode === 'navigate' && await c.match('index.html')) || Response.error();
+    }
   }));
 });

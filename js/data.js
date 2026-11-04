@@ -300,7 +300,13 @@ window.SERE_DATA = {
       pics: ['heart', 'tree', 'whistle', 'star', 'poncho', 'check'] },
     { id: 'szulo', t: 'Nem találom anyát vagy apát', icon: 'kparent', c: '#7c3aed',
       say: ['Maradj ott, ahol vagy. Anya és apa visszajön érted.', 'Ha boltban vagy, szólj a pénztárosnak vagy egy biztonsági őrnek.', 'Az utcán szólj egy rendőrnek, vagy egy anyukának, akinél gyerek van.', 'Ne menj el idegennel sehova.', 'Mondd meg a neved, és ha tudod, anya vagy apa telefonszámát.'],
-      pics: ['stop', 'star', 'star', 'warn', 'phone'] }
+      pics: ['stop', 'star', 'star', 'warn', 'phone'] },
+    { id: 'idegen', t: 'Idegen el akar vinni', icon: 'kstranger', c: '#be123c',
+      say: ['Ha egy idegen azt mondja, menj vele, mondd hangosan: NEM! Nem megyek!', 'Ne szállj be senki autójába. Ne fogadj el tőle édességet vagy ajándékot, és ne menj vele kiskutyát nézni.', 'Ne mondd meg neki, hol laksz, és azt se, hogy egyedül vagy.', 'Ha azt mondja, hogy anya vagy apa küldte, ne hidd el. Csak azzal menj, akiről anya vagy apa előre szólt. Ha van családi titkos szavatok, kérdezd meg. Ha nem tudja, ne menj vele.', 'Fuss el oda, ahol sok ember van: boltba, egy anyukához, akinél gyerek van, vagy egy rendőrhöz.', 'Ha megfog, kiabáld nagyon hangosan: Segítség! Ez nem az apukám! Kapálózz, rúgj, és fuss el.', 'Mondd el anyának vagy apának, mi történt. Nem vagy bajban, nagyon jól tetted, hogy elmondtad.'],
+      pics: ['kstranger', 'stop', 'warn', 'kparent', 'star', 'whistle', 'heart'] },
+    { id: 'elvittek', t: 'Elvittek, és félek', icon: 'ktaken', c: '#4338ca',
+      say: ['Bátor vagy. Szívd be lassan a levegőt, és fújd ki lassan.', 'Ha van nálad telefon, hívd a száztizenkettőt, amint tudod. Ha nem tudsz beszélni, ne tedd le, maradjon nyitva a vonal.', 'Ha emberek vannak a közelben, kiabáld hangosan: Segítség! Ez nem az anyukám! Ez nem az apukám!', 'Figyeld meg, mit látsz és mit hallasz: milyen az autó, milyen a ház, milyen hangok vannak.', 'Ha el tudsz menni, fuss oda, ahol emberek vannak, és szólj egy rendőrnek vagy egy felnőttnek, aki dolgozik.', 'Ha azt mondják, hogy anya és apa nem keres, ne hidd el. Anya és apa mindig keres téged.', 'Bármi történik, nem a te hibád. Megtalálnak.'],
+      pics: ['heart', 'phone', 'whistle', 'eye', 'star', 'kparent', 'heart'], breathe: false }
   ],
 
   checklists: [

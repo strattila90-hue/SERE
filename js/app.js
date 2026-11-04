@@ -164,7 +164,7 @@
     drawCover();
     const hero = $('.hm-hero');
     const fitHero = () => { if (!hero || !hero.isConnected) return; hero.classList.remove('flat', 'short'); const hh = hero.getBoundingClientRect().height; hero.classList.toggle('flat', hh < 100); hero.classList.toggle('short', hh < 170); };
-    requestAnimationFrame(() => { fitHero(); requestAnimationFrame(() => fitText()); }); const onRs = () => { fitHero(); fitText(); }; window.addEventListener('resize', onRs); cleanup = () => window.removeEventListener('resize', onRs);
+    requestAnimationFrame(() => { fitHero(); requestAnimationFrame(() => fitText()); }); const onRs = () => { fitHero(); fitText(); }; window.addEventListener('resize', onRs); window.addEventListener('sere:layout', onRs); cleanup = () => { window.removeEventListener('resize', onRs); window.removeEventListener('sere:layout', onRs); };
     $('#langBtn').onclick = () => langModal(null, true);
   };
   V.status = () => {
@@ -270,7 +270,7 @@
       setTimeout(() => { location.href = 'tel:112'; }, 1800);
     });
   }
-  const KIDASK = { eltevedtem: 'Eltévedtél, és nem tudod, hol vagy? Ez a fa és a kérdőjel.', felek: 'Félsz? Ez a szomorú arc.', serult: 'Megsérültél, fáj valamid, vérzel? Ez a ragtapaszos láb.', fazom: 'Fázol? Ez a hópehely.', szomjas: 'Szomjas vagy? Ez a pohár.', nincstelefon: 'Nincs telefonod, vagy nem működik? Ez az áthúzott telefon.', szulo: 'Nem találod anyát vagy apát? Ez a gyerek a kérdőjellel.' };
+  const KIDASK = { eltevedtem: 'Eltévedtél, és nem tudod, hol vagy? Ez a fa és a kérdőjel.', felek: 'Félsz? Ez a szomorú arc.', serult: 'Megsérültél, fáj valamid, vérzel? Ez a ragtapaszos láb.', fazom: 'Fázol? Ez a hópehely.', szomjas: 'Szomjas vagy? Ez a pohár.', nincstelefon: 'Nincs telefonod, vagy nem működik? Ez az áthúzott telefon.', szulo: 'Nem találod anyát vagy apát? Ez a gyerek a kérdőjellel.', idegen: 'Egy idegen el akar vinni? Ez a piros, felemelt kéz.', elvittek: 'Valaki elvitt, és félsz? Ez az autó a gyerekkel.' };
   V.kid = (id) => {
     document.body.classList.add('kidmode');
     if (!id) {
@@ -282,12 +282,13 @@
       requestAnimationFrame(() => fitText(main));
       // olvasni nem tudó gyereknek: hangos körbevezetés (minden gombnál kiemelés), és két koppintás – az első csak felolvassa, mi ez
       const btns = [...main.querySelectorAll('.kidbtn')], k112 = main.querySelector('.kid112');
-      const mark = el => { main.querySelectorAll('.talk').forEach(x => x.classList.remove('talk')); if (el) { el.classList.add('talk'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } };
+      // a kiemelt gombhoz csak akkor görget, ha nem látszik; a felolvasás végén visszagörget a tetejére
+      const mark = (el, toTop) => { main.querySelectorAll('.talk').forEach(x => x.classList.remove('talk')); if (el) { el.classList.add('talk'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else if (toTop && window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' }); };
       let tourId = 0;
       const tour = () => {
         if (!SERESpeak.ok) return; const my = ++tourId;
         const L = ['Segítek! Mondom, mit tudsz megnyomni.'].concat(D.kid.map(k => KIDASK[k.id] || k.t + '?'), ['Ha nagy a baj, nyomd meg a piros telefont.', 'Mi történt? Nyomd meg a képet!']);
-        SERESpeak.speak(L, { rate: 0.9, pitch: 1.1, onItem: i => my === tourId && mark(i >= 1 && i <= btns.length ? btns[i - 1] : i === btns.length + 1 ? k112 : null), onDone: () => my === tourId && mark(null) });
+        SERESpeak.speak(L, { rate: 0.9, pitch: 1.1, onItem: i => my === tourId && mark(i >= 1 && i <= btns.length ? btns[i - 1] : i === btns.length + 1 ? k112 : null), onDone: () => my === tourId && mark(null, true) });
       };
       $('#kTour').onclick = e => { e.stopPropagation(); tour(); };
       // ha baj van, nem kell végighallgatni: bármilyen érintés azonnal leállítja a körbevezetést
@@ -1035,9 +1036,10 @@
     document.body.classList.toggle('kidmode', v === 'kid');
     document.body.classList.toggle('is-home', v === 'home');
     $('#backBtn').style.display = v === 'home' || (v === 'kid' && !parts[1]) ? 'none' : '';
+    if (window.SEREfit) SEREfit();
     const zf = parseFloat(document.documentElement.style.zoom) || 1;
     document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px');
-    document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px');
+    document.documentElement.style.setProperty('--apph', Math.round(innerHeight / zf) + 'px');
     $('#crumb').textContent = CRUMB[v]; requestAnimationFrame(() => fitText(document.querySelector('.top')));
     document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (NAV[v] || 'home')));
     main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
@@ -1077,7 +1079,26 @@
   document.addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0]; if (t.clientX - sx > 70 && Math.abs(t.clientY - sy) < 60 && Date.now() - st < 600) $('#backBtn').click(); sx = null; }, { passive: true });
   // finom haptikus visszajelzés gombnyomáskor (ha a telefon támogatja)
   document.addEventListener('pointerdown', e => { if (e.pointerType === 'touch' && navigator.vibrate && LS.get('haptic', true) && e.target.closest('a,button,.chk,.opt')) try { navigator.vibrate(6); } catch (x) { } }, { passive: true });
-  window.addEventListener('resize', () => { const zf = parseFloat(document.documentElement.style.zoom) || 1; document.documentElement.style.setProperty('--apph', (innerHeight / zf) + 'px'); });
+  /* képernyőméret újramérése – telepített appnál az első indításkor a telefon még rossz méretet adhat
+     (ettől volt első belépéskor apró és szétszórt minden gomb), ezért induláskor többször és minden méretváltáskor újramérünk */
+  let rlRaf = 0;
+  function relayout() {
+    cancelAnimationFrame(rlRaf);
+    rlRaf = requestAnimationFrame(() => {
+      const zoomChanged = window.SEREfit ? SEREfit() : false;
+      const ds = document.documentElement.style, zf = parseFloat(ds.zoom) || 1;
+      const ah = Math.round(innerHeight / zf) + 'px', th = $('.top').offsetHeight + 'px';
+      const changed = ds.getPropertyValue('--apph') !== ah || ds.getPropertyValue('--toph') !== th;
+      ds.setProperty('--apph', ah); ds.setProperty('--toph', th);
+      if (zoomChanged) { route(); return; }
+      if (changed) { fitText(document.querySelector('.top')); fitText(main); window.dispatchEvent(new Event('sere:layout')); }
+    });
+  }
+  ['resize', 'orientationchange', 'pageshow', 'load'].forEach(ev => window.addEventListener(ev, relayout));
+  if (window.visualViewport) visualViewport.addEventListener('resize', relayout);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) relayout(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout).catch(() => { });
+  [60, 250, 600, 1200, 2500].forEach(ms => setTimeout(relayout, ms));
   applyMode();
   route();
   setTimeout(startFlow, 500);
