@@ -914,3 +914,30 @@ body:has(.readbar:not(.hidden)) main { padding-bottom: calc(var(--sab) + 120px) 
 /* ===================== v3.8 – gyerek mód: mindig lehessen görgetni (felolvasás után is vissza felfelé) ===================== */
 body.kidmode, body:has(.kidfit), body:has(.kidcard) { overflow-y: auto !important; overscroll-behavior-y: contain; }
 .kidfit .kidgrid { grid-auto-rows: minmax(64px, 1fr); }
+
+/* ===================== v3.9 – gyerek mód: rajz és felirat a gomb közepén ===================== */
+.kidfit .kidbtn { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 6px !important; text-align: center; }
+.kidfit .kidbtn > .px, .kidfit .kidbtn > img { flex: 1 1 0; min-height: 0; max-height: min(96px, 28vw); height: auto; width: auto; max-width: 100%; aspect-ratio: 1 / 1; object-fit: contain; align-self: center; }
+.kidfit .kidgrid > .kidbtn:last-child:nth-child(odd) > .px, .kidfit .kidgrid > .kidbtn:last-child:nth-child(odd) > img { flex: none; height: min(84px, 100%); max-height: none; }
+.kidfit .kidbtn > span { flex: none; align-self: center; max-width: 100%; background: rgba(0,0,0,.28); border-radius: 0; padding: 5px 10px; text-align: center; }
+.kidfit .kidgrid > .kidbtn:last-child:nth-child(odd) { flex-direction: row; justify-content: center; gap: 14px; padding: 8px 14px !important; }
+.kidfit .kidgrid > .kidbtn:last-child:nth-child(odd) > span { background: rgba(0,0,0,.28); padding: 6px 12px; text-align: center; white-space: nowrap; }
+.kidtop { flex-wrap: wrap; text-align: center; }
+.kidpic .px { image-rendering: pixelated; }
+/* több hely a rajzoknak: kompakt fejléc és felirat; kis telefonon görgethető, a 112-es gomb alul mindig látszik */
+.kidfit { gap: 8px; }
+.kidfit .kidhead { min-height: 0; }
+.kidfit .kidt { font-size: clamp(26px, 8vw, 40px); line-height: 1; }
+.kidfit .kids { font-size: clamp(14px, 4vw, 20px); }
+.kidfit .kidtour { flex-direction: row; gap: 6px; padding: 6px 10px; font-size: 16px; }
+.kidfit .kidtour .px { width: 28px; height: 28px; }
+.kidfit .kidgrid { gap: 8px; grid-auto-rows: minmax(96px, 1fr); }
+.kidfit .kidbtn { gap: 3px; padding: 5px 4px !important; }
+.kidfit .kidbtn > span { padding: 2px 8px; font-size: clamp(14px, 4.2vw, 19px); }
+.kidfit .kid112 { position: sticky; bottom: calc(var(--sab) + 4px); z-index: 3; padding: 6px 12px; }
+.kidfit .kid112 .px { width: 38px; height: 38px; }
+.kidfit .kid112 small { font-size: clamp(12px, 3.6vw, 17px); }
+.kidfit .kidexit { padding: 4px 10px; font-size: 15px; }
+body:has(.kidfit) main { padding-bottom: calc(var(--sab) + 6px) !important; }
+.kidfit { height: auto !important; min-height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 14px - var(--sab)); }
+.kidfit .kidgrid { flex: 1 0 auto; }
