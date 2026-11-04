@@ -69,7 +69,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px calc(8px) 12px;
-  padding-top: max(8px, env(safe-area-inset-top));
+  padding-top: max(8px, var(--sat));
   background: var(--bg2);
   border-bottom: var(--px) solid var(--khaki-d);
   box-shadow: 0 var(--px) 0 var(--line);
@@ -91,7 +91,7 @@ main { max-width: 820px; margin: 0 auto; padding: 14px 12px 110px; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
   display: grid; grid-template-columns: repeat(5, 1fr);
   background: var(--bg2); border-top: var(--px) solid var(--khaki-d);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--sab);
 }
 .nav button {
   background: none; border: 0; padding: 7px 2px 6px; display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -317,7 +317,7 @@ body.fs2 main { zoom: 1.2; }
 .fsbtn { font-family: 'Pixelify', monospace; font-weight: 700; font-size: 22px; color: var(--khaki-l); min-width: 40px; height: 40px; display: grid; place-items: center; }
 
 /* telepítés-kapu (QR-ből érkezve) */
-.gate { position: fixed; inset: 0; z-index: 200; background: var(--bg2); overflow: auto; padding: max(18px, env(safe-area-inset-top)) 16px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.gate { position: fixed; inset: 0; z-index: 200; background: var(--bg2); overflow: auto; padding: max(18px, var(--sat)) 16px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
 .gate .big { font-family: 'Silkscreen', monospace; font-size: 54px; line-height: .9; color: var(--khaki); text-shadow: 4px 4px 0 var(--line); }
 .gate .big b { color: var(--warn); font-weight: inherit; }
 .gate h2 { font-size: 30px; }
@@ -441,7 +441,7 @@ body.kidmode main { padding-bottom: 30px; }
 /* ===== telefonra optimalizált váz (v1.9) ===== */
 .nav { display: none !important; }
 main { padding: 10px 10px 24px; }
-.top { padding: 6px 8px; padding-top: max(6px, env(safe-area-inset-top)); gap: 8px; }
+.top { padding: 6px 8px; padding-top: max(6px, var(--sat)); gap: 8px; }
 .brandlink { display: flex; align-items: center; gap: 8px; text-decoration: none; min-width: 0; }
 .brandlink img { image-rendering: pixelated; display: block; border: 2px solid var(--line); }
 .brandlink > span { display: flex; flex-direction: column; min-width: 0; }
@@ -455,7 +455,7 @@ main { padding: 10px 10px 24px; }
 /* oldalsó menü */
 .drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 60; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .drawer { position: fixed; top: 0; bottom: 0; left: 0; width: min(88vw, 380px); z-index: 61; background: var(--bg2); border-right: 4px solid var(--khaki); box-shadow: 4px 0 0 var(--line);
-  transform: translateX(-104%); transition: transform .22s steps(6); overflow-y: auto; padding: max(10px, env(safe-area-inset-top)) 10px 20px; }
+  transform: translateX(-104%); transition: transform .22s steps(6); overflow-y: auto; padding: max(10px, var(--sat)) 10px 20px; }
 body.menu-open .drawer { transform: none; }
 body.menu-open .drawer-bg { opacity: 1; pointer-events: auto; }
 body.menu-open { overflow: hidden; }
@@ -474,7 +474,7 @@ body.menu-open { overflow: hidden; }
 .drawer .drow button.on { border-color: var(--acc); color: var(--acc); }
 
 /* görgetés nélküli főoldal */
-.homefit { display: flex; flex-direction: column; gap: 8px; height: calc(100dvh - 72px - env(safe-area-inset-top)); min-height: 560px; padding-bottom: env(safe-area-inset-bottom); }
+.homefit { display: flex; flex-direction: column; gap: 8px; height: calc(100dvh - 72px - var(--sat)); min-height: 560px; padding-bottom: var(--sab); }
 .homefit .whochip { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--khaki-l); background: var(--panel); border: 3px solid var(--khaki-d); padding: 6px 10px; font-family: 'Pixelify', monospace; font-weight: 600; font-size: 21px; flex: none; }
 .homefit .whochip b { color: var(--acc); margin-left: auto; }
 .homefit .whochip.cta { background: var(--khaki); color: var(--bg2); }
@@ -517,7 +517,7 @@ body.is-home main { zoom: 1 !important; padding: 8px 8px 0; }
 .homefit .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); } .homefit .duo .kidentry { min-width: 0; font-size: 20px; } .homefit .duo .kidentry .px { width: 30px; height: 30px; }
 .readall { width: 100%; justify-content: center; margin-top: 12px; font-size: 19px; background: var(--blue); color: #08142a; }
 .sec.reading { border-color: var(--blue); box-shadow: 0 0 0 3px var(--line), 0 0 0 6px var(--blue); }
-.readbar { position: fixed; left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 40; display: grid; grid-template-columns: 52px 1fr auto 52px; gap: 6px; align-items: center;
+.readbar { position: fixed; left: 8px; right: 8px; bottom: max(8px, var(--sab)); z-index: 40; display: grid; grid-template-columns: 52px 1fr auto 52px; gap: 6px; align-items: center;
   background: var(--bg2); border: 3px solid var(--blue); box-shadow: 0 0 0 3px var(--line); padding: 6px; }
 .readbar button { font-family: 'Pixelify', monospace; font-weight: 700; font-size: 19px; background: var(--panel2); color: var(--khaki-l); border: 2px solid var(--khaki-d); min-height: 46px; padding: 0 8px; }
 .readbar #rbStop { background: var(--warn); color: #fff; border-color: #7a120d; }
@@ -543,7 +543,7 @@ img, svg.px { content-visibility: auto; }
 .homefit .tools { flex: none; align-content: start; }
 /* v2.2: nem lehet „a semmibe” görgetni */
 html, body { overscroll-behavior: none; }
-main { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+main { padding-bottom: max(12px, var(--sab)); }
 .sec { content-visibility: visible; contain-intrinsic-size: none; }
 body.menu-open, body:has(.gate) { overflow: hidden; }
 body:has(.readbar:not(.hidden)) main { padding-bottom: 84px; }
@@ -621,7 +621,7 @@ body.kidmode * { -webkit-user-select: none; user-select: none; }
 @media (max-height: 760px) { .homefit .scen { grid-auto-rows: minmax(54px, 1fr); } .homefit .tools a { padding: 6px 2px; } }
 
 /* ===================== v3.1 – letisztult főoldal (.hm) ===================== */
-.hm { display: flex; flex-direction: column; gap: 10px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 10px); min-height: 500px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.hm { display: flex; flex-direction: column; gap: 10px; height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 10px); min-height: 500px; padding-bottom: max(6px, var(--sab)); }
 .hm a { text-decoration: none; -webkit-tap-highlight-color: transparent; }
 .hm-hero { position: relative; flex: 1 1 150px; min-height: 0; max-height: 38vh; overflow: hidden; border: 3px solid var(--khaki-d); box-shadow: 0 0 0 3px var(--line); background: #0c150b; }
 .hm-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 72%; image-rendering: pixelated; }
@@ -882,3 +882,31 @@ button, a, .chk, .opt { cursor: default; }
 .kidfit .kidbtn > span { justify-self: stretch; }
 .kidfit .kidgrid > .kidbtn:last-child:nth-child(odd) { grid-template-columns: auto minmax(0, 1fr); }
 .readbar { display: flex !important; flex-direction: column; align-items: stretch; } .readbar.hidden { display: none !important; } .readbar .rbrow button { min-width: 52px; }
+
+/* ===================== v3.7 – iOS / Android biztonsági sávok (notch, Dynamic Island, home-csík, gesztussáv) ===================== */
+:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); }
+html { background: var(--bg2); }
+.top { padding-top: max(6px, var(--sat)) !important; padding-left: max(8px, var(--sal)) !important; padding-right: max(8px, var(--sar)) !important; }
+main { padding-left: max(var(--sp), var(--sal)) !important; padding-right: max(var(--sp), var(--sar)) !important; padding-bottom: max(16px, calc(var(--sab) + 12px)) !important; }
+/* képernyőre illesztett oldalak: a home-csík / gesztussáv felett érnek véget */
+body:has(.fitpg) main, body:has(.kidfit) main, body:has(.hm) main { padding-bottom: var(--sab) !important; }
+.hm, .fitpg, .kidfit { height: calc(var(--apph, 100dvh) - var(--toph, 64px) - 14px - var(--sab)) !important; padding-bottom: 0 !important; }
+.drawer { padding-bottom: max(20px, calc(var(--sab) + 12px)) !important; padding-left: max(10px, var(--sal)) !important; }
+.gate { padding-top: max(18px, calc(var(--sat) + 10px)) !important; padding-bottom: max(24px, calc(var(--sab) + 16px)) !important; }
+.readbar { bottom: max(8px, calc(var(--sab) + 6px)) !important; left: max(8px, var(--sal)) !important; right: max(8px, var(--sar)) !important; }
+.toast { bottom: max(18px, calc(var(--sab) + 70px)) !important; }
+body:has(.readbar:not(.hidden)) main { padding-bottom: calc(var(--sab) + 120px) !important; }
+/* kis képernyő (iPhone SE, 320–375 px, 568–667 px magas) */
+@media (max-height: 680px) {
+  .top { padding-bottom: 4px; } .top .iconbtn, .top .backbtn { width: 44px; height: 44px; min-width: 44px; }
+  .hm { gap: 7px; } .hm-scen { grid-auto-rows: minmax(44px, 1fr); gap: 6px; } .hm-dock a { padding: 6px 2px 5px; }
+  .hm-sos { padding: 9px 12px; } .hm-sos .px { width: 32px; height: 32px; } .hm-kid { min-width: 72px; }
+  .kidfit { gap: 7px; } .kidfit .kidt { font-size: 28px; } .kidfit .kids { font-size: 15px; } .kidfit .kidtour { padding: 5px 9px; font-size: 15px; } .kidfit .kidtour .px { width: 26px; height: 26px; }
+  .kidfit .kid112 { padding: 5px 10px; } .kidfit .kid112 small { display: none; } .kidfit .kidexit { padding: 4px 10px; font-size: 14px; }
+  .fitpg .sosh .muted { display: none; } .fitpg { gap: 7px; }
+}
+@media (max-width: 340px) { .top .brand { font-size: 18px; } .top img { width: 30px; height: 30px; } .hm-chip { font-size: 14px; height: 36px; } }
+@media (max-width: 420px) { body:not(.is-home):not(.kidmode) .top .brandlink img { display: none; } }
+@media (max-width: 340px) { body:not(.is-home) #musBtn { display: none; } }
+.kid112 > span { white-space: nowrap; font-size: clamp(22px, 7.5vw, 40px); line-height: 1.05; min-width: 0; overflow: hidden; }
+.kid112 > span small { white-space: nowrap; font-size: clamp(13px, 4vw, 20px); }

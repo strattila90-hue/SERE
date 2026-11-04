@@ -1069,6 +1069,8 @@
     run();
   }
   window.addEventListener('hashchange', navigate);
+  // a fejléc magassága változhat (betöltődő betűk, notch, elforgatás) – mindig friss érték a képernyőre illesztett oldalakhoz
+  if (window.ResizeObserver) new ResizeObserver(() => { document.documentElement.style.setProperty('--toph', $('.top').offsetHeight + 'px'); }).observe($('.top'), { box: 'border-box' });
   // élről húzás jobbra = vissza (mint natív appban)
   let sx = null, sy = 0, st = 0;
   document.addEventListener('touchstart', e => { const t = e.touches[0]; sx = (t.clientX < 28 && $('#backBtn').style.display !== 'none' && !document.querySelector('.gate')) ? t.clientX : null; sy = t.clientY; st = Date.now(); }, { passive: true });

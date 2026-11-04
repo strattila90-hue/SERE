@@ -11,7 +11,7 @@
   "launch_handler": { "client_mode": "navigate-existing" },
   "categories": ["education", "utilities", "navigation"],
   "orientation": "portrait",
-  "background_color": "#ff7a00",
+  "background_color": "#142414",
   "theme_color": "#142414",
   "shortcuts": [
     { "name": "Bajban vagyok", "short_name": "SOS", "url": "./#/sos", "icons": [{ "src": "icons/icon-v3-192.png", "sizes": "192x192" }] },
