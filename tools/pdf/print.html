@@ -88,9 +88,14 @@
   .kid .kt { display: flex; gap: 3mm; align-items: center; font: 700 14pt/1.1 'Pixelify', sans-serif; color: var(--c); margin-bottom: 2mm; }
   .kid ol { padding-left: 5mm; font-size: 10.2pt; }
   /* kvíz */
-  .q { break-inside: avoid; margin-bottom: 2.4mm; }
-  .q .qq { font-weight: 700; }
-  .q .op { display: grid; grid-template-columns: 1fr 1fr; gap: .5mm 4mm; font-size: 9.6pt; padding-left: 5mm; }
+  /* vizsga: minden fejezet kérdéssora új oldalon; egy kérdés a válaszaival sosem csúszik át a következő oldalra */
+  .qch { break-before: page; }
+  .qch:first-of-type { break-before: auto; }
+  .qch h2 { margin-top: 0; break-after: avoid; }
+  .q { display: flow-root; break-inside: avoid; page-break-inside: avoid; margin-bottom: 2.2mm; padding: 1.2mm 2mm; border-left: .8mm solid var(--line); }
+  .q .qq { font-weight: 700; break-after: avoid; }
+  .q .op { display: grid; grid-template-columns: 1fr 1fr; gap: .4mm 4mm; font-size: 9.6pt; padding-left: 5mm; break-inside: avoid; }
+  .q .op span { break-inside: avoid; }
   .key { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1mm 3mm; font-size: 9.5pt; }
   .note { font-size: 9pt; color: var(--muted); }
   .lines div { border-bottom: 1px solid var(--line); height: 8mm; }
@@ -243,8 +248,10 @@
   out.push(`<section class="page">${mk('exam')}` + C.filter(ch => QZ[ch.id]).map(ch => {
     const qs = QZ[ch.id].map(q => { const opts = shuffle(q.slice(1)); return { q: q[0], opts, good: opts.indexOf(q[1]) }; });
     keys.push({ ch, ks: qs.map(q => 'ABCD'[q.good]) });
-    return `<div class="avoid"><h2>${ic(CH_ICON[ch.id] || 'book', 8)} ${esc(chName(ch.id))}. ${esc(L.ch)} · ${esc(ch.title)}</h2></div>
-      ${qs.map((q, i) => `<div class="q"><div class="qq">${i + 1}. ${t(q.q)}</div><div class="op">${q.opts.map((o, j) => `<span>${'ABCD'[j]}) ${t(o)}</span>`).join('')}</div></div>`).join('')}`;
+    const qh = (q, i) => `<div class="q"><div class="qq">${i + 1}. ${t(q.q)}</div><div class="op">${q.opts.map((o, j) => `<span>${'ABCD'[j]}) ${t(o)}</span>`).join('')}</div></div>`;
+    // a fejezetcím az első kérdéssel együtt marad
+    return `<div class="qch"><div class="avoid"><h2>${ic(CH_ICON[ch.id] || 'book', 8)} ${esc(chName(ch.id))}. ${esc(L.ch)} · ${esc(ch.title)}</h2>${qh(qs[0], 0)}</div>
+      ${qs.slice(1).map((q, i) => qh(q, i + 1)).join('')}</div>`;
   }).join('') + `</section>`);
   out.push(`<section class="page">${mk('key')}<div class="head">${ic('check', 14)}<h1>${esc(L.key)}</h1></div>
     ${keys.map(k => `<div class="avoid" style="margin-bottom:3mm"><h3>${esc(chName(k.ch.id))}. ${esc(L.ch)} · ${esc(k.ch.title)}</h3><div class="key">${k.ks.map((a, i) => `<span><b>${i + 1}.</b> ${a}</span>`).join('')}</div></div>`).join('')}</section>`);
