@@ -429,7 +429,7 @@
       bindRead(() => [q.q].concat(q.opts.map((o, j) => 'ABCD'[j] + ': ' + o)));
       main.querySelectorAll('.opt').forEach(b => b.onclick = () => {
         if (picked !== null) return; picked = +b.dataset.j; const right = q.opts[picked] === q.good; if (right) score++;
-        main.querySelectorAll('.opt').forEach(x => { const o = q.opts[+x.dataset.j]; if (o === q.good) x.classList.add('good'); else if (x === b) x.classList.add('bad'); x.disabled = true; });
+        main.querySelectorAll('.opt').forEach(x => { const o = q.opts[+x.dataset.j]; if (o === q.good) x.classList.add('good', x === b ? 'pop' : 'hint'); else if (x === b) x.classList.add('bad', 'shake'); x.disabled = true; });
         $('#fb').innerHTML = `<div class="callout ${right ? 'ok' : 'warn'} mt">${ic(right ? 'check' : 'warn', 26)}<div><b>${right ? 'Helyes!' : 'Nem jó.'}</b> ${right ? '' : '<span>A helyes válasz:</span> <span>' + esc(q.good) + '</span>'}</div></div>
           <button class="btn ${right ? 'green' : ''}" id="nx" style="width:100%;justify-content:center;font-size:22px">${i < qs.length - 1 ? 'Következő kérdés ›' : 'Eredmény ›'}</button>`;
         $('#nx').onclick = () => { i++; picked = null; show(); window.scrollTo(0, 0); };
@@ -578,7 +578,8 @@
     main.querySelectorAll('.sec').forEach(s => io.observe(s));
     cleanup = () => { io.disconnect(); playing = false; SERESpeak.onEnd = null; bar.remove(); };
     if (window.__autoRead && ra) { window.__autoRead = false; setTimeout(() => ra.click(), 300); }
-    if (sec) { const el = document.getElementById('s-' + sec); if (el) setTimeout(() => el.scrollIntoView(), 30); } else window.scrollTo(0, 0);
+    const sameCh = prevRoute.indexOf('#/ch/' + ch.id) === 0 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (sec) { const el = document.getElementById('s-' + sec); if (el) setTimeout(() => el.scrollIntoView({ behavior: sameCh ? 'smooth' : 'auto' }), 30); } else window.scrollTo(0, 0);
   };
 
   /* --- gyors útmutatók --- */
@@ -1094,11 +1095,40 @@
   });
   // nincs nagyítás: csippentés (iOS gesture), dupla koppintás és Ctrl+görgő tiltva
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-  let lastTap = 0; document.addEventListener('touchend', e => { const n = Date.now(); if (n - lastTap < 300 && !e.target.closest('input,textarea')) e.preventDefault(); lastTap = n; }, { passive: false });
+  // (a korábbi, minden görgetést blokkoló touchmove-figyelő törölve: Androidon akadozó görgetést okozott;
+  //  a csippentést a viewport és iOS-en a gesture események tiltják)
+  // dupla koppintásos nagyítás tiltása CSS-ből (touch-action: manipulation); itt csak a sima szövegen,
+  // ugyanarra a pontra érkező gyors második koppintást fogjuk meg – gombokon soha (különben elnyelődött a gyors második koppintás)
+  let lastTap = 0, lastX = 0, lastY = 0;
+  document.addEventListener('touchend', e => {
+    const n = Date.now(), t = e.changedTouches[0];
+    const near = t && Math.abs(t.clientX - lastX) < 24 && Math.abs(t.clientY - lastY) < 24;
+    if (n - lastTap < 300 && near && !e.target.closest('a,button,input,textarea,select,label,[role=button],.chk,.opt,.slot,.sbtn,.brow,.tile,.kidbtn,.kid112')) e.preventDefault();
+    lastTap = n; if (t) { lastX = t.clientX; lastY = t.clientY; }
+  }, { passive: false });
   window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
   document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
   /* ---- natív érzet: irányfüggő oldalváltás, görgetés-emlékezet, élről húzás vissza, finom rezgés ---- */
+  try { history.scrollRestoration = 'manual'; } catch (e) { }
+  /* olvasási folyamatjelző (fejezetekben) és „fel” gomb hosszú oldalakon – passzív, képkockánként egyszer fut */
+  const rprog = document.createElement('div'); rprog.className = 'rprog'; rprog.innerHTML = '<i></i>'; document.body.appendChild(rprog);
+  const upBtn = document.createElement('button'); upBtn.className = 'upbtn'; upBtn.setAttribute('aria-label', 'Fel'); upBtn.innerHTML = '<span>▲</span>'; document.body.appendChild(upBtn);
+  upBtn.onclick = () => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  let spRaf = 0;
+  const onScrollUi = () => {
+    if (spRaf) return;
+    spRaf = requestAnimationFrame(() => {
+      spRaf = 0;
+      const max = document.documentElement.scrollHeight - innerHeight, y = window.scrollY;
+      const isCh = /^#\/ch\/[^/]/.test(location.hash) && !document.body.classList.contains('kidmode');
+      rprog.classList.toggle('on', isCh && max > innerHeight * .5);
+      rprog.firstChild.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0) + ')';
+      upBtn.classList.toggle('on', y > innerHeight * 1.5 && !document.body.classList.contains('kidmode') && !document.querySelector('.readbar:not(.hidden)'));
+    });
+  };
+  window.addEventListener('scroll', onScrollUi, { passive: true });
+  window.addEventListener('hashchange', () => setTimeout(onScrollUi, 60));
+  window.addEventListener('resize', onScrollUi, { passive: true });
   const stack = [location.hash || '#/'], scrollMem = {};
   let curHash = location.hash || '#/';
   function navigate() {

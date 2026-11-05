@@ -1,6 +1,6 @@
 /* SERE PIXEL service worker — azonnali indulás a tárból; új verzió csak egyben, a VERSION emelésével érkezik
    (korábban a háttérben fájlonként cserélődött, így egy indításon belül régi és új fájlok keveredhettek) */
-const VERSION = 'sere-pixel-v4.2.0';
+const VERSION = 'sere-pixel-v4.3.0';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'qr.svg',
   'css/style.css', 'js/music.js', 'js/speak.js', 'js/sprites.js', 'js/content.js', 'js/data.js', 'js/quiz.js', 'js/i18n.js', 'js/i18n.en.js', 'js/i18n.sk.js', 'js/content.en.js', 'js/content.sk.js', 'js/app.js',

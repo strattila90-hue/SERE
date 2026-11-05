@@ -984,3 +984,30 @@ body.rf main .sec { line-height: 1.55; }
 .kidfit .kid112 { padding: 8px 10px; }
 .kidfit .kid112 .k112n { font-size: clamp(44px, 13vw, 64px); }
 @media (max-height: 680px) { .kidfit .kid112 .k112n { font-size: 40px; } .kidfit .kid112 .k112l small { display: none !important; } }
+
+/* ===================== v4.3 – finomhangolás: görgetés, mozgás ===================== */
+/* nyitott menü: a háttér iOS-en se görögjön (a sötét réteg elnyeli a húzást, a menü saját görgetése nem fut ki) */
+.drawer-bg { touch-action: none; }
+.drawer { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* gyerek mód: a kilépés gomb is legyen kényelmesen megfogható (nyomva tartással lép ki) */
+.kidfit .kidexit, .kidexit { min-height: 40px; }
+/* olvasási folyamatjelző a fejléc alatt */
+.rprog { position: fixed; left: 0; right: 0; top: var(--toph, 64px); height: 4px; z-index: 45; pointer-events: none; opacity: 0; transition: opacity .25s; }
+.rprog.on { opacity: 1; }
+.rprog i { display: block; height: 100%; background: linear-gradient(90deg, var(--ok), #7ee08f); transform-origin: 0 50%; transform: scaleX(0); will-change: transform; }
+/* „fel” gomb */
+.upbtn { position: fixed; right: 12px; bottom: calc(var(--sab) + 16px); z-index: 44; width: 48px; height: 48px; border: 3px solid var(--line); background: var(--panel2); color: var(--khaki-l); font: 700 20px/1 system-ui, sans-serif; box-shadow: 0 4px 0 rgba(0,0,0,.45); opacity: 0; transform: translateY(14px) scale(.9); pointer-events: none; transition: opacity .2s ease-out, transform .2s cubic-bezier(.2,.8,.2,1); }
+.upbtn.on { opacity: .92; transform: none; pointer-events: auto; }
+.upbtn:active { transform: translateY(2px); }
+/* felugró ablakok lágy beúszása */
+.gate { animation: gateIn .22s cubic-bezier(.2,.8,.2,1); }
+.gate > * { animation: gateCard .26s cubic-bezier(.2,.8,.2,1); }
+@keyframes gateIn { from { opacity: 0; } }
+@keyframes gateCard { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+/* vizsga visszajelzés */
+.opt.pop { animation: optPop .32s cubic-bezier(.2,.8,.2,1); }
+.opt.shake { animation: optShake .34s ease-in-out; }
+.opt.hint { transition: background-color .3s .15s, border-color .3s .15s; }
+@keyframes optPop { 40% { transform: scale(1.03); } }
+@keyframes optShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .rprog, .upbtn, .gate, .gate > *, .opt { animation: none !important; transition: none !important; } }
