@@ -68,3 +68,6 @@ async def main():
     srv.shutdown()
 
 asyncio.run(main())
+# ellenőrzés: kérdések oldaltörése és megoldókulcs
+import subprocess as _sp
+_sp.run([sys.executable, os.path.join(os.path.dirname(__file__), 'verify_pdf.py')])

@@ -96,6 +96,9 @@
   .q .qq { font-weight: 700; break-after: avoid; }
   .q .op { display: grid; grid-template-columns: 1fr 1fr; gap: .4mm 4mm; font-size: 9.6pt; padding-left: 5mm; break-inside: avoid; }
   .q .op span { break-inside: avoid; }
+  .qch.dense .q { margin-bottom: 1.2mm; padding: .8mm 2mm; }
+  .qch.dense .q .qq { font-size: 10pt; }
+  .qch.dense .q .op { font-size: 9.3pt; }
   .key { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1mm 3mm; font-size: 9.5pt; }
   .note { font-size: 9pt; color: var(--muted); }
   .lines div { border-bottom: 1px solid var(--line); height: 8mm; }
@@ -250,7 +253,7 @@
     keys.push({ ch, ks: qs.map(q => 'ABCD'[q.good]) });
     const qh = (q, i) => `<div class="q"><div class="qq">${i + 1}. ${t(q.q)}</div><div class="op">${q.opts.map((o, j) => `<span>${'ABCD'[j]}) ${t(o)}</span>`).join('')}</div></div>`;
     // a fejezetcím az első kérdéssel együtt marad
-    return `<div class="qch"><div class="avoid"><h2>${ic(CH_ICON[ch.id] || 'book', 8)} ${esc(chName(ch.id))}. ${esc(L.ch)} · ${esc(ch.title)}</h2>${qh(qs[0], 0)}</div>
+    return `<div class="qch${qs.length > 10 ? ' dense' : ''}"><div class="avoid"><h2>${ic(CH_ICON[ch.id] || 'book', 8)} ${esc(chName(ch.id))}. ${esc(L.ch)} · ${esc(ch.title)}</h2>${qh(qs[0], 0)}</div>
       ${qs.slice(1).map((q, i) => qh(q, i + 1)).join('')}</div>`;
   }).join('') + `</section>`);
   out.push(`<section class="page">${mk('key')}<div class="head">${ic('check', 14)}<h1>${esc(L.key)}</h1></div>
