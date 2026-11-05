@@ -307,7 +307,7 @@
       main.innerHTML = `<div class="kidfit"><section class="kidhead"><div><div class="kidt" data-fit>SEGÍTEK!</div><div class="kids" data-fit>Koppints arra, ami történt.</div></div>
           <button class="kidtour" id="kTour" aria-label="Mondd el újra">${ic('speak', 40)}<span>MONDD EL!</span></button></section>
         <div class="kidgrid">${D.kid.map(k => `<a class="kidbtn" href="#/kid/${k.id}" data-k="${k.id}" style="--c:${k.c}">${ic(k.icon, 84)}<span data-fit>${esc(k.t)}</span></a>`).join('')}</div>
-        <a class="kid112" href="tel:112">${ic('phone', 56)}<span>HÍVD: 112<small>Segítség telefonon</small></span></a>
+        <a class="kid112" href="tel:112" aria-label="112">${ic('phone', 56)}<span class="k112l"><span>HÍVD</span><small>Segítség telefonon</small></span><b class="k112n" data-notr>112</b></a>
         <button class="kidexit" id="kidExit">Kilépés a gyerek módból (tartsd nyomva)</button></div>`;
       requestAnimationFrame(() => fitText(main));
       // olvasni nem tudó gyereknek: hangos körbevezetés (minden gombnál kiemelés), és két koppintás – az első csak felolvassa, mi ez
@@ -357,7 +357,7 @@
         <div class="kidsteps">${k.say.map((_, j) => `<button class="${j === i ? 'on' : j < i ? 'done' : ''}" data-j="${j}" data-notr>${j + 1}</button>`).join('')}</div>
         <div class="kidnav"><button class="kidnb" id="kPrev" ${i ? '' : 'disabled'}>‹</button><button class="kidnb big" id="kRep">${ic('speak', 48)}</button><button class="kidnb" id="kNext">${i < k.say.length - 1 ? '›' : '✓'}</button></div>
         </section>
-        <a class="kid112" href="tel:112">${ic('phone', 48)}<span>HÍVD: 112</span></a>
+        <a class="kid112" href="tel:112" aria-label="112">${ic('phone', 48)}<span class="k112l"><span>HÍVD</span><small>Segítség telefonon</small></span><b class="k112n" data-notr>112</b></a>
         <a class="kidback" href="#/kid">${ic('star', 30)}<span>Másik baj van</span></a>`;
       if (kidSaid) kidSaid = false; else SERESpeak.ok && SERESpeak.speak(k.say[i], { rate: 0.88, pitch: 1.1 });
       $('#kPrev').onclick = () => { if (i) { i--; show(); } else SERESpeak.speak('Ez az első lépés.'); };

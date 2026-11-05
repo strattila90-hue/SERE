@@ -974,3 +974,13 @@ body.rf main .sec { line-height: 1.55; }
 .hm-hero.flat .hm-res .hm-tag { display: none; }
 .hm-hero.short:not(.flat) .hm-chips .hm-chip { height: 36px; }
 #pdf { scroll-margin-top: calc(var(--toph, 64px) + 12px); }
+
+/* ===================== v4.2 – 112-es gomb: nagy, egyértelmű szám ===================== */
+.kid112 { justify-content: center; gap: 12px; }
+.kid112 .k112l { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; font-size: inherit !important; white-space: nowrap; }
+.kid112 .k112l > span { font: 900 clamp(20px, 6vw, 30px)/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; letter-spacing: 1px; }
+.kid112 .k112l small { font: 600 clamp(12px, 3.6vw, 16px)/1.1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; opacity: .95; display: block !important; }
+.kid112 .k112n { font: 900 clamp(48px, 15vw, 72px)/.9 system-ui, -apple-system, 'Segoe UI', Roboto, 'Arial Black', sans-serif; letter-spacing: 1px; color: #fff; background: #000; padding: 4px 12px 6px; border: 3px solid #fff; text-shadow: none; }
+.kidfit .kid112 { padding: 8px 10px; }
+.kidfit .kid112 .k112n { font-size: clamp(44px, 13vw, 64px); }
+@media (max-height: 680px) { .kidfit .kid112 .k112n { font-size: 40px; } .kidfit .kid112 .k112l small { display: none !important; } }
