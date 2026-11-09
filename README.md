@@ -50,3 +50,13 @@ Gyakorló segédlet — nem helyettesíti a hivatalos kiképzést és a hatályo
 Betűtípusok: VT323, Pixelify Sans, Silkscreen (SIL Open Font License, `fonts/`).
 
 Strasszer szkv. · STRASZI
+
+## Android-alkalmazás (APK)
+**Letöltés:** https://github.com/strattila90-hue/SERE/releases/download/apk/sere-pixel.apk
+
+Önálló alkalmazás: minden fájl az APK-ban van, első indításkor is internet nélkül fut. Letöltés után koppints a fájlra, engedélyezd az „ismeretlen forrásból” telepítést, és telepítsd. Az új verzió a régire rátelepíthető, az adatok megmaradnak (állandó aláíró kulcs: `android/app.keystore`, ne cseréld le).
+
+- Építés: `.github/workflows/apk.yml` minden feltöltéskor (GitHub Actions), a kiadás címkéje mindig `apk`.
+- Beállítások: `android/app.properties` (név, azonosító, tájolás, mely fájlok kerülnek bele – új fájlt/mappát ide is fel kell venni).
+- `android/prep.py` másolja a fájlokat, a Google-betűtípusokat helyben csomagolja, és beilleszti a `native.js`-t, ami a WebView-ból hiányzó felolvasást (`speechSynthesis`), megosztást és kilépést pótolja.
+- Az alkalmazásban nincs service worker: a fájlok eleve a telefonon vannak, frissítés = új APK.
